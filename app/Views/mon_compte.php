@@ -49,7 +49,7 @@
             <hr/>
             <div style="height:15px;font-size:12px;"></div>
             
-            <?php echo form_open('Mon_compte');?>
+            <?php echo form_open('mon_compte');?>
 
                 <label for="text_input_mon_nom">Mon nom</label>
                 <input type="text" name="text_input_mon_nom" value="<?php echo set_value('text_input_mon_nom',$utilisateur['nom_administrateur']);?>"/>

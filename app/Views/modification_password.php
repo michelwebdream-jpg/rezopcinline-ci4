@@ -49,7 +49,7 @@
             <hr/>
             <div style="height:15px;font-size:12px;"></div>
             
-            <?php echo form_open('Modification_password');?>
+            <?php echo form_open('modification_password');?>
 
                 <label for="text_input_mon_password_actuel">Mon mot de passe actuel.</label>
                 <input type="password" name="text_input_mon_password_actuel" value=""/>

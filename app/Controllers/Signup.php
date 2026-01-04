@@ -29,14 +29,8 @@ class Signup extends BaseController
             return redirect()->to('/signup/membres');
         }
         
-        // Si on accède depuis la racine / et que l'utilisateur n'est pas connecté, rediriger vers login
-        $currentPath = $this->request->getUri()->getPath();
-        if ($currentPath === '/' && $this->request->getMethod() === 'get') {
-            return redirect()->to('/signup/login');
-        }
-        
         // Ne valider que si c'est une requête POST
-        if ($this->request->getMethod() === 'post') {
+        if ($this->request->getMethod() === 'POST') {
             $rules = [
                 'text_input_mon_nom' => 'trim|required',
                 'text_input_mon_prenom' => 'trim|required',
@@ -91,10 +85,10 @@ class Signup extends BaseController
                     
                     return view('succes_creation_compte', $data);
                 } else {
-                    $this->retourne_une_erreur_au_formulaire_signup($this->getErrorMessage($resultat_creation_de_compte));
+                    return $this->retourne_une_erreur_au_formulaire_signup($this->getErrorMessage($resultat_creation_de_compte));
                 }
             } else {
-                $this->retourne_une_erreur_au_formulaire_signup('Erreur réseau.<br />Veuillez recommencer ultérieurement.');
+                return $this->retourne_une_erreur_au_formulaire_signup('Erreur réseau.<br />Veuillez recommencer ultérieurement.');
             }
             } else {
                 // Validation échouée - afficher le formulaire avec les erreurs
@@ -120,84 +114,127 @@ class Signup extends BaseController
     
     public function login()
     {
+        error_log('=== LOGIN METHOD CALLED ===');
+        error_log('Method: ' . $this->request->getMethod());
+        
         if ($this->session->get('login') || $this->session->get('logged')) {
+            error_log('=== ALREADY LOGGED IN, REDIRECTING ===');
             return redirect()->to('/signup/membres');
         }
         
-        $rules = [
-            'code' => 'trim|required',
-            'pass' => 'trim|required'
-        ];
-        
-        if ($this->validate($rules)) {
-            $resultat_verif_code_et_licence = $this->signupModel->check_code_et_licence(
+        // Ne valider que si c'est une requête POST
+        if ($this->request->getMethod() === 'POST') {
+            error_log('=== LOGIN POST DETECTED ===');
+            error_log('Code: ' . $this->request->getPost('code'));
+            error_log('Pass: ' . (strlen($this->request->getPost('pass')) > 0 ? 'present' : 'vide'));
+            
+            $rules = [
+                'code' => 'trim|required',
+                'pass' => 'trim|required'
+            ];
+            
+            if ($this->validate($rules)) {
+                error_log('=== VALIDATION REUSSIE ===');
+                $resultat_verif_code_et_licence = $this->signupModel->check_code_et_licence(
                 $this->request->getPost('code'),
                 $this->request->getPost('pass')
             );
             
+            error_log('=== RESULTAT API: ' . ($resultat_verif_code_et_licence !== false ? 'OK' : 'FALSE') . ' ===');
+            
             if ($resultat_verif_code_et_licence !== false) {
+                error_log('=== TRAITEMENT DU RESULTAT API ===');
+                error_log('=== RESULTAT ORIGINAL (premiers 200 chars): ' . substr($resultat_verif_code_et_licence, 0, 200) . ' ===');
                 $resultat_verif_code_et_licence = str_replace("return_txt=", "", $resultat_verif_code_et_licence);
                 
                 // Nettoyer la réponse pour supprimer les warnings PHP et les balises HTML
+                // Mais NE PAS supprimer les < > qui font partie du format (><)
                 $cleaned_response = preg_replace('/<br \/>\s*<b>(Deprecated|Warning|Fatal error|Notice)<\/b>.*?(<br \/>|$)/', '', $resultat_verif_code_et_licence);
-                $cleaned_response = preg_replace('/<[^>]*>/', '', $cleaned_response);
+                // Ne supprimer que les balises HTML complètes, pas les séparateurs ><
+                // Format attendu: element1><element2><element3>...
+                // On ne doit supprimer que les balises HTML comme <br />, <b>, etc., pas les >< entre éléments
+                $cleaned_response = preg_replace('/<(br|b|i|u|strong|em|p|div|span)[^>]*>/i', '', $cleaned_response);
+                $cleaned_response = preg_replace('/<\/(br|b|i|u|strong|em|p|div|span)>/i', '', $cleaned_response);
                 $cleaned_response = trim($cleaned_response);
                 $resultat_verif_code_et_licence = $cleaned_response;
                 
+                error_log('=== RESULTAT NETTOYE COMPLET: ' . $resultat_verif_code_et_licence . ' ===');
+                
                 if ($resultat_verif_code_et_licence == "") {
-                    $this->retourne_une_erreur_au_formulaire('Erreur réseau !<br />Lecture des informations impossible...');
+                    return $this->retourne_une_erreur_au_formulaire('Erreur réseau !<br />Lecture des informations impossible...');
                 } else if ($resultat_verif_code_et_licence == "-1") {
-                    $this->retourne_une_erreur_au_formulaire('Erreur de licence !<br />Clé de licence expirée! <br />Veuillez renouveller votre clé de licence sur le site www.web-dream.fr"');
+                    return $this->retourne_une_erreur_au_formulaire('Erreur de licence !<br />Clé de licence expirée! <br />Veuillez renouveller votre clé de licence sur le site www.web-dream.fr"');
                 } else if ($resultat_verif_code_et_licence == "-2") {
-                    $this->retourne_une_erreur_au_formulaire('Erreur !<br />Le code et/ou le mot de passe sont incorrects');
+                    return $this->retourne_une_erreur_au_formulaire('Erreur !<br />Le code et/ou le mot de passe sont incorrects');
                 } else if ($resultat_verif_code_et_licence == "-3") {
-                    $this->retourne_une_erreur_au_formulaire('Erreur !<br />Clé de licence inactive!');
+                    return $this->retourne_une_erreur_au_formulaire('Erreur !<br />Clé de licence inactive!');
                 } else {
+                    error_log('=== APPEL test_si_code_pc_dans_table_contact ===');
                     $verifie_si_code_pc_dans_table_pc = $this->signupModel->test_si_code_pc_dans_table_contact($this->request->getPost('code'));
+                    error_log('=== RESULTAT test_si_code_pc_dans_table_contact: ' . ($verifie_si_code_pc_dans_table_pc !== false ? 'OK' : 'FALSE') . ' ===');
                     
                     if ($verifie_si_code_pc_dans_table_pc !== false) {
+                        error_log('=== APPEL mise_a_jour_pour_galerie_photo ===');
                         $mise_a_jour_galerie_photo = $this->signupModel->mise_a_jour_pour_galerie_photo($this->request->getPost('code'));
                         
                         if ($mise_a_jour_galerie_photo !== false) {
+                            error_log('=== EXPLOSION DU RESULTAT ===');
                             $temp = explode("><", $resultat_verif_code_et_licence);
+                            error_log('=== NOMBRE D ELEMENTS: ' . count($temp) . ' ===');
                             
-                            // Vérifier que le tableau a suffisamment d'éléments
-                            if (count($temp) >= 10) {
+                            // Vérifier que le tableau a suffisamment d'éléments (au moins 9, car le format peut varier)
+                            if (count($temp) >= 9) {
+                                error_log('=== FORMAT CORRECT, CREATION DELIVERY DATA ===');
                                 $deliveryData = [
                                     'code_administrateur' => $temp[0] ?? '',
                                     'nom_administrateur' => $temp[1] ?? '',
                                     'prenom_administrateur' => $temp[2] ?? '',
                                     'telephone_administrateur' => $temp[3] ?? '',
-                                    'mail_administrateur' => $temp[4] ?? '',
-                                    'indicatif_administrateur' => $temp[5] ?? '',
+                                    'mail_administrateur' => $temp[4] ?? '',  // Mail en position 4 (confirmé par test API)
+                                    'indicatif_administrateur' => $temp[5] ?? '',  // Indicatif en position 5 (confirmé par test API)
                                     'icone_administrateur' => $temp[6] ?? '',
                                     'etat_administrateur' => $temp[7] ?? '',
                                     'date_fin_validite_licence' => $temp[8] ?? '',
                                     'date_creation_compte_administrateur' => $temp[9] ?? ''
                                 ];
                                 
+                                error_log('=== CREATION DE LA SESSION ===');
                                 $this->session->set([
                                     'login' => $this->request->getPost('code'),
                                     'logged' => true,
                                     'deliverdata' => $deliveryData
                                 ]);
                                 
+                                error_log('=== REDIRECTION VERS /signup/membres ===');
                                 return redirect()->to('/signup/membres');
                             } else {
                                 log_message('error', 'Signup Controller: Invalid response format. Response: ' . $resultat_verif_code_et_licence);
-                                $this->retourne_une_erreur_au_formulaire('Erreur interne.<br />Format de réponse invalide (erreur 1003).');
+                                return $this->retourne_une_erreur_au_formulaire('Erreur interne.<br />Format de réponse invalide (erreur 1003).');
                             }
                         } else {
-                            $this->retourne_une_erreur_au_formulaire('Erreur réseau.<br />Veuillez recommencer ultérieurement (erreur 1000).');
+                            return $this->retourne_une_erreur_au_formulaire('Erreur réseau.<br />Veuillez recommencer ultérieurement (erreur 1000).');
                         }
                     } else {
-                        $this->retourne_une_erreur_au_formulaire('Erreur réseau.<br />Veuillez recommencer ultérieurement (erreur 1001).');
+                        return $this->retourne_une_erreur_au_formulaire('Erreur réseau.<br />Veuillez recommencer ultérieurement (erreur 1001).');
                     }
                 }
             } else {
-                $this->retourne_une_erreur_au_formulaire('Erreur réseau.<br />Veuillez recommencer ultérieurement (erreur 1002).');
+                return $this->retourne_une_erreur_au_formulaire('Erreur réseau.<br />Veuillez recommencer ultérieurement (erreur 1002).');
+            }
+            } else {
+                // Validation échouée - afficher le formulaire avec les erreurs
+                error_log('=== VALIDATION ECHOUE ===');
+                error_log('Erreurs: ' . json_encode($this->validator->getErrors()));
+                $data = [
+                    'titre' => 'REZO+ PC INLINE | Connexion',
+                    'heading' => 'Bienvenue dans REZO+ PC InLine',
+                    'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+                    'validation' => $this->validator
+                ];
+                return view('login', $data);
             }
         } else {
+            // Affichage initial du formulaire (GET)
             $data = [
                 'titre' => 'REZO+ PC INLINE | Connexion',
                 'heading' => 'Bienvenue dans REZO+ PC InLine',

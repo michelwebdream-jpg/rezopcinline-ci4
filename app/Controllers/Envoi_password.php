@@ -20,11 +20,13 @@ class Envoi_password extends BaseController
     
     public function index()
     {
-        $rules = [
-            'text_input_mon_email' => 'trim|required|valid_email'
-        ];
-        
-        if ($this->validate($rules)) {
+        // Ne valider que si c'est une requête POST
+        if ($this->request->getMethod() === 'POST') {
+            $rules = [
+                'text_input_mon_email' => 'trim|required|valid_email'
+            ];
+            
+            if ($this->validate($rules)) {
             $data = [
                 'mon_email' => $this->request->getPost('text_input_mon_email')
             ];
@@ -44,9 +46,20 @@ class Envoi_password extends BaseController
                     $this->retourne_une_erreur_au_formulaire('Erreur.<br />Cette adresse email n\'existe pas.');
                 }
             } else {
-                $this->retourne_une_erreur_au_formulaire('Erreur réseau.<br />Veuillez recommencer ultérieurement.');
+                return $this->retourne_une_erreur_au_formulaire('Erreur réseau.<br />Veuillez recommencer ultérieurement.');
+            }
+            } else {
+                // Validation échouée - afficher le formulaire avec les erreurs
+                $data = [
+                    'titre' => 'REZO+ PC INLINE | Envoyer mon code et mon mot de passe',
+                    'heading' => 'Bienvenue dans REZO+ PC InLine',
+                    'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+                    'validation' => $this->validator
+                ];
+                return view('envoi_password', $data);
             }
         } else {
+            // Affichage initial du formulaire (GET)
             $data = [
                 'titre' => 'REZO+ PC INLINE | Envoyer mon code et mon mot de passe',
                 'heading' => 'Bienvenue dans REZO+ PC InLine',

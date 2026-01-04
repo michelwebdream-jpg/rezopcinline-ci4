@@ -5,8 +5,8 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-// Route par défaut
-$routes->get('/', 'Signup::index');
+// Route par défaut - redirige vers login si non connecté
+$routes->get('/', 'Home::index');
 
 // Routes Signup
 $routes->group('signup', function($routes) {

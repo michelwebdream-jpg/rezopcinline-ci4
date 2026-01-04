@@ -1141,16 +1141,19 @@ class Googlemaps {
 				if ($this->https) { $apiLocation = 'https://maps-api-ssl'; }else{ $apiLocation = 'http://maps'; }
 				$apiLocation .= '.google.com/maps/api/js?';
 			}
-			$apiLocation .= 'sensor='.$this->sensor;
-			if ($this->region!="" && strlen($this->region)==2) { $apiLocation .= '&region='.strtoupper($this->region); }
-			if ($this->language!="") { $apiLocation .= '&language='.$this->language; }
+			// Supprimé: sensor parameter (déprécié depuis 2015, Google recommande de le supprimer)
+			// Construction des paramètres avec gestion correcte des séparateurs
+			$params = array();
+			if ($this->region!="" && strlen($this->region)==2) { $params[] = 'region='.strtoupper($this->region); }
+			if ($this->language!="") { $params[] = 'language='.$this->language; }
 			$libraries = array();
             array_push($libraries, 'geometry');
 			if ($this->adsense!="") { array_push($libraries, 'adsense'); }
 			if ($this->places!="") { array_push($libraries, 'places'); }
 			if ($this->panoramio) { array_push($libraries, 'panoramio'); }
 			if ($this->drawing) { array_push($libraries, 'drawing'); }
-			if (count($libraries)) { $apiLocation .= '&libraries='.implode(",", $libraries); }
+			if (count($libraries)) { $params[] = 'libraries='.implode(",", $libraries); }
+			if (count($params) > 0) { $apiLocation .= ($this->apiKey!="" ? '&' : '') . implode('&', $params); }
 			
 			if (!$this->loadAsynchronously)
 			{

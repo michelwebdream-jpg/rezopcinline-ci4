@@ -41,7 +41,8 @@ var Global = {
 
 				if (isLocal) {
 					// Use the same protocol as the current page to avoid mixed content issues
-					return protocol + '//' + hostname + '/rezopcinline';
+					// Le VirtualHost pointe déjà vers /rezopcinline-ci4/public, donc pas besoin de /rezopcinline-ci4 dans l'URL
+					return protocol + '//' + hostname;
 				} else {
 					return 'https://www.web-dream.fr';
 				}
