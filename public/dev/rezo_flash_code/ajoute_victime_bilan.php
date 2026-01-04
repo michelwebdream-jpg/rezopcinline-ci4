@@ -31,18 +31,20 @@ $db->show_errors();
 $db->query("SET NAMES 'utf8'");
 
 $code=$_POST['code'];
-$id_activite=addslashes($_POST['id_activite']);
-$id_mission=addslashes($_POST['id_mission']);
+$id_activite = (!empty($_POST['id_activite']) && $_POST['id_activite'] !== '') ? intval($_POST['id_activite']) : 0;
+$id_mission = (!empty($_POST['id_mission']) && $_POST['id_mission'] !== '') ? intval($_POST['id_mission']) : 0;
 $nom=addslashes($_POST['nom']);
 $prenom=addslashes($_POST['prenom']);
 $identification=addslashes($_POST['identification']);
-$date_naissance=$_POST['date_naissance'];
-if ($date_naissance!=''){
+$date_naissance = isset($_POST['date_naissance']) ? $_POST['date_naissance'] : '';
+if ($date_naissance != '' && trim($date_naissance) != ''){
     $date_naissance = strtotime(str_replace('/', '-', $date_naissance));
     $date_naissance = date('Y-m-d', $date_naissance);
+} else {
+    $date_naissance = 'NULL';
 }
 
-$age=addslashes($_POST['age']);
+$age = (!empty($_POST['age']) && $_POST['age'] !== '') ? intval($_POST['age']) : 0;
 $sexe=$_POST['sexe'];
 $nationalite=addslashes($_POST['nationalite']);
 $adresse=addslashes($_POST['adresse']);
@@ -56,13 +58,13 @@ $centre_accueil=addslashes($_POST['centre_accueil']);
 
 $sql = "INSERT INTO `REZO_FLASH_LISTE_VICTIME` (code,id_activite,id_mission,nom,prenom,identification,date_naissance,age,sexe,nationalite,adresse,commentaire,json_horaires,bilan_circonstanciel,intervention_victime,centre_accueil)
 				VALUES ('$code',
-					'$id_activite', 
-					'$id_mission',
+					$id_activite, 
+					$id_mission,
 					'$nom',
 					'$prenom',
 					'$identification',
-					'$date_naissance',
-					'$age',
+					" . ($date_naissance === 'NULL' ? 'NULL' : "'$date_naissance'") . ",
+					$age,
 					'$sexe',
 					'$nationalite',
                     '$adresse',

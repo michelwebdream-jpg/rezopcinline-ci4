@@ -115,10 +115,14 @@
     var action_a_ouverture_galerie="";
     var datadirectoryContents;
     var repertoire_selectionne='';
-    var base_url_galerie = 'https://www.web-dream.fr/dev/rezo_galerie/';
+    var base_url_galerie = '/dev/rezo_galerie/';
     var base_url_thumb = 'thumb/';
     var backend  = 'backend.php';
-    var code_pc='<?php echo $utilisateur["code_administrateur"]; ?>';
+    var code_pc='<?php echo (isset($utilisateur) && isset($utilisateur["code_administrateur"])) ? $utilisateur["code_administrateur"] : ''; ?>';
+    var app_server_url = '<?php echo isset($APP_SERVER_URL) ? $APP_SERVER_URL : 'https://www.web-dream.fr'; ?>';
+    var get_directory_tree_json_uri = '<?php echo isset($GET_DIRECTORY_TREE_JSON_URI) ? $GET_DIRECTORY_TREE_JSON_URI : '/dev/rezo_galerie/get_directory_tree_json.php'; ?>';
+    var efface_repertoire_uri = '<?php echo isset($EFFACE_REPERTOIRE_URI) ? $EFFACE_REPERTOIRE_URI : '/dev/rezo_code/efface_repertoire.php'; ?>';
+    var supprime_photo_galerie_uri = '<?php echo isset($SUPPRIME_PHOTO_GALERIE_URI) ? $SUPPRIME_PHOTO_GALERIE_URI : '/dev/rezo_code/supprime_photo_galerie.php'; ?>';
     
 function InitOverviewDataTable_document_utilisateur(){
   
@@ -176,8 +180,11 @@ function get_list_directories(repertoire){
 	
 	$('#bouton_supprimer_dossier_selectionne').hide();
 	
-	var myURLrequest='<?php echo APP_SERVER_URL.GET_DIRECTORY_TREE_JSON_URI."?ImagePath=".$utilisateur["code_administrateur"]; ?>';
-    
+	var myURLrequest = app_server_url + get_directory_tree_json_uri + '?ImagePath=' + encodeURIComponent(code_pc);
+	
+	console.log('URL request:', myURLrequest);
+	console.log('app_server_url:', app_server_url);
+	console.log('code_pc:', code_pc);
     
     var jqxhr = $.get(myURLrequest)
 
@@ -286,6 +293,13 @@ function get_list_directories(repertoire){
   .fail(function(jqXHR, textStatus, errorThrown) {
         table_document_utilisateur.clear();
         table_document_utilisateur.draw();
+        console.error('Erreur AJAX:', {
+            status: jqXHR.status,
+            statusText: jqXHR.statusText,
+            textStatus: textStatus,
+            errorThrown: errorThrown,
+            responseText: jqXHR.responseText
+        });
      swal('Erreur réseau !','Un problème réseau est survenu.\nImpossible d\'actualiser les dossiers.','error');   
 
   })
@@ -297,7 +311,7 @@ ferme_loader_general();
     
 function supprime_repertoire() {
 			
-  var myURLrequest='<?php echo APP_SERVER_URL.EFFACE_REPERTOIRE_URI ?>';
+  var myURLrequest = app_server_url + efface_repertoire_uri;
     
     jqxhr_activite = $.post(myURLrequest,{ repertoire_a_supprimer:code_pc+"/"+repertoire_selectionne})
 
@@ -417,7 +431,7 @@ function supprime_document (photo_a_supprimer) {
 		fichier_a_supprimer : photo_a_supprimer
     }
     
-    var jqxhr = $.post('<?php echo APP_SERVER_URL ?><?php echo SUPPRIME_PHOTO_GALERIE_URI ?>',$data)
+    var jqxhr = $.post(app_server_url + supprime_photo_galerie_uri, $data)
 
     .done(function(data, textStatus, jqXHR ) {
         
