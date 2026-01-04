@@ -1,0 +1,33 @@
+# Fichiers à ignorer dans Cursor pour rezopcinline-ci4
+
+# Vendor (dépendances Composer)
+vendor/
+
+# Cache et logs
+writable/cache/*
+writable/logs/*
+writable/session/*
+writable/debugbar/*
+
+# Fichiers système
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Fichiers temporaires
+*.tmp
+*.log
+
+# Node modules (si présent)
+node_modules/
+
+# Fichiers de build
+builds/
+
+# Tests
+tests/_support/*.php
+!tests/_support/index.html
+

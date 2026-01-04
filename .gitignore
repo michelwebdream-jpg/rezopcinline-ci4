@@ -1,0 +1,51 @@
+# CodeIgniter 4 Git Ignore
+
+# Environment file
+.env
+.env.*
+!.env.example
+
+# Vendor
+vendor/
+
+# Writable directories
+writable/cache/*
+!writable/cache/index.html
+writable/logs/*
+!writable/logs/index.html
+writable/session/*
+!writable/session/index.html
+writable/debugbar/*
+!writable/debugbar/index.html
+writable/uploads/*
+!writable/uploads/index.html
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.log
+
+# Node modules
+node_modules/
+
+# Build files
+builds/
+
+# Configuration files with sensitive data (si nécessaire)
+# app/Config/Database.php
+# app/Config/App.php
