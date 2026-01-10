@@ -227,6 +227,28 @@ $(document).ready( function() {
     // Disable caching of AJAX responses
     cache: false
     });
+    
+    // Gestion de la fenêtre de debug géolocalisation (uniquement pour le code ba7fd5f5)
+    if (Global.code_administrateur === 'ba7fd5f5') {
+        $('#toggle_debug_window').on('click', function(e) {
+            e.preventDefault();
+            $('#div_debug_geolocalisation').toggle();
+        });
+        
+        $('#bouton_fermer_debug').on('click', function(e) {
+            e.preventDefault();
+            $('#div_debug_geolocalisation').hide();
+        });
+        
+        $('#bouton_clear_debug').on('click', function(e) {
+            e.preventDefault();
+            $('#debug_content').html('<div style="color:#666; font-style:italic;">Contenu effacé. En attente de nouvelles données...</div>');
+        });
+    } else {
+        // Masquer le bouton et la fenêtre debug si le code ne correspond pas
+        $('#toggle_debug_window').hide();
+        $('#div_debug_geolocalisation').remove();
+    }
 
     
     horloge_1000ms('div_horloge');
@@ -2522,6 +2544,32 @@ function recherche_membre_activite(liste_des_codes){
             console.log('Réponse de info_activite.php:', data);
             console.log('Status:', textStatus);
             console.log('HTTP Status:', jqXHR.status);
+            
+            // Ajouter à la fenêtre de debug (uniquement si le code correspond)
+            if (Global.code_administrateur === 'ba7fd5f5' && $('#div_debug_geolocalisation').is(':visible')) {
+                var debugContent = $('#debug_content');
+                var timestamp = new Date().toLocaleTimeString('fr-FR');
+                var debugEntry = '<div style="margin-bottom:15px; padding:10px; background-color:#fff; border-left:3px solid #4CAF50; border-radius:3px;">';
+                debugEntry += '<div style="font-weight:bold; color:#4CAF50; margin-bottom:5px;">[' + timestamp + '] Réception de données</div>';
+                debugEntry += '<div style="margin-bottom:5px;"><strong>URL:</strong> ' + Global.APP_SERVER_URL + Global.INFO_ACTIVITE_URI + '</div>';
+                debugEntry += '<div style="margin-bottom:5px;"><strong>Données envoyées:</strong> ' + JSON.stringify($data) + '</div>';
+                debugEntry += '<div style="margin-bottom:5px;"><strong>Réponse brute:</strong></div>';
+                debugEntry += '<div style="background-color:#fff; padding:8px; border:1px solid #ddd; border-radius:3px; white-space:pre-wrap; word-wrap:break-word; max-height:200px; overflow-y:auto; font-size:10px;">' + escapeHtml(data.substring(0, 5000)) + (data.length > 5000 ? '\n... (tronqué)' : '') + '</div>';
+                debugEntry += '</div>';
+                
+                debugContent.append(debugEntry);
+                
+                // Défilement automatique si activé
+                if ($('#debug_auto_scroll').is(':checked')) {
+                    debugContent.scrollTop(debugContent[0].scrollHeight);
+                }
+                
+                // Limiter à 50 entrées maximum
+                var entries = debugContent.children('div');
+                if (entries.length > 50) {
+                    entries.first().remove();
+                }
+            }
 
             var buf=data.replace('return_txt=','');
             console.log('buf après nettoyage:', buf);
@@ -2638,6 +2686,37 @@ function recherche_membre_activite(liste_des_codes){
       console.error('Erreur AJAX dans recherche_membre_activite:', textStatus, errorThrown);
       console.error('Response:', jqXHR.responseText);
       console.error('Status:', jqXHR.status);
+      
+      // Ajouter l'erreur à la fenêtre de debug (uniquement si le code correspond)
+      if (Global.code_administrateur === 'ba7fd5f5' && $('#div_debug_geolocalisation').is(':visible')) {
+          var debugContent = $('#debug_content');
+          var timestamp = new Date().toLocaleTimeString('fr-FR');
+          var debugEntry = '<div style="margin-bottom:15px; padding:10px; background-color:#fff; border-left:3px solid #f44336; border-radius:3px;">';
+          debugEntry += '<div style="font-weight:bold; color:#f44336; margin-bottom:5px;">[' + timestamp + '] ERREUR AJAX</div>';
+          debugEntry += '<div style="margin-bottom:5px;"><strong>URL:</strong> ' + Global.APP_SERVER_URL + Global.INFO_ACTIVITE_URI + '</div>';
+          debugEntry += '<div style="margin-bottom:5px;"><strong>Status:</strong> ' + jqXHR.status + '</div>';
+          debugEntry += '<div style="margin-bottom:5px;"><strong>Text Status:</strong> ' + textStatus + '</div>';
+          debugEntry += '<div style="margin-bottom:5px;"><strong>Error Thrown:</strong> ' + errorThrown + '</div>';
+          if (jqXHR.responseText) {
+              debugEntry += '<div style="margin-bottom:5px;"><strong>Response Text:</strong></div>';
+              debugEntry += '<div style="background-color:#fff; padding:8px; border:1px solid #ddd; border-radius:3px; white-space:pre-wrap; word-wrap:break-word; font-size:10px;">' + escapeHtml(jqXHR.responseText.substring(0, 1000)) + '</div>';
+          }
+          debugEntry += '</div>';
+          
+          debugContent.append(debugEntry);
+          
+          // Défilement automatique si activé
+          if ($('#debug_auto_scroll').is(':checked')) {
+              debugContent.scrollTop(debugContent[0].scrollHeight);
+          }
+          
+          // Limiter à 50 entrées maximum
+          var entries = debugContent.children('div');
+          if (entries.length > 50) {
+              entries.first().remove();
+          }
+      }
+      
       ouvre_alerte('Erreur réseau !<br />Problème technique...'); 
       
   })
@@ -3183,6 +3262,19 @@ function initAutocomplete() {
     map.fitBounds(bounds);
   });
   // [END region_getplaces]
+}
+
+// Fonction utilitaire pour échapper le HTML dans les messages de debug
+function escapeHtml(text) {
+    if (!text) return '';
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
 }
 
 
