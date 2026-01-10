@@ -99,6 +99,9 @@
                     <a href ="#" id="load_non_modal_page_recherche_adresse"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/loupe.png" width="35" height="35"><br /> Rechercher<br />une adresse </a>
                     <a id="lien_mes_documents" href="<?php echo base_url();?>mes_documents" target="_blank"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/button_documents.png" width="35" height="35"><br /> Mes documents </a>
                     <a href ="#" id="load_non_modal_page_parametres"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/button_setting.png" width="35" height="35"><br /> Réglages </a>
+                    <?php if (isset($utilisateur) && isset($utilisateur['code_administrateur']) && $utilisateur['code_administrateur'] === 'ba7fd5f5'): ?>
+                    <a href ="#" id="toggle_debug_window"><img border="0" alt="Debug" src="<?php echo base_url();?>images/warning_petit.png" width="35" height="35"><br /> Debug<br />Géolocalisation </a>
+                    <?php endif; ?>
                 </div>
                 <div id="zone_affichage_coordonnees" style="font-size:10px;text-align:center;margin-bottom:5px;"></div>
                 <div style="text-align:center;">
@@ -176,6 +179,21 @@
                 <input id="pac-input" class="controls" type="text" placeholder="Entrez votre recherche.">
                     <a href ="#" id="bouton_fermer_page_recherche" class="bouton_fermer"> fermer </a>
                     </div>
+                <?php if (isset($utilisateur) && isset($utilisateur['code_administrateur']) && $utilisateur['code_administrateur'] === 'ba7fd5f5'): ?>
+                <div id="div_debug_geolocalisation" style="display:none; position:fixed; top:100px; right:20px; width:600px; max-height:500px; background-color:#fff; border:2px solid #333; border-radius:5px; padding:15px; z-index:10000; box-shadow:0 4px 8px rgba(0,0,0,0.3); overflow:auto;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid #ccc; padding-bottom:10px;">
+                        <h2 style="margin:0; color:#333;">Debug - Trames Géolocalisation</h2>
+                        <a href="#" id="bouton_fermer_debug" class="bouton_fermer" style="padding:5px 10px;">Fermer</a>
+                    </div>
+                    <div style="margin-bottom:10px;">
+                        <button id="bouton_clear_debug" class="bouton_fermer" style="margin-right:10px;">Effacer</button>
+                        <label><input type="checkbox" id="debug_auto_scroll" checked> Défilement automatique</label>
+                    </div>
+                    <div id="debug_content" style="font-family:monospace; font-size:11px; line-height:1.4; background-color:#f5f5f5; padding:10px; border:1px solid #ddd; border-radius:3px; max-height:350px; overflow-y:auto;">
+                        <div style="color:#666; font-style:italic;">En attente de données...</div>
+                    </div>
+                </div>
+                <?php endif; ?>
                 <?= $map['html'] ?? '' ?>
 
             </div>
