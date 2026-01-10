@@ -135,10 +135,24 @@ class DbConnect
 					'127.0.0.1',
 					'::1',
 					'local',
-					'dev',
+					// Note: 'dev' retiré pour que les serveurs de dev utilisent la BDD distante
 					'.local',
-					'.dev'
+					// Note: '.dev' retiré pour que les serveurs de dev utilisent la BDD distante
 				);
+				
+				// Domaines de dev qui doivent utiliser la BDD distante (production)
+				$dev_domains = array(
+					'rezo.les-coches-deau.fr',
+					'les-coches-deau.fr'
+				);
+				
+				// Si c'est un domaine de dev connu, utiliser la BDD distante
+				foreach ($dev_domains as $dev_domain) {
+					if (stripos($hostname, $dev_domain) !== false || 
+						stripos($server_name, $dev_domain) !== false) {
+						return false; // Ne pas considérer comme local
+					}
+				}
 				
 				// Check if hostname or server name contains local indicators
 				foreach ($local_indicators as $indicator) {
