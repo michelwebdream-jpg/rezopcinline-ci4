@@ -2262,13 +2262,6 @@ function start_activite2(nom_de_activite,code_a_traiter,liens_kml,marqueurs_fixe
     
         ajout_trace_kml_enregistres(liens_kml);
     
-        // Arrêter le rafraîchissement automatique de l'onglet "Mes activités" si elle est ouverte
-        // pour éviter les appels multiples simultanés à info_activite.php
-        if (typeof window.stop_affiche_detail_activite === 'function') {
-            console.log('Arrêt du rafraîchissement automatique de l\'onglet "Mes activités"');
-            window.stop_affiche_detail_activite();
-        }
-    
 		recherche_membre_activite(code_a_traiter);
 		
 	}
@@ -2575,6 +2568,30 @@ function recherche_membre_activite(liste_des_codes){
 	    plateforme:"REZO PC Inline"
         }
     
+    // Ajouter à la fenêtre de debug (uniquement si le code correspond) - Envoi de requête
+    if (Global.code_administrateur === 'ba7fd5f5' && $('#div_debug_geolocalisation').is(':visible')) {
+        var debugContent = $('#debug_content');
+        var timestamp = new Date().toLocaleTimeString('fr-FR');
+        var debugEntry = '<div style="margin-bottom:15px; padding:10px; background-color:#fff; border-left:3px solid #FF9800; border-radius:3px;">';
+        debugEntry += '<div style="font-weight:bold; color:#FF9800; margin-bottom:5px;">[' + timestamp + '] <span style="background-color:#FF9800; color:#fff; padding:2px 6px; border-radius:3px; font-size:11px;">recherche_membre_activite()</span> - Envoi de requête</div>';
+        debugEntry += '<div style="margin-bottom:5px;"><strong>URL:</strong> ' + Global.APP_SERVER_URL + Global.INFO_ACTIVITE_URI + '</div>';
+        debugEntry += '<div style="margin-bottom:5px;"><strong>Données envoyées:</strong> ' + JSON.stringify($data) + '</div>';
+        debugEntry += '</div>';
+        
+        debugContent.append(debugEntry);
+        
+        // Défilement automatique si activé
+        if ($('#debug_auto_scroll').is(':checked')) {
+            debugContent.scrollTop(debugContent[0].scrollHeight);
+        }
+        
+        // Limiter à 50 entrées maximum
+        var entries = debugContent.children('div');
+        if (entries.length > 50) {
+            entries.first().remove();
+        }
+    }
+    
     // Le fichier info_activite.php local fait automatiquement un proxy vers la production
     // donc on utilise toujours l'URL locale
     console.log('Données envoyées à info_activite.php:', $data);
@@ -2591,7 +2608,7 @@ function recherche_membre_activite(liste_des_codes){
                 var debugContent = $('#debug_content');
                 var timestamp = new Date().toLocaleTimeString('fr-FR');
                 var debugEntry = '<div style="margin-bottom:15px; padding:10px; background-color:#fff; border-left:3px solid #4CAF50; border-radius:3px;">';
-                debugEntry += '<div style="font-weight:bold; color:#4CAF50; margin-bottom:5px;">[' + timestamp + '] Réception de données</div>';
+                debugEntry += '<div style="font-weight:bold; color:#4CAF50; margin-bottom:5px;">[' + timestamp + '] <span style="background-color:#4CAF50; color:#fff; padding:2px 6px; border-radius:3px; font-size:11px;">recherche_membre_activite()</span> - Réception de données</div>';
                 debugEntry += '<div style="margin-bottom:5px;"><strong>URL:</strong> ' + Global.APP_SERVER_URL + Global.INFO_ACTIVITE_URI + '</div>';
                 debugEntry += '<div style="margin-bottom:5px;"><strong>Données envoyées:</strong> ' + JSON.stringify($data) + '</div>';
                 debugEntry += '<div style="margin-bottom:5px;"><strong>Réponse brute:</strong></div>';
@@ -2733,7 +2750,7 @@ function recherche_membre_activite(liste_des_codes){
           var debugContent = $('#debug_content');
           var timestamp = new Date().toLocaleTimeString('fr-FR');
           var debugEntry = '<div style="margin-bottom:15px; padding:10px; background-color:#fff; border-left:3px solid #f44336; border-radius:3px;">';
-          debugEntry += '<div style="font-weight:bold; color:#f44336; margin-bottom:5px;">[' + timestamp + '] ERREUR AJAX</div>';
+          debugEntry += '<div style="font-weight:bold; color:#f44336; margin-bottom:5px;">[' + timestamp + '] <span style="background-color:#f44336; color:#fff; padding:2px 6px; border-radius:3px; font-size:11px;">recherche_membre_activite()</span> - ERREUR AJAX</div>';
           debugEntry += '<div style="margin-bottom:5px;"><strong>URL:</strong> ' + Global.APP_SERVER_URL + Global.INFO_ACTIVITE_URI + '</div>';
           debugEntry += '<div style="margin-bottom:5px;"><strong>Status:</strong> ' + jqXHR.status + '</div>';
           debugEntry += '<div style="margin-bottom:5px;"><strong>Text Status:</strong> ' + textStatus + '</div>';

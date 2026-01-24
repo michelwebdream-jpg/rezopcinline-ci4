@@ -59,6 +59,19 @@
     
 $(document).ready( function () {
     
+// Fonction utilitaire pour échapper le HTML (utilisée pour le debug)
+function escapeHtml(text) {
+    if (!text) return '';
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+
 var table_activite;
 var table_detail_activite;
 var data_table_list_des_activites;
@@ -353,9 +366,65 @@ function affiche_detail_activite(liste_des_codes){
         jqxhr_detail_activite.abort();
     }
     
-    jqxhr_detail_activite = $.post(Global.APP_SERVER_URL+Global.INFO_ACTIVITE_URI,{ liste_des_codes:liste_des_codes})
+    // Envoyer les mêmes paramètres que recherche_membre_activite() pour que le serveur mette à jour correctement les statuts
+    var $data={
+        liste_des_codes:liste_des_codes,
+        code_PC:Global.code_administrateur+"--rezo-wd-ozer--"+Global.indicatif_administrateur,
+        plateforme:"REZO PC Inline"
+    };
+    
+    // Ajouter à la fenêtre de debug (uniquement si le code correspond)
+    if (Global.code_administrateur === 'ba7fd5f5' && $('#div_debug_geolocalisation').is(':visible')) {
+        var debugContent = $('#debug_content');
+        var timestamp = new Date().toLocaleTimeString('fr-FR');
+        var debugEntry = '<div style="margin-bottom:15px; padding:10px; background-color:#fff; border-left:3px solid #2196F3; border-radius:3px;">';
+        debugEntry += '<div style="font-weight:bold; color:#2196F3; margin-bottom:5px;">[' + timestamp + '] <span style="background-color:#2196F3; color:#fff; padding:2px 6px; border-radius:3px; font-size:11px;">affiche_detail_activite()</span> - Envoi de requête</div>';
+        debugEntry += '<div style="margin-bottom:5px;"><strong>URL:</strong> ' + Global.APP_SERVER_URL + Global.INFO_ACTIVITE_URI + '</div>';
+        debugEntry += '<div style="margin-bottom:5px;"><strong>Données envoyées:</strong> ' + JSON.stringify($data) + '</div>';
+        debugEntry += '</div>';
+        
+        debugContent.append(debugEntry);
+        
+        // Défilement automatique si activé
+        if ($('#debug_auto_scroll').is(':checked')) {
+            debugContent.scrollTop(debugContent[0].scrollHeight);
+        }
+        
+        // Limiter à 50 entrées maximum
+        var entries = debugContent.children('div');
+        if (entries.length > 50) {
+            entries.first().remove();
+        }
+    }
+    
+    jqxhr_detail_activite = $.post(Global.APP_SERVER_URL+Global.INFO_ACTIVITE_URI, $data)
 
     .done(function(data, textStatus, jqXHR ) {
+        // Ajouter à la fenêtre de debug (uniquement si le code correspond)
+        if (Global.code_administrateur === 'ba7fd5f5' && $('#div_debug_geolocalisation').is(':visible')) {
+            var debugContent = $('#debug_content');
+            var timestamp = new Date().toLocaleTimeString('fr-FR');
+            var debugEntry = '<div style="margin-bottom:15px; padding:10px; background-color:#fff; border-left:3px solid #4CAF50; border-radius:3px;">';
+            debugEntry += '<div style="font-weight:bold; color:#4CAF50; margin-bottom:5px;">[' + timestamp + '] <span style="background-color:#4CAF50; color:#fff; padding:2px 6px; border-radius:3px; font-size:11px;">affiche_detail_activite()</span> - Réception de données</div>';
+            debugEntry += '<div style="margin-bottom:5px;"><strong>URL:</strong> ' + Global.APP_SERVER_URL + Global.INFO_ACTIVITE_URI + '</div>';
+            debugEntry += '<div style="margin-bottom:5px;"><strong>Données envoyées:</strong> ' + JSON.stringify($data) + '</div>';
+            debugEntry += '<div style="margin-bottom:5px;"><strong>Réponse brute:</strong></div>';
+            debugEntry += '<div style="background-color:#fff; padding:8px; border:1px solid #ddd; border-radius:3px; white-space:pre-wrap; word-wrap:break-word; max-height:200px; overflow-y:auto; font-size:10px;">' + escapeHtml(data.substring(0, 5000)) + (data.length > 5000 ? '\n... (tronqué)' : '') + '</div>';
+            debugEntry += '</div>';
+            
+            debugContent.append(debugEntry);
+            
+            // Défilement automatique si activé
+            if ($('#debug_auto_scroll').is(':checked')) {
+                debugContent.scrollTop(debugContent[0].scrollHeight);
+            }
+            
+            // Limiter à 50 entrées maximum
+            var entries = debugContent.children('div');
+            if (entries.length > 50) {
+                entries.first().remove();
+            }
+        }
 
         var buf=data.replace('return_txt=','');
 
@@ -388,7 +457,19 @@ function affiche_detail_activite(liste_des_codes){
                 data_table_list_des_detail_activites= new Array();
                 for (i=0; i<trame2.length;i++)
                 {
+                    // Ignorer les lignes vides (comme dans recherche_membre_activite)
+                    if (!trame2[i] || trame2[i].trim() === '') {
+                        continue;
+                    }
+                    
                     var temp2=trame2[i].split("><");
+                    
+                    // Vérifier qu'on a au moins 5 éléments (code, statut, nom, prenom, indicatif)
+                    if (temp2.length < 5) {
+                        console.warn('affiche_detail_activite: Ligne', i, 'n\'a pas assez d\'éléments (attendu: 5, reçu:', temp2.length, ')');
+                        continue;
+                    }
+                    
                     code2[i]=temp2[0];
                     statut2[i]=temp2[1];
                     nom2[i]=temp2[2];
@@ -419,6 +500,36 @@ function affiche_detail_activite(liste_des_codes){
 		        
       })
   .fail(function(jqXHR, textStatus, errorThrown) {
+      // Ajouter l'erreur à la fenêtre de debug (uniquement si le code correspond)
+      if (Global.code_administrateur === 'ba7fd5f5' && $('#div_debug_geolocalisation').is(':visible')) {
+          var debugContent = $('#debug_content');
+          var timestamp = new Date().toLocaleTimeString('fr-FR');
+          var debugEntry = '<div style="margin-bottom:15px; padding:10px; background-color:#fff; border-left:3px solid #f44336; border-radius:3px;">';
+          debugEntry += '<div style="font-weight:bold; color:#f44336; margin-bottom:5px;">[' + timestamp + '] <span style="background-color:#f44336; color:#fff; padding:2px 6px; border-radius:3px; font-size:11px;">affiche_detail_activite()</span> - ERREUR AJAX</div>';
+          debugEntry += '<div style="margin-bottom:5px;"><strong>URL:</strong> ' + Global.APP_SERVER_URL + Global.INFO_ACTIVITE_URI + '</div>';
+          debugEntry += '<div style="margin-bottom:5px;"><strong>Status:</strong> ' + jqXHR.status + '</div>';
+          debugEntry += '<div style="margin-bottom:5px;"><strong>Text Status:</strong> ' + textStatus + '</div>';
+          debugEntry += '<div style="margin-bottom:5px;"><strong>Error Thrown:</strong> ' + errorThrown + '</div>';
+          if (jqXHR.responseText) {
+              debugEntry += '<div style="margin-bottom:5px;"><strong>Response Text:</strong></div>';
+              debugEntry += '<div style="background-color:#fff; padding:8px; border:1px solid #ddd; border-radius:3px; white-space:pre-wrap; word-wrap:break-word; font-size:10px;">' + escapeHtml(jqXHR.responseText.substring(0, 1000)) + '</div>';
+          }
+          debugEntry += '</div>';
+          
+          debugContent.append(debugEntry);
+          
+          // Défilement automatique si activé
+          if ($('#debug_auto_scroll').is(':checked')) {
+              debugContent.scrollTop(debugContent[0].scrollHeight);
+          }
+          
+          // Limiter à 50 entrées maximum
+          var entries = debugContent.children('div');
+          if (entries.length > 50) {
+              entries.first().remove();
+          }
+      }
+      
       erreur_update_detail_activite++;
       if (erreur_update_detail_activite>2){
           erreur_update_detail_activite=0;
