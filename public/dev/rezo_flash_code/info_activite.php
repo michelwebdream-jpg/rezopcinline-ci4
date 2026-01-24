@@ -128,7 +128,7 @@ if ($is_local) {
 // CREATE DATABASE OBJECT
 $db = new DbConnect();
 $db->show_errors();
-$db->query("SET NAMES 'utf8'");
+// SET NAMES n'est plus nécessaire car défini automatiquement dans connect()
 
 $mon_code = isset($_POST['liste_des_codes']) ? $_POST['liste_des_codes'] : '';
 $code_PC = isset($_POST['code_PC']) ? $_POST['code_PC'] : '';
@@ -147,23 +147,40 @@ $mon_array_code=implode("','",$mon_array_code);
 $statut="";
 
 
-// Recherche des mail actif ou inactif
+// Recherche des membres - UN SEUL SELECT qui sera réutilisé
 $sql = "SELECT * FROM `REZO` WHERE moncode IN ('$mon_array_code');"; 
 file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] SQL SELECT (production): " . substr($sql, 0, 200) . "\n", FILE_APPEND);
-if($result = $db->query($sql))
-{
-					if($result->num_rows){
-						while($row = $result->fetch_array(MYSQLI_ASSOC)){
-							$dernieredateactivee = $db->prepare($row['derniere_inscription']);
-							$code =$db->prepare($row['moncode']);
-							$ts = strtotime($dernieredateactivee);
-							if ($ts<(time()-250))
-							{
-								$sql = "UPDATE `REZO` SET `statut`='inactif' WHERE `moncode`='$code';";
-								$db->query($sql);
-							}
-						}
-					}
+$result = $db->query($sql);
+$rows_data = array(); // Stocker les données pour éviter le SELECT dupliqué
+$codes_inactifs = array(); // Stocker les codes à mettre à jour en une seule requête
+
+if($result && $result->num_rows){
+	while($row = $result->fetch_array(MYSQLI_ASSOC)){
+		// Stocker les données pour réutilisation
+		$rows_data[] = $row;
+		
+		// Identifier les utilisateurs inactifs pour UPDATE groupé
+		$dernieredateactivee = $db->prepare($row['derniere_inscription']);
+		$code = $db->prepare($row['moncode']);
+		$ts = strtotime($dernieredateactivee);
+		if ($ts<(time()-250))
+		{
+			$codes_inactifs[] = $code;
+		}
+	}
+	
+	// OPTIMISATION: Regrouper tous les UPDATE statut='inactif' en une seule requête
+	if (!empty($codes_inactifs)) {
+		$codes_inactifs_escaped = array();
+		$db_connection = $db->Connection();
+		foreach ($codes_inactifs as $code) {
+			$codes_inactifs_escaped[] = "'" . $db_connection->real_escape_string($code) . "'";
+		}
+		$codes_inactifs_str = implode(',', $codes_inactifs_escaped);
+		$sql = "UPDATE `REZO` SET `statut`='inactif' WHERE `moncode` IN ($codes_inactifs_str);";
+		file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] SQL UPDATE statut groupé: " . substr($sql, 0, 200) . "\n", FILE_APPEND);
+		$db->query($sql);
+	}
 }
 
 /********************************************/
@@ -182,44 +199,41 @@ if (!empty($code_PC) && !empty($plateforme))
 }
 
 $resultat="";					
-// Recherche de l'adresse mail
-$sql = "SELECT * FROM `REZO` WHERE moncode IN ('$mon_array_code');"; 
-file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] SQL SELECT membres (production): " . substr($sql, 0, 200) . "\n", FILE_APPEND);
-if($result = $db->query($sql))
-{
-					if($result->num_rows){
-						while($row = $result->fetch_array(MYSQLI_ASSOC)){
-							$code = $db->prepare($row['moncode']);
-							$statut= $db->prepare($row['statut']);
-							$nom = stripcslashes($db->prepare($row['nom']));
-							$prenom = stripcslashes($db->prepare($row['prenom']));
-							$indicatif = stripcslashes($db->prepare($row['indicatif']));
-							$longitude = $db->prepare($row['longitude']);
-							$latitude = $db->prepare($row['latitude']);
-							$etat=$db->prepare($row['etat']);
-							$iconid=$db->prepare($row['iconid']);
-							$tel=$db->prepare($row['mail']);	
-							$precision=$db->prepare($row['precision']);	
-							$rapport=$db->prepare($row['rapport']);	
-							if ($rapport=="")
-							{
-								$rapport=" ";
-							}
-                            $document_envoye=$db->prepare($row['document_envoye']);
-							if ($document_envoye=="" || !isset($document_envoye) || empty($document_envoye))
-							{
-								$document_envoye=" ";
-							}
-							$resultat.=$code."><".$statut."><".$nom."><".$prenom."><".$indicatif."><".$longitude."><".$latitude."><".$etat."><".$iconid."><".$tel."><".$precision."><".$rapport."><".$document_envoye."\n";
-						}
-					}
+// OPTIMISATION: Réutiliser les données du premier SELECT au lieu de refaire une requête
+// Les données sont déjà dans $rows_data
+if (!empty($rows_data)) {
+	file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] Réutilisation des données du premier SELECT (économie d'une requête)\n", FILE_APPEND);
+	foreach($rows_data as $row){
+		$code = $db->prepare($row['moncode']);
+		$statut= $db->prepare($row['statut']);
+		$nom = stripcslashes($db->prepare($row['nom']));
+		$prenom = stripcslashes($db->prepare($row['prenom']));
+		$indicatif = stripcslashes($db->prepare($row['indicatif']));
+		$longitude = $db->prepare($row['longitude']);
+		$latitude = $db->prepare($row['latitude']);
+		$etat=$db->prepare($row['etat']);
+		$iconid=$db->prepare($row['iconid']);
+		$tel=$db->prepare($row['mail']);	
+		$precision=$db->prepare($row['precision']);	
+		$rapport=$db->prepare($row['rapport']);	
+		if ($rapport=="")
+		{
+			$rapport=" ";
+		}
+		$document_envoye=$db->prepare($row['document_envoye']);
+		if ($document_envoye=="" || !isset($document_envoye) || empty($document_envoye))
+		{
+			$document_envoye=" ";
+		}
+		$resultat.=$code."><".$statut."><".$nom."><".$prenom."><".$indicatif."><".$longitude."><".$latitude."><".$etat."><".$iconid."><".$tel."><".$precision."><".$rapport."><".$document_envoye."\n";
+	}
 }
 
-if ($result && $result->num_rows>0) 
+if (!empty($rows_data) && count($rows_data) > 0) 
 {
 	$resultat = substr($resultat, 0, -1);  
 	
-	file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] SUCCESS - " . $result->num_rows . " membre(s) trouvé(s)\n", FILE_APPEND);
+	file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] SUCCESS - " . count($rows_data) . " membre(s) trouvé(s)\n", FILE_APPEND);
 	
 	ob_clean();
 	echo "return_txt=$resultat";

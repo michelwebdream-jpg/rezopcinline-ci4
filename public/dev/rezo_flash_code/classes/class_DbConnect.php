@@ -232,6 +232,12 @@ class DbConnect
 			$this->raise_error(printf("Connect failed: %s\n", mysqli_connect_error()));
 		}
 		
+		// Définir le charset UTF-8 une seule fois lors de la connexion
+		// Cela évite d'avoir à faire SET NAMES à chaque requête
+		if (self::$instance) {
+			self::$instance->set_charset('utf8');
+		}
+		
 		return self::$instance;
 	}
 

@@ -168,6 +168,7 @@ var polyline_user_array=new Array();
 var user_pastille_a_afficher=new Array();
 var memo_poi_opener_infowindows=null;
 var timer_refresh_utilisateur_activite= null;
+var recherche_membre_activite_en_cours = false; // Protection contre les appels multiples
 var page_historique_type_encours="";
 
 var timer_fermer_page_erreur_reseau;
@@ -2261,9 +2262,16 @@ function start_activite2(nom_de_activite,code_a_traiter,liens_kml,marqueurs_fixe
     
         ajout_trace_kml_enregistres(liens_kml);
     
+        // Arrêter le rafraîchissement automatique de l'onglet "Mes activités" si elle est ouverte
+        // pour éviter les appels multiples simultanés à info_activite.php
+        if (typeof window.stop_affiche_detail_activite === 'function') {
+            console.log('Arrêt du rafraîchissement automatique de l\'onglet "Mes activités"');
+            window.stop_affiche_detail_activite();
+        }
+    
 		recherche_membre_activite(code_a_traiter);
 		
-}
+	}
 
 function start_blink(){
     varblink=setInterval(function(){blink()}, 1600);
@@ -2307,7 +2315,11 @@ function stop_activite(){
         $('#load_non_modal_page_saisie_victime').hide();
         $('#bouton_voir_bilan').hide();
         $('#bouton_voir_main_courante').hide();
-		if (timer_refresh_utilisateur_activite!=null) clearTimeout(timer_refresh_utilisateur_activite);
+		if (timer_refresh_utilisateur_activite!=null) {
+            clearTimeout(timer_refresh_utilisateur_activite);
+            timer_refresh_utilisateur_activite = null;
+        }
+        recherche_membre_activite_en_cours = false; // Réinitialiser le verrou
 		remove_user_marker();
         remove_trace_kml();
 		affiche_texte_geolocalisation_admin(false);
@@ -2357,7 +2369,11 @@ function stop_mission(){
         $('#bouton_menu_stop_activite').hide();
         $('#load_non_modal_page_saisie_victime').hide();
         $('#bouton_voir_bilan').hide();
-		if (timer_refresh_utilisateur_activite!=null) clearTimeout(timer_refresh_utilisateur_activite);
+		if (timer_refresh_utilisateur_activite!=null) {
+            clearTimeout(timer_refresh_utilisateur_activite);
+            timer_refresh_utilisateur_activite = null;
+        }
+        recherche_membre_activite_en_cours = false; // Réinitialiser le verrou
         
 		remove_user_marker();
 		affiche_texte_geolocalisation_admin(false);
@@ -2524,9 +2540,34 @@ function Newusergroup(Title_pass , subtitle_pass , badgebitmap_pass){
     this.badgeBitmap=badgebitmap_pass;
 }
 function recherche_membre_activite(liste_des_codes){
+    // PROTECTION: Vérifier si une requête est déjà en cours
+    if (recherche_membre_activite_en_cours) {
+        console.warn('recherche_membre_activite: Une requête est déjà en cours, appel ignoré');
+        return;
+    }
+    
+    // PROTECTION: Vérifier que l'activité ou la mission est toujours en cours
+    if (!activite_is_running && !mission_is_running) {
+        console.warn('recherche_membre_activite: Aucune activité ou mission en cours, arrêt du rafraîchissement');
+        if (timer_refresh_utilisateur_activite != null) {
+            clearTimeout(timer_refresh_utilisateur_activite);
+            timer_refresh_utilisateur_activite = null;
+        }
+        return;
+    }
+    
+    // Annuler le timer précédent s'il existe
+    if (timer_refresh_utilisateur_activite != null) {
+        clearTimeout(timer_refresh_utilisateur_activite);
+        timer_refresh_utilisateur_activite = null;
+    }
+    
     console.log('recherche_membre_activite appelée avec liste_des_codes:', liste_des_codes);
     console.log('Global.code_administrateur:', Global.code_administrateur);
     console.log('Global.indicatif_administrateur:', Global.indicatif_administrateur);
+
+    // Marquer qu'une requête est en cours
+    recherche_membre_activite_en_cours = true;
 
     var $data={
         liste_des_codes:liste_des_codes,
@@ -2721,14 +2762,21 @@ function recherche_membre_activite(liste_des_codes){
       
   })
   .always(function() {
-
+      // Libérer le verrou après la fin de la requête (succès ou échec)
+      recherche_membre_activite_en_cours = false;
+      
+      // Vérifier que l'activité ou la mission est toujours en cours avant de programmer le prochain appel
+      if (activite_is_running || mission_is_running) {
+          timer_refresh_utilisateur_activite = setTimeout(function()
+          {
+              recherche_membre_activite(liste_des_codes);
+          }, 2000);
+      } else {
+          console.log('recherche_membre_activite: Activité/Mission arrêtée, pas de nouveau rafraîchissement');
+          timer_refresh_utilisateur_activite = null;
+      }
   })
   ;
-	
-    timer_refresh_utilisateur_activite = setTimeout(function()
-    {
-        recherche_membre_activite(liste_des_codes);
-    }, 2000);
     
 }
 function hideAllInfoWindows(map,code){

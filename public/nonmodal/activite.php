@@ -69,6 +69,8 @@ var erreur_update_detail_activite=0;
 var activite_en_cours_de_detail;
 var jqxhr_activite;
 var jqxhr_detail_activite;
+var mon_timer_activite = null; // Timer pour le rafraîchissement automatique
+var affiche_detail_activite_en_cours = false; // Protection contre les appels multiples
 
 var page_activite_fermer;    
 
@@ -321,7 +323,35 @@ function lit_historique_activite(data_pass){
 }
     
 function affiche_detail_activite(liste_des_codes){
+    // PROTECTION: Vérifier si une requête est déjà en cours
+    if (affiche_detail_activite_en_cours) {
+        console.warn('affiche_detail_activite: Une requête est déjà en cours, appel ignoré');
+        return;
+    }
     
+    // PROTECTION: Vérifier que la page est toujours ouverte
+    if (page_activite_fermer) {
+        console.warn('affiche_detail_activite: Page fermée, arrêt du rafraîchissement');
+        if (mon_timer_activite != null) {
+            clearTimeout(mon_timer_activite);
+            mon_timer_activite = null;
+        }
+        return;
+    }
+    
+    // Annuler le timer précédent s'il existe
+    if (mon_timer_activite != null) {
+        clearTimeout(mon_timer_activite);
+        mon_timer_activite = null;
+    }
+    
+    // Marquer qu'une requête est en cours
+    affiche_detail_activite_en_cours = true;
+    
+    // Annuler la requête précédente si elle existe
+    if (jqxhr_detail_activite) {
+        jqxhr_detail_activite.abort();
+    }
     
     jqxhr_detail_activite = $.post(Global.APP_SERVER_URL+Global.INFO_ACTIVITE_URI,{ liste_des_codes:liste_des_codes})
 
@@ -385,9 +415,6 @@ function affiche_detail_activite(liste_des_codes){
                     table_detail_activite.draw();
                 }
                 erreur_update_detail_activite=0;
-            if (!page_activite_fermer){
-                mon_timer_activite=setTimeout(function(){affiche_detail_activite(activite_en_cours_de_detail);}, 2000);
-            }
         }
 		        
       })
@@ -398,16 +425,22 @@ function affiche_detail_activite(liste_des_codes){
            table_detail_activite.clear();
             table_detail_activite.draw();
           ouvre_alerte('Erreur réseau !<br />Un problème réseau est survenu.<br />Impossible d\'afficher le détail de l\'activité.');  
-      }else{          
-          if (!page_activite_fermer){
-              mon_timer_activite=setTimeout(function(){affiche_detail_activite(activite_en_cours_de_detail);}, 2000);
-          }
-          
       }
      
   })
   .always(function() {
-
+      // Libérer le verrou après la fin de la requête (succès ou échec)
+      affiche_detail_activite_en_cours = false;
+      
+      // Vérifier que la page est toujours ouverte avant de programmer le prochain appel
+      if (!page_activite_fermer && activite_en_cours_de_detail) {
+          mon_timer_activite = setTimeout(function(){
+              affiche_detail_activite(activite_en_cours_de_detail);
+          }, 2000);
+      } else {
+          console.log('affiche_detail_activite: Page fermée ou aucune activité sélectionnée, pas de nouveau rafraîchissement');
+          mon_timer_activite = null;
+      }
   })
   ;
     
@@ -571,13 +604,31 @@ function InitOverviewDataTable_detail_activite(){
     } );
 }
     
+    // Fonction pour arrêter le rafraîchissement automatique (appelée depuis l'extérieur)
+    window.stop_affiche_detail_activite = function() {
+        page_activite_fermer = true;
+        
+        // Annuler les requêtes en cours
+        if (jqxhr_activite) {
+            jqxhr_activite.abort();
+        }
+        if (jqxhr_detail_activite) {
+            jqxhr_detail_activite.abort();
+        }
+        
+        // Nettoyer le timer
+        if (mon_timer_activite != null) {
+            clearTimeout(mon_timer_activite);
+            mon_timer_activite = null;
+        }
+        
+        // Réinitialiser le verrou
+        affiche_detail_activite_en_cours = false;
+    };
+    
     $('#id_view_activite').on('remove',function(){ 
+        window.stop_affiche_detail_activite();
         
-        page_activite_fermer=true;
-        
-        jqxhr_activite.abort();
-        jqxhr_detail_activite.abort();
-        clearTimeout(mon_timer_activite);
         table_detail_activite.clear();
         table_detail_activite.draw();
         table_activite.clear();

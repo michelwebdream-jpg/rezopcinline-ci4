@@ -166,6 +166,136 @@ function MyRepertoire(){
     this.full_data='';
 }
 
+// Fonction pour traiter les données de répertoire (réutilisable)
+function processDirectoryData(data) {
+    // Si la réponse est une chaîne (erreur), la parser
+    if (typeof data === 'string') {
+        try {
+            data = JSON.parse(data);
+        } catch (e) {
+            // Si ce n'est pas du JSON, traiter comme une erreur
+            if (data === "-1" || data === "-2") {
+                swal('Pas de document disponible !','Vous ne possedez pas de document.','error');
+                return;
+            }
+            console.error('Erreur de parsing JSON:', e, 'Data:', data);
+            swal('Erreur réseau !','Format de réponse invalide du serveur.','error');
+            return;
+        }
+    }
+    
+    // Vérifier si c'est une erreur JSON
+    if (data && data.error) {
+        console.error('Erreur du serveur:', data.error);
+        swal('Erreur réseau !','Un problème est survenu: ' + data.error,'error');
+        return;
+    }
+
+    if (data==="-1" || data==="-2")
+    {
+        swal('Pas de document disponible !','Vous ne possedez pas de document.','error');
+    }else
+    {
+        
+        var totalObj=0;
+        
+        // Vérifier que data.tree existe
+        if (!data || !data.tree) {
+            console.error('Format de réponse invalide - data.tree manquant:', data);
+            swal('Erreur réseau !','Format de réponse invalide du serveur.','error');
+            return;
+        }
+        
+        var data_tree=data.tree;
+        
+        $.each(data_tree, function(index, element) {
+            totalObj++;
+        });
+        if (totalObj>0){
+            
+            var dirs=data.tree.dirs;
+            
+            var total_directorie=0;
+            for (var key1 in dirs) {
+                 total_directorie++;
+            }	
+            if (total_directorie>0){
+                
+                for (var key in dirs) {
+                     
+                     var f_cout=0;
+                     if (dirs[key]["files"]!=null){
+                          f_cout=dirs[key]["files"].length;
+                     }
+                    
+                     
+                     var myrepertoire=new MyRepertoire();
+                     
+                    var temp=dirs[key]["folder"];
+                    
+                    var formatted_data=temp.slice(0,temp.length-11)+"<br />"+temp.slice(temp.length-8,temp.length) +"<br />"+"Nb document : "+ f_cout; 
+                     myrepertoire.nom_repertoire=formatted_data;
+                         
+                     myrepertoire.full_data=dirs[key]["folder"];
+                     myrepertoire.file_count=f_cout;
+                     
+                     datadirectoryContents.push(myrepertoire);
+                 
+                }
+                //datadirectoryContents.sortOn("nom_repertoire",Array.DESCENDING);
+                
+                
+                
+                if (datadirectoryContents.length>0){
+                    //table_document_utilisateur = $('#tableau_activite_id').DataTable();
+                    table_document_utilisateur.clear();
+                    table_document_utilisateur.rows.add(datadirectoryContents);
+                    table_document_utilisateur.draw();
+                    
+                    if (action_a_ouverture_galerie!==''){
+                        
+                        table_document_utilisateur.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
+                            var data = this.data();
+                        
+                             if (data.full_data===action_a_ouverture_galerie){
+                                  table_document_utilisateur.row(rowIdx).nodes().to$().addClass('selected');
+                             }
+                        });
+                        
+                        repertoire_selectionne=action_a_ouverture_galerie;
+                        affiche_gallerie();
+                    }
+                }else{
+                    //table = $('#tableau_activite_id').DataTable();
+                    table_document_utilisateur.clear();
+                    table_document_utilisateur.draw();
+                }
+
+                if (parseInt(data.size_max_pc)>0){
+                    
+                    var size_max_pc=data.size_max_pc;
+                    var size_of_user=data.size_of_user;
+                    espace_utilise=100*(parseInt(size_of_user)/parseInt(size_max_pc));
+                    $('#text_poucent_utilise').html(espace_utilise.toFixed(2)+'%');
+                    $('#h_bar_size_document').progressbar({
+                      value: espace_utilise
+                    });
+                }else{
+                    $('#text_poucent_utilise').html('');
+                    $('#h_bar_size_document').progressbar({
+                      value: 0
+                    });    
+                }
+                
+            }else{
+            swal("Pas de document disponible !","Vous ne possedez pas de document.","error");
+            }
+        }else{
+            swal("Pas de document disponible !","Vous ne possedez pas de document.","error");
+        }
+    }
+}
+
 function get_list_directories(repertoire){
 	
     ouvre_loader_general('Chargement des dossiers...');
@@ -186,109 +316,74 @@ function get_list_directories(repertoire){
 	console.log('app_server_url:', app_server_url);
 	console.log('code_pc:', code_pc);
     
-    var jqxhr = $.get(myURLrequest)
+    // Spécifier explicitement que la réponse est du JSON avec $.ajax pour un meilleur contrôle
+    var jqxhr = $.ajax({
+        url: myURLrequest,
+        method: 'GET',
+        dataType: 'json',
+        timeout: 30000
+    })
 
     .done(function(data, textStatus, jqXHR ) {
-
-        if (data==="-1" || data==="-2")
-			{
-				swal('Pas de document disponible !','Vous ne possedez pas de document.','error');
-			}else
-			{
-                
-                var totalObj=0;
-                
-                var data_tree=data['tree'];
-                
-                $.each(data_tree, function(index, element) {
-                    totalObj++;
-                });
-                if (totalObj>0){
-                    
-                    var dirs=data['tree']['dirs'];
-                    
-                    var total_directorie=0;
-					for (var key1 in dirs) {
-						 total_directorie++;
-					}	
-					if (total_directorie>0){
-                        
-                        for (var key in dirs) {
-							 
-							 var f_cout=0;
-							 if (dirs[key]["files"]!=null){
-								  f_cout=dirs[key]["files"].length;
-							 }
-							
-							 
-							 var myrepertoire=new MyRepertoire();
-							 
-                            var temp=dirs[key]["folder"];
-                            
-                            var formatted_data=temp.slice(0,temp.length-11)+"<br />"+temp.slice(temp.length-8,temp.length) +"<br />"+"Nb document : "+ f_cout; 
-			                 myrepertoire.nom_repertoire=formatted_data;
-                                 
-							 myrepertoire.full_data=dirs[key]["folder"];
-							 myrepertoire.file_count=f_cout;
-							 
-							 datadirectoryContents.push(myrepertoire);
-						 
-						}
-                        //datadirectoryContents.sortOn("nom_repertoire",Array.DESCENDING);
-                        
-                        
-                        
-                        if (datadirectoryContents.length>0){
-                            //table_document_utilisateur = $('#tableau_activite_id').DataTable();
-                            table_document_utilisateur.clear();
-                            table_document_utilisateur.rows.add(datadirectoryContents);
-                            table_document_utilisateur.draw();
-                            
-                            if (action_a_ouverture_galerie!==''){
-                                
-                                table_document_utilisateur.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
-                                    var data = this.data();
-                                
-                                     if (data.full_data===action_a_ouverture_galerie){
-                                          table_document_utilisateur.row(rowIdx).nodes().to$().addClass('selected');
-                                     }
-                                });
-                                
-                                repertoire_selectionne=action_a_ouverture_galerie;
-                                affiche_gallerie();
-                            }
-                        }else{
-                            //table = $('#tableau_activite_id').DataTable();
-                            table_document_utilisateur.clear();
-                            table_document_utilisateur.draw();
-                        }
-
-                        if (parseInt(data['size_max_pc'])>0){
-							
-							var size_max_pc=data['size_max_pc'];
-							var size_of_user=data['size_of_user'];
-							espace_utilise=100*(parseInt(size_of_user)/parseInt(size_max_pc));
-							$('#text_poucent_utilise').html(espace_utilise.toFixed(2)+'%');
-                            $('#h_bar_size_document').progressbar({
-                              value: espace_utilise
-                            });
-						}else{
-							$('#text_poucent_utilise').html('');
-							$('#h_bar_size_document').progressbar({
-                              value: 0
-                            });    
-						}
-                        
-                    }else{
-					swal("Pas de document disponible !","Vous ne possedez pas de document.","error");
-				    }
-                }else{
-					swal("Pas de document disponible !","Vous ne possedez pas de document.","error");
-				}
-                
-                
+        
+        // Si la réponse est une chaîne (erreur), la parser
+        if (typeof data === 'string') {
+            try {
+                data = JSON.parse(data);
+            } catch (e) {
+                // Si ce n'est pas du JSON, traiter comme une erreur
+                if (data === "-1" || data === "-2") {
+                    swal('Pas de document disponible !','Vous ne possedez pas de document.','error');
+                    return;
+                }
             }
+        }
+        
+        // Vérifier si c'est une erreur JSON
+        if (data && data.error) {
+            console.error('Erreur du serveur:', data.error);
+            swal('Erreur réseau !','Un problème est survenu: ' + data.error,'error');
+            return;
+        }
+
+        console.log('Réponse reçue (type):', typeof data, data);
+        processDirectoryData(data);
     
+    })
+	
+    ouvre_loader_general('Chargement des dossiers...');
+    
+	action_a_ouverture_galerie=repertoire;
+	
+	table_document_utilisateur.clear();
+    table_document_utilisateur.draw();
+	//start_loader("Recherche des documents disponibles...");
+	
+	datadirectoryContents=new Array();;
+	
+	$('#bouton_supprimer_dossier_selectionne').hide();
+	
+	var myURLrequest = app_server_url + get_directory_tree_json_uri + '?ImagePath=' + encodeURIComponent(code_pc);
+	
+	console.log('URL request:', myURLrequest);
+	console.log('app_server_url:', app_server_url);
+	console.log('code_pc:', code_pc);
+    
+    // Spécifier explicitement que la réponse est du JSON avec $.ajax pour un meilleur contrôle
+    var jqxhr = $.ajax({
+        url: myURLrequest,
+        method: 'GET',
+        dataType: 'json',
+        timeout: 30000,
+        // Accepter les erreurs JSON du serveur
+        accepts: {
+            json: 'application/json'
+        }
+    })
+
+    .done(function(data, textStatus, jqXHR ) {
+        console.log('Réponse reçue:', data);
+        processDirectoryData(data);
     })
   .fail(function(jqXHR, textStatus, errorThrown) {
         table_document_utilisateur.clear();
@@ -298,9 +393,26 @@ function get_list_directories(repertoire){
             statusText: jqXHR.statusText,
             textStatus: textStatus,
             errorThrown: errorThrown,
-            responseText: jqXHR.responseText
+            responseText: jqXHR.responseText,
+            url: myURLrequest
         });
-     swal('Erreur réseau !','Un problème réseau est survenu.\nImpossible d\'actualiser les dossiers.','error');   
+        
+        // Si c'est une erreur de parsing JSON (status 200 mais erreur de parsing), essayer de parser manuellement
+        if (jqXHR.status === 200 && jqXHR.responseText) {
+            try {
+                var parsedData = JSON.parse(jqXHR.responseText);
+                console.log('JSON parsé manuellement, traitement des données...', parsedData);
+                if (parsedData && parsedData.tree) {
+                    // Réessayer avec les données parsées
+                    processDirectoryData(parsedData);
+                    return;
+                }
+            } catch (e) {
+                console.error('Erreur de parsing JSON:', e);
+            }
+        }
+        
+     swal('Erreur réseau !','Un problème réseau est survenu.\nImpossible d\'actualiser les dossiers.\n\nStatus: ' + jqXHR.status + '\nErreur: ' + textStatus,'error');   
 
   })
   .always(function() {
