@@ -76,6 +76,20 @@ if (!$is_local && filter_var($hostname, FILTER_VALIDATE_IP) !== false) {
 	$is_local = true;
 }
 
+// Fonction pour détecter le chemin de base de l'application
+function detectAppBasePath() {
+	$scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+	// Si le script est dans /rezopcinline/public/dev/..., extraire /rezopcinline
+	if (preg_match('#/(rezopcinline)/public/dev/#', $scriptName, $matches)) {
+		return '/' . $matches[1] . '/';
+	}
+	// Sinon, pas de sous-dossier
+	return '/';
+}
+
+// Détecter le chemin de base
+$appBasePath = detectAppBasePath();
+
 // Si on est en local, faire une requête cURL vers le serveur de production
 if ($is_local) {
 	file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] Mode LOCAL détecté - Proxy vers serveur PRODUCTION\n", FILE_APPEND);

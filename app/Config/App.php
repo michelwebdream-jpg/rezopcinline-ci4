@@ -15,8 +15,85 @@ class App extends BaseConfig
      * WITH a trailing slash:
      *
      * E.g., http://example.com/
+     * 
+     * Détection automatique de l'URL de base selon l'environnement
      */
-    public string $baseURL = 'https://rezopcinline-ci4.local/';
+    public string $baseURL = '';
+    
+    /**
+     * Constructeur pour détecter automatiquement l'URL de base
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        
+        // Détecter automatiquement l'URL de base
+        if (empty($this->baseURL)) {
+            $this->baseURL = $this->detectBaseURL();
+        }
+    }
+    
+    /**
+     * Détecte automatiquement l'URL de base selon l'environnement
+     */
+    private function detectBaseURL(): string
+    {
+        // Détecter le protocole (HTTP ou HTTPS)
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        
+        // Détecter le hostname
+        $hostname = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        
+        // Détecter si on est en local
+        $is_local = false;
+        $local_indicators = ['localhost', '127.0.0.1', '::1', 'local', '.local', '.dev'];
+        foreach ($local_indicators as $indicator) {
+            if (stripos($hostname, $indicator) !== false) {
+                $is_local = true;
+                break;
+            }
+        }
+        if (!$is_local && filter_var($hostname, FILTER_VALIDATE_IP) !== false) {
+            $is_local = true;
+        }
+        
+        // Détecter le chemin de base (sous-dossier)
+        $basePath = '';
+        
+        // Utiliser SCRIPT_NAME pour détecter le chemin depuis la racine du serveur
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+        
+        // Si le script est dans public/index.php, remonter d'un niveau
+        // Exemple: /rezopcinline/public/index.php -> /rezopcinline/
+        if (strpos($scriptName, '/public/index.php') !== false) {
+            $basePath = dirname(dirname($scriptName));
+        } elseif (strpos($scriptName, '/index.php') !== false) {
+            // Si index.php est directement dans le dossier
+            $basePath = dirname($scriptName);
+        } else {
+            // Essayer avec REQUEST_URI si disponible
+            $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+            // Extraire le chemin avant le premier slash après le domaine
+            if (preg_match('#^/([^/]+)/#', $requestUri, $matches)) {
+                // Vérifier si c'est probablement notre sous-dossier
+                if (strpos($requestUri, '/rezopcinline/') === 0) {
+                    $basePath = '/rezopcinline';
+                }
+            }
+        }
+        
+        // Normaliser le chemin (ajouter le slash final)
+        if ($basePath && $basePath !== '/') {
+            $basePath = rtrim($basePath, '/') . '/';
+        } else {
+            $basePath = '/';
+        }
+        
+        // Construire l'URL complète
+        $baseURL = $protocol . '://' . $hostname . $basePath;
+        
+        return $baseURL;
+    }
 
     /**
      * Allowed Hostnames in the Site URL other than the hostname in the baseURL.

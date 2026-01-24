@@ -153,7 +153,20 @@ if ($pass==2){
 			$date_fin_validite_licence=date_format($date_fin_validite_licence, 'd/m/Y H:i:s');
 		}
 		
+		// DEBUG: Vérifier la valeur du mail avant construction de la trame
+		error_log('=== DEBUG lit_info_administrateur: $mail = "' . ($mail ?? 'NON_DEFINI') . '" (type: ' . gettype($mail) . ', empty: ' . (empty($mail) ? 'true' : 'false') . ') ===');
+		error_log('=== DEBUG lit_info_administrateur: $code = "' . ($code ?? 'NON_DEFINI') . '" ===');
+		error_log('=== DEBUG lit_info_administrateur: $nom = "' . ($nom ?? 'NON_DEFINI') . '" ===');
+		error_log('=== DEBUG lit_info_administrateur: $prenom = "' . ($prenom ?? 'NON_DEFINI') . '" ===');
+		error_log('=== DEBUG lit_info_administrateur: $telephone = "' . ($telephone ?? 'NON_DEFINI') . '" ===');
+		error_log('=== DEBUG lit_info_administrateur: $indicatif = "' . ($indicatif ?? 'NON_DEFINI') . '" ===');
+		error_log('=== DEBUG lit_info_administrateur: $iconid = "' . ($iconid ?? 'NON_DEFINI') . '" ===');
+		error_log('=== DEBUG lit_info_administrateur: $etat = "' . ($etat ?? 'NON_DEFINI') . '" ===');
+		
 		$resultat=$code."><".$nom."><".$prenom."><".$telephone."><".$mail."><".$indicatif."><".$iconid."><".$etat."><".$date_fin_validite_licence."><".$date_creation;
+		
+		// DEBUG: Vérifier la trame construite
+		error_log('=== DEBUG lit_info_administrateur: TRAME CONSTRUITE = "' . $resultat . '" ===');
 		
 		echo "return_txt=$resultat";
 	

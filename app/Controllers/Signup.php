@@ -147,14 +147,22 @@ class Signup extends BaseController
                 error_log('=== RESULTAT ORIGINAL (premiers 200 chars): ' . substr($resultat_verif_code_et_licence, 0, 200) . ' ===');
                 $resultat_verif_code_et_licence = str_replace("return_txt=", "", $resultat_verif_code_et_licence);
                 
-                // Nettoyer la réponse pour supprimer les warnings PHP et les balises HTML
-                // Mais NE PAS supprimer les < > qui font partie du format (><)
-                $cleaned_response = preg_replace('/<br \/>\s*<b>(Deprecated|Warning|Fatal error|Notice)<\/b>.*?(<br \/>|$)/', '', $resultat_verif_code_et_licence);
-                // Ne supprimer que les balises HTML complètes, pas les séparateurs ><
+                // Nettoyer la réponse pour supprimer les warnings PHP et les balises HTML qui pourraient polluer la réponse
+                // Cette regex est nécessaire car lit_info_administrateur.php n'a pas display_errors désactivé
+                // et des warnings PHP formatés en HTML peuvent apparaître dans la réponse
                 // Format attendu: element1><element2><element3>...
-                // On ne doit supprimer que les balises HTML comme <br />, <b>, etc., pas les >< entre éléments
-                $cleaned_response = preg_replace('/<(br|b|i|u|strong|em|p|div|span)[^>]*>/i', '', $cleaned_response);
+                // IMPORTANT: Ne pas supprimer les éléments de la trame qui contiennent @ ou d'autres caractères
+                // On supprime seulement les vraies balises HTML: <tag>, <tag/>, <tag attr="value">
+                // Cela évite de matcher <info@web-dream.fr> car 'i' n'est pas suivi d'espace/> mais de 'nfo@'
+                
+                // Supprimer les warnings PHP formatés en HTML (ex: <br /><b>Deprecated</b>...)
+                $cleaned_response = preg_replace('/<br \/>\s*<b>(Deprecated|Warning|Fatal error|Notice)<\/b>.*?(<br \/>|$)/', '', $resultat_verif_code_et_licence);
+                
+                // Supprimer les balises HTML complètes (ouvrantes et fermantes)
+                // Regex sécurisée: ne matche que les vraies balises HTML, pas les éléments de la trame
+                $cleaned_response = preg_replace('/<(br|b|i|u|strong|em|p|div|span)(\s[^>]*|\/)?>/i', '', $cleaned_response);
                 $cleaned_response = preg_replace('/<\/(br|b|i|u|strong|em|p|div|span)>/i', '', $cleaned_response);
+                
                 $cleaned_response = trim($cleaned_response);
                 $resultat_verif_code_et_licence = $cleaned_response;
                 
@@ -178,25 +186,45 @@ class Signup extends BaseController
                         $mise_a_jour_galerie_photo = $this->signupModel->mise_a_jour_pour_galerie_photo($this->request->getPost('code'));
                         
                         if ($mise_a_jour_galerie_photo !== false) {
-                            error_log('=== EXPLOSION DU RESULTAT ===');
+                            log_message('debug', '=== EXPLOSION DU RESULTAT ===');
+                            log_message('debug', '=== TRAME BRUTE: ' . $resultat_verif_code_et_licence . ' ===');
                             $temp = explode("><", $resultat_verif_code_et_licence);
-                            error_log('=== NOMBRE D ELEMENTS: ' . count($temp) . ' ===');
+                            log_message('debug', '=== NOMBRE D ELEMENTS: ' . count($temp) . ' ===');
                             
-                            // Vérifier que le tableau a suffisamment d'éléments (au moins 9, car le format peut varier)
+                            // DEBUG: Afficher chaque élément avec son index
+                            for ($i = 0; $i < count($temp); $i++) {
+                                log_message('debug', "=== ELEMENT [$i]: '" . ($temp[$i] ?? 'VIDE') . "' (longueur: " . strlen($temp[$i] ?? '') . ") ===");
+                            }
+                            
+                            // Mapping identique à CI3 (lignes 149-160 de Signup.php)
+                            // CI3 mappe directement sans vérification du nombre d'éléments
+                            // Ordre attendu selon lit_info_administrateur.php ligne 156:
+                            // code><nom><prenom><telephone><mail><indicatif><iconid><etat><date_fin_validite_licence><date_creation
                             if (count($temp) >= 9) {
-                                error_log('=== FORMAT CORRECT, CREATION DELIVERY DATA ===');
+                                log_message('debug', '=== FORMAT CORRECT, CREATION DELIVERY DATA (mapping identique CI3) ===');
+                                
+                                // Mapping exact comme CI3 - même si certains éléments sont vides
+                                // CI3 utilise directement $temp[4] pour le mail sans vérification
                                 $deliveryData = [
                                     'code_administrateur' => $temp[0] ?? '',
                                     'nom_administrateur' => $temp[1] ?? '',
                                     'prenom_administrateur' => $temp[2] ?? '',
                                     'telephone_administrateur' => $temp[3] ?? '',
-                                    'mail_administrateur' => $temp[4] ?? '',  // Mail en position 4 (confirmé par test API)
-                                    'indicatif_administrateur' => $temp[5] ?? '',  // Indicatif en position 5 (confirmé par test API)
+                                    'mail_administrateur' => $temp[4] ?? '',  // Mail à l'index 4 comme CI3 (peut être vide)
+                                    'indicatif_administrateur' => $temp[5] ?? '',  // Indicatif à l'index 5 comme CI3
                                     'icone_administrateur' => $temp[6] ?? '',
                                     'etat_administrateur' => $temp[7] ?? '',
                                     'date_fin_validite_licence' => $temp[8] ?? '',
                                     'date_creation_compte_administrateur' => $temp[9] ?? ''
                                 ];
+                                
+                                // DEBUG: Vérifier les valeurs mappées
+                                log_message('debug', '=== MAIL MAPPED (index 4): "' . ($deliveryData['mail_administrateur'] ?: 'VIDE') . '" ===');
+                                log_message('debug', '=== INDICATIF MAPPED (index 5): "' . ($deliveryData['indicatif_administrateur'] ?? 'VIDE') . '" ===');
+                                log_message('debug', '=== ICONID MAPPED (index 6): "' . ($deliveryData['icone_administrateur'] ?? 'VIDE') . '" ===');
+                                log_message('debug', '=== ETAT MAPPED (index 7): "' . ($deliveryData['etat_administrateur'] ?? 'VIDE') . '" ===');
+                                log_message('debug', '=== DATE_FIN_VALIDITE MAPPED (index 8): "' . ($deliveryData['date_fin_validite_licence'] ?? 'VIDE') . '" ===');
+                                log_message('debug', '=== DATE_CREATION MAPPED (index 9): "' . ($deliveryData['date_creation_compte_administrateur'] ?? 'VIDE') . '" ===');
                                 
                                 error_log('=== CREATION DE LA SESSION ===');
                                 $this->session->set([

@@ -52,6 +52,20 @@ if (!$is_local && filter_var($hostname, FILTER_VALIDATE_IP) !== false) {
 	$is_local = true;
 }
 
+// Fonction pour détecter le chemin de base de l'application
+function detectAppBasePath() {
+	$scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+	// Si le script est dans /rezopcinline/public/dev/..., extraire /rezopcinline
+	if (preg_match('#/(rezopcinline)/public/dev/#', $scriptName, $matches)) {
+		return '/' . $matches[1] . '/';
+	}
+	// Sinon, pas de sous-dossier
+	return '/';
+}
+
+// Détecter le chemin de base
+$appBasePath = detectAppBasePath();
+
 // Si on est en local, faire une requête cURL vers le serveur de production
 if ($is_local) {
 	// Récupérer le paramètre ImagePath
@@ -93,10 +107,10 @@ if ($is_local) {
 	exit;
 }
 
-// Si on est en production, rediriger vers le fichier de production
-// (ce fichier ne devrait normalement pas être appelé en production)
-header('Location: https://www.web-dream.fr/dev/rezo_galerie/get_directory_tree_json.php?' . $_SERVER['QUERY_STRING']);
-exit;
+// Si on est en production, ce fichier proxy peut être utilisé
+// Il utilisera les fichiers locaux s'ils existent, sinon il fera un proxy vers la production
+// Note: En production, les fichiers devraient normalement être copiés depuis le serveur de production
+// mais ce fichier proxy peut servir de fallback
 
 ?>
 
