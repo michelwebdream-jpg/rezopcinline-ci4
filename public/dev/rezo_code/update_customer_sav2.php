@@ -64,11 +64,15 @@ if( isset($_POST['rapport']) )
 }
 
 // AUTOLOAD CLASS OBJECTS... YOU CAN USE INCLUDES IF YOU PREFER
-if(!function_exists("__autoload")){ 
-	function __autoload($class_name){
-		require_once('classes/class_'.$class_name.'.php');
+if (!function_exists('autoload_classes')) {
+	function autoload_classes($class_name){
+		$file = __DIR__ . '/classes/class_' . $class_name . '.php';
+		if (is_file($file)) {
+			require_once($file);
+		}
 	}
 }
+spl_autoload_register('autoload_classes');
 
 // CREATE DATABASE OBJECT ( MAKE SURE TO CHANGE LOGIN INFO IN CLASS FILE )
 $db = new DbConnect();
