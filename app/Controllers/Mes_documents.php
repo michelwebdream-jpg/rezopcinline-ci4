@@ -33,9 +33,22 @@ class Mes_documents extends BaseController
             $is_local = true;
         }
         
-        // Pour les fichiers de galerie, utiliser le serveur local qui fait proxy vers la production
-        // car cela évite les problèmes CORS
-        $app_server_url = $is_local ? '' : (getenv('APP_SERVER_URL') ?: 'https://www.web-dream.fr');
+        // Détecter automatiquement APP_SERVER_URL selon l'environnement
+        // - Local: chaîne vide (utilise les proxies locaux)
+        // - Test (rezoci4.web-dream.fr): https://rezoci4.web-dream.fr
+        // - Production (web-dream.fr/rezopcinline): https://www.web-dream.fr
+        if ($is_local) {
+            $app_server_url = ''; // Utilise les proxies locaux pour éviter CORS
+        } else {
+            // IMPORTANT: Ignorer la valeur du .env sur les serveurs de test et production
+            // Détecter d'abord le serveur de test
+            if (strpos($hostname, 'rezoci4.web-dream.fr') !== false) {
+                $app_server_url = 'https://rezoci4.web-dream.fr';
+            } else {
+                // Production par défaut (ignore le .env)
+                $app_server_url = 'https://www.web-dream.fr';
+            }
+        }
         
         $data = [
             'repertoire_a_ouvrir' => $this->request->getGet('repertoire') ?? '',
@@ -44,9 +57,10 @@ class Mes_documents extends BaseController
             'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
             'utilisateur' => $this->session->get('deliverdata'),
             'APP_SERVER_URL' => $app_server_url,
-            'GET_DIRECTORY_TREE_JSON_URI' => '/dev/rezo_galerie/get_directory_tree_json.php',
-            'EFFACE_REPERTOIRE_URI' => '/dev/rezo_code/efface_repertoire.php',
-            'SUPPRIME_PHOTO_GALERIE_URI' => '/dev/rezo_code/supprime_photo_galerie.php'
+            // Option B: URLs explicites vers /public/dev/...
+            'GET_DIRECTORY_TREE_JSON_URI' => '/public/dev/rezo_galerie/get_directory_tree_json.php',
+            'EFFACE_REPERTOIRE_URI' => '/public/dev/rezo_code/efface_repertoire.php',
+            'SUPPRIME_PHOTO_GALERIE_URI' => '/public/dev/rezo_code/supprime_photo_galerie.php'
         ];
         
         return view('mes_documents', $data);

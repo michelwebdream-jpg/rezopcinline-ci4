@@ -1,0 +1,36 @@
+# Redirection vers le dossier public
+# Application dans le dossier rezoci4
+# DocumentRoot: /home/sinadeoogs/rezoci4
+RewriteEngine On
+
+# IMPORTANT: Forcer /dev/* à être servi depuis /public/dev/*
+# (Sinon, si un dossier /dev existe à la racine, Apache sert /dev/* directement
+# et ignore les scripts corrigés dans /public/dev/*)
+RewriteRule ^dev/(.*)$ /public/dev/$1 [L]
+
+# IMPORTANT: Servir les fichiers statiques depuis public/ en premier
+# Si le fichier existe dans public/, le servir directement
+# Vérifier d'abord si le fichier existe dans public/ (sans vérifier REQUEST_FILENAME)
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f
+RewriteRule ^(.*)$ /public/$1 [L]
+
+# Servir aussi les répertoires statiques
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
+RewriteRule ^(.*)$ /public/$1 [L]
+
+# Passer toutes les autres requêtes à index.php à la racine
+# Le index.php à la racine redirigera vers public/index.php avec le bon chemin
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ index.php [L]
+
+# Empêcher l'accès direct aux fichiers sensibles
+<FilesMatch "^(\.env|\.git|composer\.(json|lock)|\.htaccess)">
+    Require all denied
+</FilesMatch>
+
+# Empêcher le listing des répertoires
+Options -Indexes

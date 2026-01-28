@@ -64,21 +64,31 @@ class App extends BaseConfig
         $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
         
         // Si le script est dans public/index.php, remonter d'un niveau
-        // Exemple: /rezopcinline/public/index.php -> /rezopcinline/
+        // IMPORTANT: Si le DocumentRoot pointe vers /rezoci4/, alors SCRIPT_NAME sera /public/index.php
+        // et dirname(dirname('/public/index.php')) donne /, ce qui est correct (pas de sous-dossier dans l'URL)
+        // 
+        // Exemples selon la configuration:
+        // - DocumentRoot = /rezoci4/ : SCRIPT_NAME = /public/index.php -> basePath = / (correct)
+        // - DocumentRoot = / : SCRIPT_NAME = /rezoci4/public/index.php -> basePath = /rezoci4/ (correct)
         if (strpos($scriptName, '/public/index.php') !== false) {
-            $basePath = dirname(dirname($scriptName));
-        } elseif (strpos($scriptName, '/index.php') !== false) {
-            // Si index.php est directement dans le dossier
+            // Si SCRIPT_NAME est /public/index.php, le DocumentRoot pointe vers le dossier parent
+            // Donc pas de sous-dossier dans l'URL
+            $basePath = '/';
+        } elseif (strpos($scriptName, '/index.php') !== false && strpos($scriptName, '/public/') === false) {
+            // Si index.php est directement dans le dossier (sans /public/)
             $basePath = dirname($scriptName);
+        } elseif (preg_match('#^/(rezopcinline|rezoci4)/public/index\.php#', $scriptName, $matches)) {
+            // Si SCRIPT_NAME contient /rezoci4/public/index.php, alors DocumentRoot = / et basePath = /rezoci4/
+            $basePath = '/' . $matches[1] . '/';
         } else {
             // Essayer avec REQUEST_URI si disponible
             $requestUri = $_SERVER['REQUEST_URI'] ?? '';
             // Extraire le chemin avant le premier slash après le domaine
-            if (preg_match('#^/([^/]+)/#', $requestUri, $matches)) {
-                // Vérifier si c'est probablement notre sous-dossier
-                if (strpos($requestUri, '/rezopcinline/') === 0) {
-                    $basePath = '/rezopcinline';
-                }
+            // Détecter automatiquement les sous-dossiers connus: rezopcinline ou rezoci4
+            if (preg_match('#^/(rezopcinline|rezoci4)/#', $requestUri, $matches)) {
+                $basePath = '/' . $matches[1] . '/';
+            } else {
+                $basePath = '/';
             }
         }
         

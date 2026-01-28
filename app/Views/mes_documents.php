@@ -4,6 +4,8 @@
 <html lang="fr">
 <head>
 	<meta charset="utf-8">
+    <link rel="icon" type="image/png" href="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.png">
+    <link rel="apple-touch-icon" href="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.png">
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="<?php echo base_url();?>css/style_main.css"/>
     <link rel="stylesheet" href="<?php echo base_url();?>css/blueimp-gallery.min.css">
@@ -115,7 +117,8 @@
     var action_a_ouverture_galerie="";
     var datadirectoryContents;
     var repertoire_selectionne='';
-    var base_url_galerie = '/dev/rezo_galerie/';
+    // Option B: utiliser /public/dev/rezo_galerie/
+    var base_url_galerie = '<?= rtrim(base_url('public/dev/rezo_galerie/'), '/') . '/' ?>';
     var base_url_thumb = 'thumb/';
     var backend  = 'backend.php';
     var code_pc='<?php echo (isset($utilisateur) && isset($utilisateur["code_administrateur"])) ? $utilisateur["code_administrateur"] : ''; ?>';
@@ -321,59 +324,6 @@ function get_list_directories(repertoire){
         url: myURLrequest,
         method: 'GET',
         dataType: 'json',
-        timeout: 30000
-    })
-
-    .done(function(data, textStatus, jqXHR ) {
-        
-        // Si la réponse est une chaîne (erreur), la parser
-        if (typeof data === 'string') {
-            try {
-                data = JSON.parse(data);
-            } catch (e) {
-                // Si ce n'est pas du JSON, traiter comme une erreur
-                if (data === "-1" || data === "-2") {
-                    swal('Pas de document disponible !','Vous ne possedez pas de document.','error');
-                    return;
-                }
-            }
-        }
-        
-        // Vérifier si c'est une erreur JSON
-        if (data && data.error) {
-            console.error('Erreur du serveur:', data.error);
-            swal('Erreur réseau !','Un problème est survenu: ' + data.error,'error');
-            return;
-        }
-
-        console.log('Réponse reçue (type):', typeof data, data);
-        processDirectoryData(data);
-    
-    })
-	
-    ouvre_loader_general('Chargement des dossiers...');
-    
-	action_a_ouverture_galerie=repertoire;
-	
-	table_document_utilisateur.clear();
-    table_document_utilisateur.draw();
-	//start_loader("Recherche des documents disponibles...");
-	
-	datadirectoryContents=new Array();;
-	
-	$('#bouton_supprimer_dossier_selectionne').hide();
-	
-	var myURLrequest = app_server_url + get_directory_tree_json_uri + '?ImagePath=' + encodeURIComponent(code_pc);
-	
-	console.log('URL request:', myURLrequest);
-	console.log('app_server_url:', app_server_url);
-	console.log('code_pc:', code_pc);
-    
-    // Spécifier explicitement que la réponse est du JSON avec $.ajax pour un meilleur contrôle
-    var jqxhr = $.ajax({
-        url: myURLrequest,
-        method: 'GET',
-        dataType: 'json',
         timeout: 30000,
         // Accepter les erreurs JSON du serveur
         accepts: {
@@ -425,25 +375,46 @@ function supprime_repertoire() {
 			
   var myURLrequest = app_server_url + efface_repertoire_uri;
     
-    jqxhr_activite = $.post(myURLrequest,{ repertoire_a_supprimer:code_pc+"/"+repertoire_selectionne})
+    // Forcer une réponse texte (évite que jQuery "devine" un type et parse en objet)
+    jqxhr_activite = $.ajax({
+        url: myURLrequest,
+        method: 'POST',
+        dataType: 'text',
+        data: { repertoire_a_supprimer: code_pc + "/" + repertoire_selectionne },
+        timeout: 30000
+    })
 
     .done(function(data, textStatus, jqXHR ) {
 
-        var jsonString=data;
+        var jsonString = (data !== undefined && data !== null) ? ('' + data) : '';
+        // Normaliser la réponse (certaines versions renvoient return_txt=... ou des retours ligne)
+        jsonString = jsonString.replace('return_txt=', '').trim();
 						
-        if (jsonString==="-1" || jsonString==="-2")
+        // Succès attendu: "1"
+        if (jsonString === "1")
         {
-            swal("Erreur technique !","Le dossier n'a pas été supprimé.","error");
-        }else{
             swal("Opération réussie !","Le dossier a été supprimé.","success");
 
             $('#links').html('');
             get_list_directories("");
         }
+        else
+        {
+            console.error('Suppression dossier: réponse inattendue', myURLrequest, data, jsonString);
+            swal("Erreur technique !","Le dossier n'a pas été supprimé.\n\nRéponse: " + jsonString,"error");
+        }
             
     })
   .fail(function(jqXHR, textStatus, errorThrown) {
-     swal("Erreur technique !","Le dossier n'a pas été supprimé.","error");
+     console.error('Suppression dossier: AJAX fail', {
+        url: myURLrequest,
+        status: jqXHR.status,
+        statusText: jqXHR.statusText,
+        textStatus: textStatus,
+        errorThrown: errorThrown,
+        responseText: jqXHR.responseText
+     });
+     swal("Erreur technique !","Le dossier n'a pas été supprimé.\n\nStatus: " + jqXHR.status + "\nErreur: " + textStatus,"error");
 
   })
   .always(function() {
@@ -543,18 +514,39 @@ function supprime_document (photo_a_supprimer) {
 		fichier_a_supprimer : photo_a_supprimer
     }
     
-    var jqxhr = $.post(app_server_url + supprime_photo_galerie_uri, $data)
+    // Forcer une réponse texte (évite que jQuery "devine" un type et parse en objet)
+    var jqxhr = $.ajax({
+        url: app_server_url + supprime_photo_galerie_uri,
+        method: 'POST',
+        dataType: 'text',
+        data: $data,
+        timeout: 30000
+    })
 
     .done(function(data, textStatus, jqXHR ) {
-        
-        swal('Succès !','Suppression du document effectué...','success'); 
-        
-        get_list_directories(repertoire_selectionne);
+        var buf = (data !== undefined && data !== null) ? ('' + data) : '';
+        buf = buf.replace('return_txt=', '').trim();
+
+        if (buf === "1") {
+            swal('Succès !','Suppression du document effectuée.','success'); 
+            get_list_directories(repertoire_selectionne);
+        } else {
+            console.error('Suppression document: réponse inattendue', app_server_url + supprime_photo_galerie_uri, data, buf);
+            swal('Erreur !','Suppression du document impossible...\n\nRéponse: ' + buf,'error'); 
+        }
        
  
     })
   .fail(function(jqXHR, textStatus, errorThrown) {
-      swal('Erreur réseau !','Suppression du document impossible...','error'); 
+      console.error('Suppression document: AJAX fail', {
+        url: app_server_url + supprime_photo_galerie_uri,
+        status: jqXHR.status,
+        statusText: jqXHR.statusText,
+        textStatus: textStatus,
+        errorThrown: errorThrown,
+        responseText: jqXHR.responseText
+      });
+      swal('Erreur réseau !','Suppression du document impossible...\n\nStatus: ' + jqXHR.status + '\nErreur: ' + textStatus,'error'); 
       
   })
   .always(function() {

@@ -43,7 +43,11 @@ var Global = {
 					// Use the same protocol as the current page to avoid mixed content issues
 					// Le VirtualHost pointe déjà vers /rezopcinline-ci4/public, donc pas besoin de /rezopcinline-ci4 dans l'URL
 					return protocol + '//' + hostname;
+				} else if (hostname.indexOf('rezoci4.web-dream.fr') !== -1) {
+					// Serveur de test
+					return 'https://rezoci4.web-dream.fr';
 				} else {
+					// Production par défaut
 					return 'https://www.web-dream.fr';
 				}
 			})(), 

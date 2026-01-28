@@ -31,6 +31,21 @@ ini_set('log_errors', 1);
 // Démarrer le buffer de sortie pour capturer toute sortie non désirée
 ob_start();
 
+// ------------------------------------------------------------
+// DEBUG: vérifier quelle version est réellement servie
+// ------------------------------------------------------------
+if (isset($_GET['__ver'])) {
+	header('Content-Type: text/plain; charset=utf-8');
+	$hostname = $_SERVER['HTTP_HOST'] ?? '';
+	$script = $_SERVER['SCRIPT_NAME'] ?? '';
+	echo "info_activite.php VERSION=2026-01-27\n";
+	echo "HOST={$hostname}\n";
+	echo "SCRIPT_NAME={$script}\n";
+	echo "__DIR__=" . __DIR__ . "\n";
+	echo "APP_ROOT=" . dirname(__DIR__, 4) . "\n";
+	exit;
+}
+
 header('Expires: Thu, 01 Jan 1970 00:00:00 GMT, -1');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
@@ -51,20 +66,40 @@ return $texte;
 // Corrigé pour PHP 7.2+ : __autoload() est déprécié, utiliser spl_autoload_register()
 if(!function_exists("autoload_dbconnect")){ 
 	function autoload_dbconnect($class_name){
-		$file = 'classes/class_'.$class_name.'.php';
-		if (file_exists($file)) {
+		$file = __DIR__ . '/classes/class_' . $class_name . '.php';
+		if (is_file($file)) {
 			require_once($file);
 		}
 	}
 }
 spl_autoload_register('autoload_dbconnect');
 
-// Définir le fichier de log (chemin relatif depuis ce fichier)
-$log_file = dirname(dirname(dirname(__FILE__))) . '/application/logs/db_debug.log';
+// Définir le fichier de log (CI4: writable/logs)
+// __DIR__ = .../public/dev/rezo_flash_code -> remonter à la racine projet
+$app_root = dirname(__DIR__, 4);
+$log_dir = $app_root . '/writable/logs';
+$log_file = $log_dir . '/db_debug.log';
+
+if (!is_dir($log_dir)) {
+	// Ne pas faire planter le script si le dossier n'existe pas (hébergement mutualisé)
+	@mkdir($log_dir, 0755, true);
+}
+
+function safe_debug_log($message) {
+	global $log_file;
+	@file_put_contents($log_file, date('Y-m-d H:i:s') . " - " . $message . "\n", FILE_APPEND);
+}
+
+// ------------------------------------------------------------
+// MODE PROXY (serveurs sans BDD locale)
+// ------------------------------------------------------------
+// Sur tout hôte différent de www.web-dream.fr, on proxy vers la prod
+// pour éviter d'avoir à configurer la BDD sur le serveur de test.
+$hostname = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+$is_prod_host = (stripos($hostname, 'www.web-dream.fr') !== false);
 
 // Détecter si on est en local
 $is_local = false;
-$hostname = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
 $local_indicators = array('localhost', '127.0.0.1', '::1', 'local', '.local', '.dev');
 foreach ($local_indicators as $indicator) {
 	if (stripos($hostname, $indicator) !== false) {
@@ -79,20 +114,23 @@ if (!$is_local && filter_var($hostname, FILTER_VALIDATE_IP) !== false) {
 // Fonction pour détecter le chemin de base de l'application
 function detectAppBasePath() {
 	$scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-	// Si le script est dans /rezopcinline/public/dev/..., extraire /rezopcinline
-	if (preg_match('#/(rezopcinline)/public/dev/#', $scriptName, $matches)) {
+	// Détecter automatiquement les sous-dossiers connus: rezopcinline ou rezoci4
+	// Exemples:
+	// - /rezopcinline/public/dev/... -> /rezopcinline/
+	// - /rezoci4/public/dev/... -> /rezoci4/
+	if (preg_match('#/(rezopcinline|rezoci4)/public/dev/#', $scriptName, $matches)) {
 		return '/' . $matches[1] . '/';
 	}
-	// Sinon, pas de sous-dossier
+	// Sinon, pas de sous-dossier (sous-domaine ou racine)
 	return '/';
 }
 
 // Détecter le chemin de base
 $appBasePath = detectAppBasePath();
 
-// Si on est en local, faire une requête cURL vers le serveur de production
-if ($is_local) {
-	file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] Mode LOCAL détecté - Proxy vers serveur PRODUCTION\n", FILE_APPEND);
+// Si on est en local OU sur un serveur de test (pas www.web-dream.fr), proxy vers la prod
+if ($is_local || !$is_prod_host) {
+	safe_debug_log("[info_activite] Mode PROXY détecté (host=" . $hostname . ") - Proxy vers serveur PRODUCTION");
 	
 	// Préparer les données POST
 	$postData = '';
@@ -110,13 +148,14 @@ if ($is_local) {
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); // Pour éviter les problèmes de certificat
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
 	curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
 	
 	$output = curl_exec($ch);
 	$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 	
 	if (curl_errno($ch)) {
 		$error = curl_error($ch);
-		file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] ERREUR cURL: " . $error . "\n", FILE_APPEND);
+		safe_debug_log("[info_activite] ERREUR cURL: " . $error);
 		curl_close($ch);
 		ob_clean();
 		echo "return_txt=-1";
@@ -126,13 +165,13 @@ if ($is_local) {
 	curl_close($ch);
 	
 	if ($httpCode >= 400) {
-		file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] ERREUR HTTP: " . $httpCode . "\n", FILE_APPEND);
+		safe_debug_log("[info_activite] ERREUR HTTP: " . $httpCode);
 		ob_clean();
 		echo "return_txt=-1";
 		exit;
 	}
 	
-	file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] Réponse du serveur production reçue (HTTP $httpCode)\n", FILE_APPEND);
+	safe_debug_log("[info_activite] Réponse du serveur production reçue (HTTP $httpCode)");
 	ob_clean();
 	echo $output;
 	exit;
@@ -148,7 +187,7 @@ $mon_code = isset($_POST['liste_des_codes']) ? $_POST['liste_des_codes'] : '';
 $code_PC = isset($_POST['code_PC']) ? $_POST['code_PC'] : '';
 $plateforme = isset($_POST['plateforme']) ? $_POST['plateforme'] : '';
 
-file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] liste_des_codes reçue: " . substr($mon_code, 0, 200) . "\n", FILE_APPEND);
+safe_debug_log("[info_activite] liste_des_codes reçue: " . substr($mon_code, 0, 200));
 
 if (empty($mon_code)) {
 	ob_clean();
@@ -163,7 +202,7 @@ $statut="";
 
 // Recherche des membres - UN SEUL SELECT qui sera réutilisé
 $sql = "SELECT * FROM `REZO` WHERE moncode IN ('$mon_array_code');"; 
-file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] SQL SELECT (production): " . substr($sql, 0, 200) . "\n", FILE_APPEND);
+safe_debug_log("[info_activite] SQL SELECT (production): " . substr($sql, 0, 200));
 $result = $db->query($sql);
 $rows_data = array(); // Stocker les données pour éviter le SELECT dupliqué
 $codes_inactifs = array(); // Stocker les codes à mettre à jour en une seule requête
@@ -192,7 +231,7 @@ if($result && $result->num_rows){
 		}
 		$codes_inactifs_str = implode(',', $codes_inactifs_escaped);
 		$sql = "UPDATE `REZO` SET `statut`='inactif' WHERE `moncode` IN ($codes_inactifs_str);";
-		file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] SQL UPDATE statut groupé: " . substr($sql, 0, 200) . "\n", FILE_APPEND);
+		safe_debug_log("[info_activite] SQL UPDATE statut groupé: " . substr($sql, 0, 200));
 		$db->query($sql);
 	}
 }
@@ -207,7 +246,7 @@ if (!empty($code_PC) && !empty($plateforme))
 	
 	$sql = "UPDATE `REZO` SET `geolocparpc`='{$code_PC_escaped}',`plateforme`='{$plateforme_escaped}',`date_geolocparpc`=NOW() WHERE moncode IN ('$mon_array_code');";
 	
-	file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] SQL UPDATE geolocparpc: " . substr($sql, 0, 200) . "\n", FILE_APPEND);
+	safe_debug_log("[info_activite] SQL UPDATE geolocparpc: " . substr($sql, 0, 200));
 	$db->query($sql);
 
 }
@@ -216,7 +255,7 @@ $resultat="";
 // OPTIMISATION: Réutiliser les données du premier SELECT au lieu de refaire une requête
 // Les données sont déjà dans $rows_data
 if (!empty($rows_data)) {
-	file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] Réutilisation des données du premier SELECT (économie d'une requête)\n", FILE_APPEND);
+	safe_debug_log("[info_activite] Réutilisation des données du premier SELECT (économie d'une requête)");
 	foreach($rows_data as $row){
 		$code = $db->prepare($row['moncode']);
 		$statut= $db->prepare($row['statut']);
@@ -247,7 +286,7 @@ if (!empty($rows_data) && count($rows_data) > 0)
 {
 	$resultat = substr($resultat, 0, -1);  
 	
-	file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] SUCCESS - " . count($rows_data) . " membre(s) trouvé(s)\n", FILE_APPEND);
+	safe_debug_log("[info_activite] SUCCESS - " . count($rows_data) . " membre(s) trouvé(s)");
 	
 	ob_clean();
 	echo "return_txt=$resultat";
@@ -257,7 +296,7 @@ if (!empty($rows_data) && count($rows_data) > 0)
     
 }else
 {
-	file_put_contents($log_file, date('Y-m-d H:i:s') . " - [info_activite] ERROR - Aucun membre trouvé pour les codes: " . substr($mon_array_code, 0, 200) . "\n", FILE_APPEND);
+	safe_debug_log("[info_activite] ERROR - Aucun membre trouvé pour les codes: " . substr($mon_array_code, 0, 200));
 	ob_clean();
 	echo "return_txt=-1"; 
 }

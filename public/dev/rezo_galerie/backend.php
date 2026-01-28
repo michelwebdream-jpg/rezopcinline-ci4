@@ -37,104 +37,93 @@ header('Expires: Thu, 01 Jan 1970 00:00:00 GMT, -1');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 
-// Détecter si on est en local
-$is_local = false;
-$hostname = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
-$local_indicators = array('localhost', '127.0.0.1', '::1', 'local', '.local', '.dev');
-foreach ($local_indicators as $indicator) {
-	if (stripos($hostname, $indicator) !== false) {
-		$is_local = true;
-		break;
-	}
-}
-if (!$is_local && filter_var($hostname, FILTER_VALIDATE_IP) !== false) {
-	$is_local = true;
-}
+// ------------------------------------------------------------
+// OPTION B: Générer l'XML depuis le stockage local (/public/dev/rezo_galerie)
+// ------------------------------------------------------------
+// Attendu par le JS: une réponse XML avec <items>...</items> puis, après </items>,
+// une valeur de taille (utilisée par l'UI).
 
-// Fonction pour détecter le chemin de base de l'application
-function detectAppBasePath() {
-	$scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-	// Si le script est dans /rezopcinline/public/dev/..., extraire /rezopcinline
-	if (preg_match('#/(rezopcinline)/public/dev/#', $scriptName, $matches)) {
-		return '/' . $matches[1] . '/';
-	}
-	// Sinon, pas de sous-dossier
-	return '/';
-}
+$baseUrl = isset($_POST['base_url']) ? (string) $_POST['base_url'] : '';
+$baseUrlThumb = isset($_POST['base_url_thumb']) ? (string) $_POST['base_url_thumb'] : 'thumb/';
+$codePc = isset($_POST['code_pc']) ? (string) $_POST['code_pc'] : '';
+$codeMoyen = isset($_POST['code_moyen']) ? (string) $_POST['code_moyen'] : '';
 
-// Détecter le chemin de base
-$appBasePath = detectAppBasePath();
-
-// Si on est en local, faire une requête cURL vers le serveur de production
-if ($is_local) {
-	// Construire l'URL du serveur de production
-	$url = 'https://www.web-dream.fr/dev/rezo_galerie/backend.php';
-	
-	// Préparer les données POST
-	$postData = '';
-	foreach ($_POST as $k => $v) {
-		$postData .= $k . '=' . urlencode($v) . '&';
-	}
-	$postData = rtrim($postData, '&');
-	
-	// Faire une requête cURL vers le serveur de production
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, $url);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-	curl_setopt($ch, CURLOPT_POST, 1);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); // Pour éviter les problèmes de certificat
-	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-	curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-	
-	$output = curl_exec($ch);
-	$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	
-	if (curl_errno($ch)) {
-		$error = curl_error($ch);
-		curl_close($ch);
-		ob_clean();
-		echo "error";
-		exit;
-	}
-	
-	curl_close($ch);
-	
-	if ($httpCode >= 400) {
-		ob_clean();
-		echo "error";
-		exit;
-	}
-	
-	// Remplacer les URLs relatives par des URLs absolues vers le serveur de production
-	// pour que les images soient servies depuis le serveur de production
-	$output = str_replace(
-		'href="/dev/rezo_galerie/',
-		'href="https://www.web-dream.fr/dev/rezo_galerie/',
-		$output
-	);
-	$output = str_replace(
-		'source="/dev/rezo_galerie/',
-		'source="https://www.web-dream.fr/dev/rezo_galerie/',
-		$output
-	);
-	// Remplacer aussi les chemins relatifs sans slash initial
-	$output = preg_replace(
-		'/(href|source)="(?!https?:\/\/)([^"]+dev\/rezo_galerie\/[^"]+)"/',
-		'$1="https://www.web-dream.fr/$2"',
-		$output
-	);
-	
+if ($codePc === '' || $codeMoyen === '') {
 	ob_clean();
-	echo $output;
+	echo "error";
 	exit;
 }
 
-// Si on est en production, ce fichier proxy peut être utilisé
-// Il utilisera les fichiers locaux s'ils existent, sinon il fera un proxy vers la production
-// Note: En production, les fichiers devraient normalement être copiés depuis le serveur de production
-// mais ce fichier proxy peut servir de fallback
+// Sécuriser (éviter traversal)
+$codePcSafe = preg_replace('/[^a-zA-Z0-9_-]/', '', $codePc);
+$codeMoyenSafe = preg_replace('/[^a-zA-Z0-9 _\\-\\.]/', '', $codeMoyen);
+
+$origDir = __DIR__ . '/' . $codePcSafe . '/' . $codeMoyenSafe;
+$thumbDir = $origDir . '/thumb';
+
+if (!is_dir($origDir)) {
+	ob_clean();
+	echo "error";
+	exit;
+}
+
+// Construire les URLs absolues
+$baseUrl = rtrim($baseUrl, '/') . '/';
+$thumbUrlBase = $baseUrl . $codePcSafe . '/' . rawurlencode($codeMoyenSafe) . '/' . trim($baseUrlThumb, '/') . '/';
+$origUrlBase = $baseUrl . $codePcSafe . '/' . rawurlencode($codeMoyenSafe) . '/';
+
+// Lister les fichiers images (on utilise le dossier thumb si présent, sinon le dossier original)
+$listDir = is_dir($thumbDir) ? $thumbDir : $origDir;
+$items = @scandir($listDir);
+if (!is_array($items)) {
+	ob_clean();
+	echo "error";
+	exit;
+}
+
+// Taille utilisateur (bytes) - dossier original + thumb
+function dirSizeBytes(string $dir): int {
+	$size = 0;
+	$entries = @scandir($dir);
+	if (!is_array($entries)) return 0;
+	foreach ($entries as $e) {
+		if ($e === '.' || $e === '..') continue;
+		$p = $dir . '/' . $e;
+		if (is_dir($p)) $size += dirSizeBytes($p);
+		else $size += (int) @filesize($p);
+	}
+	return $size;
+}
+$sizeOfUser = dirSizeBytes(dirname($origDir)); // tout le codePc
+
+// Générer XML
+$xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><items></items>');
+
+foreach ($items as $file) {
+	if ($file === '.' || $file === '..') continue;
+	$path = $listDir . '/' . $file;
+	if (!is_file($path)) continue;
+
+	$ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+	if (!in_array($ext, ['jpg','jpeg','png','gif'], true)) continue;
+
+	$source = (is_dir($thumbDir) ? $thumbUrlBase : $origUrlBase) . rawurlencode($file);
+	$item = $xml->addChild('item');
+	$item->addAttribute('label', $file);
+	$item->addAttribute('source', $source);
+}
+
+$xmlString = $xml->asXML();
+if ($xmlString === false) {
+	ob_clean();
+	echo "error";
+	exit;
+}
+
+// IMPORTANT: l'ancien code ajoute une "taille" après </items>
+ob_clean();
+echo $xmlString . $sizeOfUser;
+exit;
 
 ?>
 

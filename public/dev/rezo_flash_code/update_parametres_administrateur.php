@@ -5,6 +5,87 @@ header('Expires: Thu, 01 Jan 1970 00:00:00 GMT, -1');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 
+// Toujours éviter un 500 silencieux (OVH)
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+@ob_start();
+
+register_shutdown_function(function () {
+	$e = error_get_last();
+	if (!$e) {
+		return;
+	}
+	$fatalTypes = array(E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR);
+	if (in_array($e['type'], $fatalTypes, true)) {
+		error_log('[update_parametres_administrateur] FATAL: ' . $e['message'] . ' in ' . $e['file'] . ':' . $e['line']);
+		if (function_exists('http_response_code')) {
+			http_response_code(200);
+		}
+		@ob_clean();
+		echo "return_txt=-1";
+	}
+});
+
+// ------------------------------------------------------------
+// MODE PROXY (serveur de test sans BDD)
+// ------------------------------------------------------------
+$hostname = $_SERVER['HTTP_HOST'] ?? '';
+$is_prod_host = (stripos($hostname, 'www.web-dream.fr') !== false);
+if (!$is_prod_host) {
+	$targetUrl = 'https://www.web-dream.fr/dev/rezo_flash_code/update_parametres_administrateur.php';
+	$postData = http_build_query($_POST);
+
+	$output = false;
+	$httpCode = 0;
+
+	if (function_exists('curl_init')) {
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $targetUrl);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+		curl_setopt($ch, CURLOPT_USERAGENT, 'rezoci4-proxy/1.0');
+		$output = curl_exec($ch);
+		$httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$curlErrNo = curl_errno($ch);
+		$curlErr = curl_error($ch);
+		curl_close($ch);
+
+		if ($curlErrNo) {
+			error_log('[update_parametres_administrateur] Proxy cURL error ' . $curlErrNo . ': ' . $curlErr . ' (target=' . $targetUrl . ')');
+		}
+	} else {
+		$ctx = stream_context_create([
+			'http' => [
+				'method'  => 'POST',
+				'header'  => "Content-Type: application/x-www-form-urlencoded\r\nUser-Agent: rezoci4-proxy/1.0\r\n",
+				'content' => $postData,
+				'timeout' => 30,
+			],
+			'ssl' => [
+				'verify_peer' => false,
+				'verify_peer_name' => false,
+			],
+		]);
+		$output = @file_get_contents($targetUrl, false, $ctx);
+	}
+
+	if ($output === false || ($httpCode >= 400 && $httpCode !== 0) || trim((string)$output) === '') {
+		@ob_clean();
+		echo "return_txt=-1";
+		exit;
+	}
+
+	@ob_clean();
+	echo $output;
+	exit;
+}
+
 # fonction permettant l'encodage des caractres accentuŽs
 function getFormatedText($texte){ 
 $texte =utf8_encode($texte); 
@@ -20,7 +101,12 @@ return $texte;
 // AUTOLOAD CLASS OBJECTS... YOU CAN USE INCLUDES IF YOU PREFER
 if(!function_exists("autoload_classes")){ 
 	function autoload_classes($class_name){
-		require_once('classes/class_'.$class_name.'.php');
+		$path = __DIR__ . '/classes/class_' . $class_name . '.php';
+		if (is_file($path)) {
+			require_once($path);
+			return;
+		}
+		error_log('[update_parametres_administrateur] Autoload failed for ' . $class_name . ' at ' . $path);
 	}
 }
 spl_autoload_register('autoload_classes');

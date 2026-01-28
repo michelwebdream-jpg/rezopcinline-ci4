@@ -28,16 +28,21 @@ return $texte;
 // Utiliser spl_autoload_register au lieu de __autoload (déprécié)
 if(!function_exists("autoload_dbconnect")){ 
 	function autoload_dbconnect($class_name){
-		$file = 'classes/class_'.$class_name.'.php';
-		if (file_exists($file)) {
+		$file = __DIR__ . '/classes/class_' . $class_name . '.php';
+		if (is_file($file)) {
 			require_once($file);
 		}
 	}
 }
 spl_autoload_register('autoload_dbconnect');
 
-// Définir le fichier de log (chemin relatif depuis ce fichier)
-$log_file = dirname(dirname(dirname(__FILE__))) . '/application/logs/db_debug.log';
+// Définir le fichier de log (CI4: writable/logs)
+$app_root = dirname(__DIR__, 4);
+$log_dir = $app_root . '/writable/logs';
+$log_file = $log_dir . '/db_debug.log';
+if (!is_dir($log_dir)) {
+	@mkdir($log_dir, 0755, true);
+}
 
 // Détecter si on est en local
 $is_local = false;

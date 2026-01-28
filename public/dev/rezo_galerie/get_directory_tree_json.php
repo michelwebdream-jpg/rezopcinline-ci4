@@ -1,4 +1,4 @@
-<?PHP
+<?php
 
 // Headers CORS pour permettre les requêtes cross-origin depuis localhost
 $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
@@ -38,79 +38,109 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Content-Type: application/json');
 
-// Détecter si on est en local
-$is_local = false;
-$hostname = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
-$local_indicators = array('localhost', '127.0.0.1', '::1', 'local', '.local', '.dev');
-foreach ($local_indicators as $indicator) {
-	if (stripos($hostname, $indicator) !== false) {
-		$is_local = true;
-		break;
-	}
-}
-if (!$is_local && filter_var($hostname, FILTER_VALIDATE_IP) !== false) {
-	$is_local = true;
-}
+// Récupérer le paramètre ImagePath
+$imagePath = isset($_GET['ImagePath']) ? (string) $_GET['ImagePath'] : '';
 
-// Fonction pour détecter le chemin de base de l'application
-function detectAppBasePath() {
-	$scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-	// Si le script est dans /rezopcinline/public/dev/..., extraire /rezopcinline
-	if (preg_match('#/(rezopcinline)/public/dev/#', $scriptName, $matches)) {
-		return '/' . $matches[1] . '/';
-	}
-	// Sinon, pas de sous-dossier
-	return '/';
-}
+// ------------------------------------------------------------
+// OPTION B: Utiliser le stockage local dans /public/dev/rezo_galerie
+// ------------------------------------------------------------
+// Structure attendue:
+// - /public/dev/rezo_galerie/<CODE_PC>/<DOSSIER>/... (originaux)
+// - /public/dev/rezo_galerie/<CODE_PC>/<DOSSIER>/thumb/... (miniatures)
 
-// Détecter le chemin de base
-$appBasePath = detectAppBasePath();
-
-// Si on est en local, faire une requête cURL vers le serveur de production
-if ($is_local) {
-	// Récupérer le paramètre ImagePath
-	$imagePath = isset($_GET['ImagePath']) ? $_GET['ImagePath'] : '';
-	
-	// Construire l'URL du serveur de production
-	$url = 'https://www.web-dream.fr/dev/rezo_galerie/get_directory_tree_json.php?ImagePath=' . urlencode($imagePath);
-	
-	// Faire une requête cURL vers le serveur de production
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, $url);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); // Pour éviter les problèmes de certificat
-	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-	curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-	
-	$output = curl_exec($ch);
-	$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	
-	if (curl_errno($ch)) {
-		$error = curl_error($ch);
-		curl_close($ch);
-		ob_clean();
-		echo json_encode(['error' => 'CURL error: ' . $error]);
-		exit;
-	}
-	
-	curl_close($ch);
-	
-	if ($httpCode >= 400) {
-		ob_clean();
-		echo json_encode(['error' => 'HTTP error: ' . $httpCode]);
-		exit;
-	}
-	
+$codePc = trim($imagePath);
+if ($codePc === '') {
 	ob_clean();
-	echo $output;
+	echo json_encode(['error' => 'Missing ImagePath']);
 	exit;
 }
 
-// Si on est en production, ce fichier proxy peut être utilisé
-// Il utilisera les fichiers locaux s'ils existent, sinon il fera un proxy vers la production
-// Note: En production, les fichiers devraient normalement être copiés depuis le serveur de production
-// mais ce fichier proxy peut servir de fallback
+// Sécuriser le code (éviter traversal)
+if (!preg_match('/^[a-zA-Z0-9_-]+$/', $codePc)) {
+	ob_clean();
+	echo json_encode(['error' => 'Invalid ImagePath']);
+	exit;
+}
 
-?>
+$baseDir = __DIR__;
+$userDir = $baseDir . '/' . $codePc;
+
+if (!is_dir($userDir)) {
+	// Pas de docs
+	ob_clean();
+	echo json_encode("-1");
+	exit;
+}
+
+function dirSizeBytes(string $dir): int {
+	$size = 0;
+	$items = @scandir($dir);
+	if (!is_array($items)) {
+		return 0;
+	}
+	foreach ($items as $item) {
+		if ($item === '.' || $item === '..') continue;
+		$path = $dir . '/' . $item;
+		if (is_dir($path)) {
+			$size += dirSizeBytes($path);
+		} else {
+			$size += (int) @filesize($path);
+		}
+	}
+	return $size;
+}
+
+function listFilesFlat(string $dir): array {
+	$files = [];
+	$items = @scandir($dir);
+	if (!is_array($items)) {
+		return $files;
+	}
+	foreach ($items as $item) {
+		if ($item === '.' || $item === '..') continue;
+		$path = $dir . '/' . $item;
+		if (is_file($path)) {
+			// Filtrer grossièrement les fichiers images/doc
+			$ext = strtolower(pathinfo($item, PATHINFO_EXTENSION));
+			if (in_array($ext, ['jpg','jpeg','png','gif','pdf'], true)) {
+				$files[] = $item;
+			}
+		}
+	}
+	return $files;
+}
+
+$dirsOut = [];
+$entries = @scandir($userDir);
+if (is_array($entries)) {
+	foreach ($entries as $entry) {
+		if ($entry === '.' || $entry === '..') continue;
+		$path = $userDir . '/' . $entry;
+		if (!is_dir($path)) continue;
+		// Ignorer d'éventuels dossiers techniques
+		if ($entry === 'thumb') continue;
+
+		$files = listFilesFlat($path);
+		$dirsOut[] = [
+			'folder' => $entry,
+			'files'  => $files,
+		];
+	}
+}
+
+// Valeurs utilisées par l'UI (barre de progression)
+$sizeOfUser = dirSizeBytes($userDir);
+$sizeMaxPc = 100 * 1024 * 1024; // 100 MiB par défaut (cohérent avec les anciens écrans)
+
+$payload = [
+	'tree' => [
+		'dirs' => $dirsOut,
+	],
+	'size_of_user' => (string) $sizeOfUser,
+	'size_max_pc'  => (string) $sizeMaxPc,
+];
+
+ob_clean();
+echo json_encode($payload);
+exit;
 

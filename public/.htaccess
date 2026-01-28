@@ -14,7 +14,12 @@ Options -Indexes
 	# If you installed CodeIgniter in a subfolder, you will need to
 	# change the following line to match the subfolder you need.
 	# http://httpd.apache.org/docs/current/mod/mod_rewrite.html#rewritebase
-	# RewriteBase /
+	# 
+	# IMPORTANT: Pas de RewriteBase - on gère manuellement
+	# DocumentRoot: /home/sinadeoogs/rezoci4
+	# Le .htaccess est dans /home/sinadeoogs/rezoci4/public/
+	# Les requêtes arrivent avec REQUEST_URI = /public/chemin depuis le .htaccess à la racine
+	# On doit extraire "chemin" et le passer à index.php
 
 	# Redirect Trailing Slashes...
 	RewriteCond %{REQUEST_FILENAME} !-d
@@ -29,9 +34,12 @@ Options -Indexes
 	# Checks to see if the user is attempting to access a valid file,
 	# such as an image or css document, if this isn't true it sends the
 	# request to the front controller, index.php
+	# 
+	# IMPORTANT: Les requêtes arrivent maintenant via index.php à la racine
+	# qui définit PATH_INFO correctement, donc on peut utiliser la règle standard
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteRule ^([\s\S]*)$ index.php/$1 [L,NC,QSA]
+	RewriteRule ^(.*)$ index.php/$1 [L,NC,QSA]
 
 	# Ensure Authorization header is passed along
 	RewriteCond %{HTTP:Authorization} .
