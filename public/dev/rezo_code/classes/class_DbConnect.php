@@ -194,7 +194,7 @@ class DbConnect
 	*/
 	function fetch_array($result)
 	{
-		return @mysql_fetch_assoc($result);
+		return ($result instanceof \mysqli_result) ? $result->fetch_assoc() : null;
 	}
 
 	/**
@@ -303,7 +303,10 @@ class DbConnect
 	*/
 	function free_result($result)
 	{
-		return @mysql_free_result($result);
+		if ($result instanceof \mysqli_result) {
+			$result->free();
+		}
+		return true;
 	}
 
 	/**

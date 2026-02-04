@@ -5,9 +5,9 @@ header('Expires: Thu, 01 Jan 1970 00:00:00 GMT, -1');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 
-# fonction permettant l'encodage des caractres accentuŽs
-function getFormatedText($texte){ 
-$texte =utf8_decode($texte); 
+# fonction permettant l'encodage des caractères accentués (compatible PHP 7.4 et 8.3)
+function getFormatedText($texte){
+$texte = (function_exists('mb_convert_encoding')) ? mb_convert_encoding($texte, 'ISO-8859-1', 'UTF-8') : utf8_decode($texte); 
 $texte =str_replace( "\r", "\n", $texte); 
 $texte =str_replace( "<br>","\n", $texte);
 $texte =stripcslashes($texte); 
@@ -38,26 +38,25 @@ $mon_mail="";
 $mon_indicatif="";
 $mon_iconid="";
 
-$mon_code=getFormatedText($_POST['mon_code']);
+$mon_code = $db->prepare(getFormatedText(isset($_POST['mon_code']) ? $_POST['mon_code'] : ''));
 
-
+$result = false;
 $db->query("SET NAMES 'utf8'");
 // Recherche de l'adresse mail
-$sql = "SELECT * FROM `REZO` WHERE moncode = '$mon_code';"; 
-if($result = $db->query($sql))
-{
-					if($result->num_rows){
-						while($row = $result->fetch_array(MYSQLI_ASSOC)){
-							$mon_nom = $db->prepare($row['nom']);
-							$mon_prenom = $db->prepare($row['prenom']);
-							$mon_mail = $db->prepare($row['mail']);
-							$mon_indicatif=$db->prepare($row['indicatif']);
-							$mon_iconid=$db->prepare($row['iconid']);
-						}
-					}
+$sql = "SELECT * FROM `REZO` WHERE moncode = '$mon_code';";
+if ($result = $db->query($sql)) {
+	if ($result->num_rows) {
+		while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+			$mon_nom = $db->prepare($row['nom']);
+			$mon_prenom = $db->prepare($row['prenom']);
+			$mon_mail = $db->prepare($row['mail']);
+			$mon_indicatif = $db->prepare($row['indicatif']);
+			$mon_iconid = $db->prepare($row['iconid']);
+		}
+	}
 }
 
-if ($result->num_rows>0) 
+if ($result && $result->num_rows > 0) 
 {
 	echo $mon_mail."\n".$mon_nom."\n".$mon_prenom."\n".$mon_indicatif."\n".$mon_iconid;
 	
