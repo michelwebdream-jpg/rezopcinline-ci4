@@ -238,9 +238,13 @@ if(isset($_POST['ImageName']) && isset($_POST['ImagePath']) && isset($_POST['Fin
         exit;
     }
 
-    $baseDir = __DIR__ . '/' . $codePc;
+    // Sauvegarder dans rezopcinline/public/dev/rezo_galerie/ (CI4) même si ce script est appelé depuis www.web-dream.fr/dev/rezo_galerie/
+    $uploadRoot = __DIR__ . '/../../rezopcinline/public/dev/rezo_galerie';
+    if (!is_dir($uploadRoot)) {
+        @mkdir($uploadRoot, 0777, true);
+    }
+    $baseDir = $uploadRoot . '/' . $codePc;
     if (!is_dir($baseDir)) {
-        // créer le dossier code_pc si absent
         @mkdir($baseDir, 0777, true);
     }
 

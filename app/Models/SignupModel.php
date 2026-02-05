@@ -41,7 +41,7 @@ class SignupModel extends Model
         
         // Si local, utiliser la valeur du .env ou l'URL locale
         if ($is_local) {
-            $envUrl = getenv('APP_SERVER_URL');
+            $envUrl = $_ENV['APP_SERVER_URL'] ?? getenv('APP_SERVER_URL');
             if (!empty($envUrl)) {
                 log_message('debug', 'getAppServerURL - Local environment, using .env value: ' . $envUrl);
                 return $envUrl;
@@ -52,43 +52,47 @@ class SignupModel extends Model
         }
         
         // Détecter le serveur de test (rezoci4.web-dream.fr)
-        // IMPORTANT: Ignorer la valeur du .env sur le serveur de test
         if (strpos($hostname, 'rezoci4.web-dream.fr') !== false) {
             $url = 'https://rezoci4.web-dream.fr';
             log_message('debug', 'getAppServerURL - Detected test server, returning: ' . $url);
             return $url;
         }
         
-        // Production (www.web-dream.fr)
-        // Si l'app est dans le sous-dossier /rezopcinline/, inclure ce préfixe pour que les appels API
-        // (dev/rezo_flash_code/..., etc.) pointent vers https://www.web-dream.fr/rezopcinline/dev/...
-        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-        $requestUri = $_SERVER['REQUEST_URI'] ?? '';
-        if (strpos($scriptName, '/rezopcinline/') !== false || strpos($requestUri, '/rezopcinline') === 0) {
+        // Production (www.web-dream.fr / web-dream.fr)
+        // L'API doit pointer vers rezopcinline/public/dev/... donc base = https://www.web-dream.fr/rezopcinline
+        // On force toujours /rezopcinline en prod pour que creat_customer.php soit bien celui du projet CI4.
+        if (strpos($hostname, 'web-dream.fr') !== false) {
             $url = 'https://www.web-dream.fr/rezopcinline';
-            log_message('debug', 'getAppServerURL - Production with /rezopcinline subfolder: ' . $url);
+            log_message('debug', 'getAppServerURL - Production web-dream.fr, API base: ' . $url);
             return $url;
         }
-        $url = 'https://www.web-dream.fr';
-        log_message('debug', 'getAppServerURL - Using production default: ' . $url);
+        
+        $url = $protocol . '://' . $hostname;
+        log_message('debug', 'getAppServerURL - Fallback: ' . $url);
         return $url;
     }
     
+    /** Lit une clé du .env (CI4 charge dans $_ENV, getenv() peut être vide en production) */
+    private function envUri(string $key, string $default): string
+    {
+        return $_ENV[$key] ?? getenv($key) ?: $default;
+    }
+
     public function envoi_mot_de_passe($data)
     {
-        $url = $this->getAppServerURL() . getenv('SENDPASSWORD_URI');
+        $url = $this->getAppServerURL() . $this->envUri('SENDPASSWORD_URI', '/dev/rezo_flash_code/send_password.php');
         return $this->postCURL($url, $data);
     }
     
     public function modifier_mot_de_passe($data)
     {
-        $url = $this->getAppServerURL() . getenv('UPDATEPASSWORD_URI');
+        $url = $this->getAppServerURL() . $this->envUri('UPDATEPASSWORD_URI', '/dev/rezo_flash_code/update_password.php');
         return $this->postCURL($url, $data);
     }
     
     public function update_compte_administrateur($data)
     {
-        $url = $this->getAppServerURL() . getenv('UPDATEUSER_URI');
+        $url = $this->getAppServerURL() . $this->envUri('UPDATEUSER_URI', '/dev/rezo_flash_code/updateuser_customer.php');
         return $this->postCURL($url, $data);
     }
     
@@ -99,7 +103,7 @@ class SignupModel extends Model
             "mon_mot_de_passe" => $pass
         ];
         $baseUrl = $this->getAppServerURL();
-        $uri = getenv('LIT_INFO_ADMINISTRATEUR_URI');
+        $uri = $this->envUri('LIT_INFO_ADMINISTRATEUR_URI', '/dev/rezo_flash_code/lit_info_administrateur.php');
         $url = $baseUrl . $uri;
         
         log_message('debug', 'check_code_et_licence - Base URL: ' . $baseUrl);
@@ -114,7 +118,7 @@ class SignupModel extends Model
         $passData = [
            "mon_code" => $code
         ];
-        $url = $this->getAppServerURL() . getenv('AJOUTE_CODE_PC_TABLE_CONTACT_URI');
+        $url = $this->getAppServerURL() . $this->envUri('AJOUTE_CODE_PC_TABLE_CONTACT_URI', '/dev/rezo_flash_code/ajoute_code_pc_table_contact.php');
         return $this->postCURL($url, $passData);
     }
     
@@ -125,7 +129,7 @@ class SignupModel extends Model
             "size_limit_galerie" => "100",
             "appli_type_PC" => "3"
         ];
-        $url = $this->getAppServerURL() . getenv('MAJ_APP_POUR_GALERIE_PHOTO_URI');
+        $url = $this->getAppServerURL() . $this->envUri('MAJ_APP_POUR_GALERIE_PHOTO_URI', '/dev/rezo_flash_code/maj_app_pour_galerie_photo.php');
         return $this->postCURL($url, $passData);
     }
     
@@ -141,7 +145,7 @@ class SignupModel extends Model
             "mon_password" => $data['text_input_mon_password1'] ?? '',
             "ma_licence" => $data['text_input_cle_de_licence'] ?? ''
         ];
-        $url = $this->getAppServerURL() . getenv('REGISTER_URI');
+        $url = $this->getAppServerURL() . $this->envUri('REGISTER_URI', '/dev/rezo_flash_code/creat_customer.php');
         return $this->postCURL($url, $passData);
     }
     

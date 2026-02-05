@@ -67,10 +67,11 @@ class Signup extends BaseController
                     $code_administrateur = substr($resultat_creation_de_compte, 0, 8);
                     $date_fin_validite_licence = substr($resultat_creation_de_compte, 8);
                     
-                    // Envoi email
+                    // Envoi email (HTML pour liens et sauts de ligne)
                     $this->email->setFrom('info@web-dream.fr', 'REZO+ PC Inline - Web-Dream');
                     $this->email->setTo($this->request->getPost('text_input_mon_mail'));
                     $this->email->setSubject('Confirmation de création de compte REZO+ PC Inline.');
+                    $this->email->setMailType('html');
                     $message = "Bonjour,<br />vous trouverez ci-dessous les informations de connexions à votre compte REZO+.<br /><br />Code REZO+ : " . $code_administrateur . "<br />" . "Mot de passse : " . $this->request->getPost('text_input_mon_password1') . "<br /><br />" . "Adresse de connexion : <a href=\"http://www.web-dream.fr/rezopcinline\">REZO+ PC INLINE</a>" . "<br /><br />" . "Merci de votre confiance.<br />L'équipe Web-Dream";
                     $this->email->setMessage($message);
                     $this->email->send();
@@ -158,10 +159,10 @@ class Signup extends BaseController
                 // Supprimer les warnings PHP formatés en HTML (ex: <br /><b>Deprecated</b>...)
                 $cleaned_response = preg_replace('/<br \/>\s*<b>(Deprecated|Warning|Fatal error|Notice)<\/b>.*?(<br \/>|$)/', '', $resultat_verif_code_et_licence);
                 
-                // Supprimer les balises HTML complètes (ouvrantes et fermantes)
-                // Regex sécurisée: ne matche que les vraies balises HTML, pas les éléments de la trame
-                $cleaned_response = preg_replace('/<(br|b|i|u|strong|em|p|div|span)(\s[^>]*|\/)?>/i', '', $cleaned_response);
-                $cleaned_response = preg_replace('/<\/(br|b|i|u|strong|em|p|div|span)>/i', '', $cleaned_response);
+                // Supprimer uniquement les balises HTML à risque (br, strong, em, p, div, span)
+                // NE PAS inclure b, i, u : un prénom ou autre champ peut être "b" ou "i", la trame contient ...><b><... et <b> serait supprimé à tort, ce qui décale tous les champs
+                $cleaned_response = preg_replace('/<(br|strong|em|p|div|span)(\s[^>]*|\/)?>/i', '', $cleaned_response);
+                $cleaned_response = preg_replace('/<\/(br|strong|em|p|div|span)>/i', '', $cleaned_response);
                 
                 $cleaned_response = trim($cleaned_response);
                 $resultat_verif_code_et_licence = $cleaned_response;
@@ -288,14 +289,15 @@ class Signup extends BaseController
             $this->email->setFrom('info@web-dream.fr', 'REZO+ PC Inline - Web-Dream');
             $this->email->setTo('info@web-dream.fr');
             $this->email->setSubject('Connexion à REZO+ PC Inline');
-            
+            $this->email->setMailType('html');
+
             $user_logged = $this->session->get('deliverdata');
             $user_nom = $user_logged['nom_administrateur'] ?? '';
             $user_prenom = $user_logged['prenom_administrateur'] ?? '';
             date_default_timezone_set('Europe/Paris');
             $date_connexion = date('d-m-Y H:i:s');
             $message_connexion = 'Nom : ' . $user_nom . '<br />Prénom : ' . $user_prenom . '<br />Date : ' . $date_connexion;
-            $this->email->setMessage("Bonjour,<br />une connexion à REZO+ PC Inline vient d'être effectuée.<br />Voiciles détails :<br />" . $message_connexion);
+            $this->email->setMessage("Bonjour,<br />une connexion à REZO+ PC Inline vient d'être effectuée.<br />Voici les détails :<br />" . $message_connexion);
             $this->email->send();
             
             return redirect()->to('/membres');
