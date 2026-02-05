@@ -26,6 +26,7 @@ var Global = {
 		 APP_SERVER_URL:(function() {
 				var hostname = window.location.hostname;
 				var protocol = window.location.protocol;
+				var pathname = window.location.pathname || '';
 
 				var localIndicators = ['localhost', '127.0.0.1', '::1', 'local', '.local', '.dev'];
 				var isLocal = false;
@@ -46,8 +47,11 @@ var Global = {
 				} else if (hostname.indexOf('rezoci4.web-dream.fr') !== -1) {
 					// Serveur de test
 					return 'https://rezoci4.web-dream.fr';
+				} else if (pathname.indexOf('/rezopcinline') === 0) {
+					// Production avec app dans le sous-dossier /rezopcinline/
+					return 'https://www.web-dream.fr/rezopcinline';
 				} else {
-					// Production par défaut
+					// Production à la racine
 					return 'https://www.web-dream.fr';
 				}
 			})(), 

@@ -45,8 +45,12 @@ class Mes_documents extends BaseController
             if (strpos($hostname, 'rezoci4.web-dream.fr') !== false) {
                 $app_server_url = 'https://rezoci4.web-dream.fr';
             } else {
-                // Production par défaut (ignore le .env)
-                $app_server_url = 'https://www.web-dream.fr';
+                // Production : inclure /rezopcinline pour que /dev/... soit servi depuis rezopcinline/public/dev/
+                $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+                $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+                $app_server_url = (strpos($scriptName, '/rezopcinline/') !== false || strpos($requestUri, '/rezopcinline') === 0)
+                    ? 'https://www.web-dream.fr/rezopcinline'
+                    : 'https://www.web-dream.fr';
             }
         }
         
@@ -57,10 +61,10 @@ class Mes_documents extends BaseController
             'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
             'utilisateur' => $this->session->get('deliverdata'),
             'APP_SERVER_URL' => $app_server_url,
-            // Option B: URLs explicites vers /public/dev/...
-            'GET_DIRECTORY_TREE_JSON_URI' => '/public/dev/rezo_galerie/get_directory_tree_json.php',
-            'EFFACE_REPERTOIRE_URI' => '/public/dev/rezo_code/efface_repertoire.php',
-            'SUPPRIME_PHOTO_GALERIE_URI' => '/public/dev/rezo_code/supprime_photo_galerie.php'
+            // URLs vers /dev/... (le .htaccess réécrit vers public/dev/)
+            'GET_DIRECTORY_TREE_JSON_URI' => '/dev/rezo_galerie/get_directory_tree_json.php',
+            'EFFACE_REPERTOIRE_URI' => '/dev/rezo_code/efface_repertoire.php',
+            'SUPPRIME_PHOTO_GALERIE_URI' => '/dev/rezo_code/supprime_photo_galerie.php'
         ];
         
         return view('mes_documents', $data);

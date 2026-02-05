@@ -117,15 +117,16 @@
     var action_a_ouverture_galerie="";
     var datadirectoryContents;
     var repertoire_selectionne='';
-    // Option B: utiliser /public/dev/rezo_galerie/
-    var base_url_galerie = '<?= rtrim(base_url('public/dev/rezo_galerie/'), '/') . '/' ?>';
+    // base_url() inclut déjà /rezopcinline ; /dev/... est réécrit vers public/dev/ par .htaccess
+    var base_url_galerie = '<?= rtrim(base_url('dev/rezo_galerie/'), '/') . '/' ?>';
     var base_url_thumb = 'thumb/';
     var backend  = 'backend.php';
     var code_pc='<?php echo (isset($utilisateur) && isset($utilisateur["code_administrateur"])) ? $utilisateur["code_administrateur"] : ''; ?>';
-    var app_server_url = '<?php echo isset($APP_SERVER_URL) ? $APP_SERVER_URL : 'https://www.web-dream.fr'; ?>';
-    var get_directory_tree_json_uri = '<?php echo isset($GET_DIRECTORY_TREE_JSON_URI) ? $GET_DIRECTORY_TREE_JSON_URI : '/dev/rezo_galerie/get_directory_tree_json.php'; ?>';
-    var efface_repertoire_uri = '<?php echo isset($EFFACE_REPERTOIRE_URI) ? $EFFACE_REPERTOIRE_URI : '/dev/rezo_code/efface_repertoire.php'; ?>';
-    var supprime_photo_galerie_uri = '<?php echo isset($SUPPRIME_PHOTO_GALERIE_URI) ? $SUPPRIME_PHOTO_GALERIE_URI : '/dev/rezo_code/supprime_photo_galerie.php'; ?>';
+    // Utiliser base_url() pour garantir la bonne base (avec /rezopcinline en prod)
+    var app_server_url = '<?= rtrim(base_url(), '/') ?>';
+    var get_directory_tree_json_uri = '/dev/rezo_galerie/get_directory_tree_json.php';
+    var efface_repertoire_uri = '/dev/rezo_code/efface_repertoire.php';
+    var supprime_photo_galerie_uri = '/dev/rezo_code/supprime_photo_galerie.php';
     
 function InitOverviewDataTable_document_utilisateur(){
   

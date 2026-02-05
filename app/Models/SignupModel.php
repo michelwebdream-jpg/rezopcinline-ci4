@@ -59,8 +59,16 @@ class SignupModel extends Model
             return $url;
         }
         
-        // Production par défaut
-        // IMPORTANT: Ignorer la valeur du .env en production aussi
+        // Production (www.web-dream.fr)
+        // Si l'app est dans le sous-dossier /rezopcinline/, inclure ce préfixe pour que les appels API
+        // (dev/rezo_flash_code/..., etc.) pointent vers https://www.web-dream.fr/rezopcinline/dev/...
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+        if (strpos($scriptName, '/rezopcinline/') !== false || strpos($requestUri, '/rezopcinline') === 0) {
+            $url = 'https://www.web-dream.fr/rezopcinline';
+            log_message('debug', 'getAppServerURL - Production with /rezopcinline subfolder: ' . $url);
+            return $url;
+        }
         $url = 'https://www.web-dream.fr';
         log_message('debug', 'getAppServerURL - Using production default: ' . $url);
         return $url;
