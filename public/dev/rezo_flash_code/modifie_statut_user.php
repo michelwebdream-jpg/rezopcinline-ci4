@@ -44,22 +44,24 @@ if (!is_dir($log_dir)) {
 	@mkdir($log_dir, 0755, true);
 }
 
-// Détecter si on est en local
-$is_local = false;
+// En local (localhost, .local, 127.0.0.1) on a la BDD MAMP, donc on utilise la logique locale.
+// Seulement proxy sur le serveur de test sans BDD (ex: rezoci4.web-dream.fr).
 $hostname = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+$is_prod_host = (stripos($hostname, 'www.web-dream.fr') !== false);
+$is_local_with_db = false;
 $local_indicators = array('localhost', '127.0.0.1', '::1', 'local', '.local', '.dev');
 foreach ($local_indicators as $indicator) {
 	if (stripos($hostname, $indicator) !== false) {
-		$is_local = true;
+		$is_local_with_db = true;
 		break;
 	}
 }
-if (!$is_local && filter_var($hostname, FILTER_VALIDATE_IP) !== false) {
-	$is_local = true;
+if (!$is_local_with_db && filter_var($hostname, FILTER_VALIDATE_IP) !== false) {
+	$is_local_with_db = true;
 }
 
-// Si on est en local, faire une requête cURL vers le serveur de production
-if ($is_local) {
+// Seulement proxy si serveur de test sans BDD
+if (!$is_prod_host && !$is_local_with_db) {
 	file_put_contents($log_file, date('Y-m-d H:i:s') . " - [modifie_statut_user] Mode LOCAL détecté - Proxy vers serveur PRODUCTION\n", FILE_APPEND);
 	
 	// Préparer les données POST

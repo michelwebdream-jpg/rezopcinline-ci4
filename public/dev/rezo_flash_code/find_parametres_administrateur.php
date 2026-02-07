@@ -54,9 +54,14 @@ header('Pragma: no-cache');
 // ------------------------------------------------------------
 // Sur le serveur de test (ex: rezoci4.web-dream.fr) on n'a pas de BDD locale.
 // On proxy donc vers la prod (www.web-dream.fr) qui, elle, a accès aux données.
+// En local (localhost, .local, 127.0.0.1) on a la BDD MAMP, donc on utilise la logique locale.
 $hostname = $_SERVER['HTTP_HOST'] ?? '';
 $is_prod_host = (stripos($hostname, 'www.web-dream.fr') !== false);
-if (!$is_prod_host) {
+$is_local_with_db = (stripos($hostname, 'localhost') !== false)
+	|| (stripos($hostname, '127.0.0.1') !== false)
+	|| (stripos($hostname, '.local') !== false)
+	|| (stripos($hostname, '::1') !== false);
+if (!$is_prod_host && !$is_local_with_db) {
 	$targetUrl = 'https://www.web-dream.fr/dev/rezo_flash_code/find_parametres_administrateur.php';
 	$postData = http_build_query($_POST);
 

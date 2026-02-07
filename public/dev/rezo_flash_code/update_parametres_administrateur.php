@@ -30,9 +30,14 @@ register_shutdown_function(function () {
 // ------------------------------------------------------------
 // MODE PROXY (serveur de test sans BDD)
 // ------------------------------------------------------------
+// En local (localhost, .local, 127.0.0.1) on a la BDD MAMP, donc on utilise la logique locale.
 $hostname = $_SERVER['HTTP_HOST'] ?? '';
 $is_prod_host = (stripos($hostname, 'www.web-dream.fr') !== false);
-if (!$is_prod_host) {
+$is_local_with_db = (stripos($hostname, 'localhost') !== false)
+	|| (stripos($hostname, '127.0.0.1') !== false)
+	|| (stripos($hostname, '.local') !== false)
+	|| (stripos($hostname, '::1') !== false);
+if (!$is_prod_host && !$is_local_with_db) {
 	$targetUrl = 'https://www.web-dream.fr/dev/rezo_flash_code/update_parametres_administrateur.php';
 	$postData = http_build_query($_POST);
 

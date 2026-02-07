@@ -93,22 +93,22 @@ function safe_debug_log($message) {
 // ------------------------------------------------------------
 // MODE PROXY (serveurs sans BDD locale)
 // ------------------------------------------------------------
-// Sur tout hôte différent de www.web-dream.fr, on proxy vers la prod
-// pour éviter d'avoir à configurer la BDD sur le serveur de test.
+// Sur le serveur de test (ex: rezoci4.web-dream.fr) on n'a pas de BDD locale.
+// En local (localhost, .local, 127.0.0.1) on a la BDD MAMP, donc on utilise la logique locale.
 $hostname = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
 $is_prod_host = (stripos($hostname, 'www.web-dream.fr') !== false);
 
-// Détecter si on est en local
-$is_local = false;
+// Détecter si on est en local avec BDD (MAMP)
+$is_local_with_db = false;
 $local_indicators = array('localhost', '127.0.0.1', '::1', 'local', '.local', '.dev');
 foreach ($local_indicators as $indicator) {
 	if (stripos($hostname, $indicator) !== false) {
-		$is_local = true;
+		$is_local_with_db = true;
 		break;
 	}
 }
-if (!$is_local && filter_var($hostname, FILTER_VALIDATE_IP) !== false) {
-	$is_local = true;
+if (!$is_local_with_db && filter_var($hostname, FILTER_VALIDATE_IP) !== false) {
+	$is_local_with_db = true;
 }
 
 // Fonction pour détecter le chemin de base de l'application
@@ -128,8 +128,8 @@ function detectAppBasePath() {
 // Détecter le chemin de base
 $appBasePath = detectAppBasePath();
 
-// Si on est en local OU sur un serveur de test (pas www.web-dream.fr), proxy vers la prod
-if ($is_local || !$is_prod_host) {
+// Seulement proxy si on est sur un serveur de test sans BDD (ex: rezoci4.web-dream.fr)
+if (!$is_prod_host && !$is_local_with_db) {
 	safe_debug_log("[info_activite] Mode PROXY détecté (host=" . $hostname . ") - Proxy vers serveur PRODUCTION");
 	
 	// Préparer les données POST
