@@ -16,7 +16,7 @@ if ($footer === '') {
 </div><div class="separator"></div>
 <hr />
 <div id="header_logo">
-    <a href="https://www.web-dream.fr"  target="_black"><img border="0" alt="Web Dream" src="<?php echo $burl;?>images/Logo-Web-dream_240x240.png" width="100" height="100"></a>
+    <a href="https://www.web-dream.fr"  style="margin-bottom: 20px;" target="_black"><img border="0" alt="Web Dream" src="<?php echo $burl;?>images/Logo-Web-dream_240x240.png" height="50"></a>
     <h1>REZO+ PC Inline</h1>
     <p style="text-align:center;margin-top:5px;margin-bottom:5px;"><?php echo $version_soft?></p>
     <p>Conception et réalisation</p>
