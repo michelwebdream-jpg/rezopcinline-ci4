@@ -47,7 +47,7 @@
             <?php endif;?>
             <?php if(isset($succes)):?>
             <script>swal({   title: "Succès.",   text: "Votre code et mot de passe ont bien étés envoyés à votre adresse email !",   type: "success",   showCancelButton: false,   confirmButtonColor: "#DD6B55",   confirmButtonText: "Ok",   cancelButtonText: "", closeOnConfirm: true }, function(){   
-                window.location = "index.php";   
+                window.location = "<?= base_url(); ?>";   
         });</script>
             <div class="succes"><?php echo $succes;?></div>
             <?php endif;?>
