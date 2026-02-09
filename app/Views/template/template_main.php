@@ -47,7 +47,7 @@
     
     <script type="text/javascript">var utilisateur_session = <?= json_encode($utilisateur ?? []) ?></script>
     <script type="text/javascript">var base_url = "<?= base_url() ?>";</script>
-    <script type="text/javascript">var v_soft = "<?= getenv('VERSION_DU_SOFT') ?? 'Version 5.0' ?>";</script>
+    <script type="text/javascript">var v_soft = "<?= getenv('VERSION_DU_SOFT') ?? 'Version 5.1' ?>";</script>
     
     <?= $map['js'] ?? '' ?>
 
@@ -89,7 +89,7 @@
 
                 <div id="header_logo">
                         <a href="<?php echo base_url();?>"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.jpg" width="100" height="100"></a>
-                    <p style="text-align:center;margin-top:5px;margin-bottom:5px;"><?= getenv('VERSION_DU_SOFT') ?? 'Version 5.0' ?></p>
+                    <p style="text-align:center;margin-top:5px;margin-bottom:5px;"><?= getenv('VERSION_DU_SOFT') ?? 'Version 5.1' ?></p>
                 </div>
                 <div id="menu">
                     
@@ -108,6 +108,7 @@
                 <div id="zone_affichage_coordonnees" style="font-size:10px;text-align:center;margin-bottom:5px;"></div>
                 <div style="text-align:center;">
                     <a href ="#" id="load_non_modal_a_propos"> A propos & bug report </a>
+                    <span id="global_footer_html" style="display:none" data-footer="<?= htmlspecialchars(isset($footing) ? $footing : '', ENT_QUOTES, 'UTF-8') ?>"></span>
                     <p class="copyright"><?php if(isset($footing)) echo $footing;?></p>
                 </div>
             </div>

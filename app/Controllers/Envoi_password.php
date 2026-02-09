@@ -39,7 +39,7 @@ class Envoi_password extends BaseController
                         'succes' => 'Votre code et mot de passe ont bien étés envoyés à votre adresse email.',
                         'titre' => 'REZO+ PC INLINE | Mon compte',
                         'heading' => 'Bienvenue dans REZO+ PC InLine',
-                        'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>'
+                        'footing' => footer_html()
                     ];
                     return view('envoi_password', $data);
                 } else {
@@ -53,7 +53,7 @@ class Envoi_password extends BaseController
                 $data = [
                     'titre' => 'REZO+ PC INLINE | Envoyer mon code et mon mot de passe',
                     'heading' => 'Bienvenue dans REZO+ PC InLine',
-                    'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+                    'footing' => footer_html(),
                     'validation' => $this->validator
                 ];
                 return view('envoi_password', $data);
@@ -63,7 +63,7 @@ class Envoi_password extends BaseController
             $data = [
                 'titre' => 'REZO+ PC INLINE | Envoyer mon code et mon mot de passe',
                 'heading' => 'Bienvenue dans REZO+ PC InLine',
-                'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+                'footing' => footer_html(),
                 'validation' => $this->validator
             ];
             return view('envoi_password', $data);
@@ -76,7 +76,7 @@ class Envoi_password extends BaseController
             'error' => $message,
             'titre' => 'REZO+ PC INLINE | Envoyer mon code et mon mot de passe',
             'heading' => 'Bienvenue dans REZO+ PC InLine',
-            'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+            'footing' => footer_html(),
             'validation' => $this->validator
         ];
         return view('envoi_password', $data);

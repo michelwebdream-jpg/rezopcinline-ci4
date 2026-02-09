@@ -1,5 +1,12 @@
 <?php $burl=$_POST['burl']; ?>
 <?php $version_soft=$_POST['version_soft']; ?>
+<?php
+$footer = $_POST['footing'] ?? '';
+if ($footer === '') {
+    $year = getenv('COPYRIGHT_YEAR') ?: date('Y');
+    $footer = 'copyright@' . $year . ' <a href="https://www.web-dream.fr" target="_blank">Web-Dream</a>';
+}
+?>
 
 <div id="id_view_a_propos">
 <h1 style=" overflow: hidden; float: left;">A propos & Bug report</h1>
@@ -18,7 +25,7 @@
     <p>Pour tout bug ou remarques concernant cette application :</p>
     <a href="mailto:info@web-dream.fr">info@web-dream.fr</a>
     <p></p>
-    <p>Copyright @ 2017 Web-Dream</p>
+    <p><?= $footer ?></p>
     <hr />
     <p><u>Un immense merci au créateur de ce grand projet :</u></p>
     <p>Monsieur Clement Marragou</p>

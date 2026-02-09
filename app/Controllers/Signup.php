@@ -79,7 +79,7 @@ class Signup extends BaseController
                     $data = [
                         'titre' => 'REZO+ PC INLINE | Créer un compte',
                         'heading' => 'Bienvenue dans REZO+ PC InLine',
-                        'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+                        'footing' => footer_html(),
                         'code_administrateur' => $code_administrateur,
                         'date_fin_validite_licence' => $date_fin_validite_licence
                     ];
@@ -96,7 +96,7 @@ class Signup extends BaseController
                 $data = [
                     'titre' => 'REZO+ PC INLINE | Créer un compte',
                     'heading' => 'Bienvenue dans REZO+ PC InLine',
-                    'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+                    'footing' => footer_html(),
                     'validation' => $this->validator
                 ];
                 return view('signup', $data);
@@ -106,7 +106,7 @@ class Signup extends BaseController
             $data = [
                 'titre' => 'REZO+ PC INLINE | Créer un compte',
                 'heading' => 'Bienvenue dans REZO+ PC InLine',
-                'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+                'footing' => footer_html(),
                 'validation' => $this->validator
             ];
             return view('signup', $data);
@@ -257,7 +257,7 @@ class Signup extends BaseController
                 $data = [
                     'titre' => 'REZO+ PC INLINE | Connexion',
                     'heading' => 'Bienvenue dans REZO+ PC InLine',
-                    'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+                    'footing' => footer_html(),
                     'validation' => $this->validator
                 ];
                 return view('login', $data);
@@ -267,7 +267,7 @@ class Signup extends BaseController
             $data = [
                 'titre' => 'REZO+ PC INLINE | Connexion',
                 'heading' => 'Bienvenue dans REZO+ PC InLine',
-                'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+                'footing' => footer_html(),
                 'validation' => $this->validator
             ];
             return view('login', $data);
@@ -310,7 +310,7 @@ class Signup extends BaseController
             'error' => $message,
             'titre' => 'REZO+ PC INLINE | Créer un compte',
             'heading' => 'Bienvenue dans REZO+ PC InLine',
-            'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+            'footing' => footer_html(),
             'validation' => $this->validator
         ];
         return view('signup', $data);
@@ -322,7 +322,7 @@ class Signup extends BaseController
             'error' => $message,
             'titre' => 'REZO+ PC INLINE | Connexion',
             'heading' => 'Bienvenue dans REZO+ PC InLine',
-            'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+            'footing' => footer_html(),
             'validation' => $this->validator
         ];
         return view('login', $data);

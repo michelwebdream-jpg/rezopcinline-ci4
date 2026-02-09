@@ -55,7 +55,7 @@
 
         <div id="header_logo">
                 <a href="<?php echo base_url();?>"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.jpg" width="100" height="100"></a>
-            <p style="text-align:center;"><?= getenv('VERSION_DU_SOFT') ?? 'Version 5.0' ?></p>
+            <p style="text-align:center;"><?= getenv('VERSION_DU_SOFT') ?? 'Version 5.1' ?></p>
         </div>
         <div style="text-align:center">
             <h2>Choisir un dossier utilisateur.</h2>

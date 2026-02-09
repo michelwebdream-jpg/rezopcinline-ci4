@@ -58,7 +58,7 @@ class Mes_documents extends BaseController
             'repertoire_a_ouvrir' => $this->request->getGet('repertoire') ?? '',
             'titre' => 'REZO+ PC INLINE | Mes documents',
             'heading' => 'Bienvenue dans REZO+ PC InLine',
-            'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+            'footing' => footer_html(),
             'utilisateur' => $this->session->get('deliverdata'),
             'APP_SERVER_URL' => $app_server_url,
             // URLs vers /dev/... (le .htaccess réécrit vers public/dev/)

@@ -76,7 +76,7 @@ class Mon_compte extends BaseController
                     'succes' => 'Votre compte à bien été mis à jour.',
                     'titre' => 'REZO+ PC INLINE | Mon compte',
                     'heading' => 'Bienvenue dans REZO+ PC InLine',
-                    'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+                    'footing' => footer_html(),
                     'utilisateur' => $this->session->get('deliverdata')
                 ];
                 return view('mon_compte', $data);
@@ -88,7 +88,7 @@ class Mon_compte extends BaseController
                 $data = [
                     'titre' => 'REZO+ PC INLINE | Mon compte',
                     'heading' => 'Bienvenue dans REZO+ PC InLine',
-                    'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+                    'footing' => footer_html(),
                     'utilisateur' => $this->session->get('deliverdata'),
                     'validation' => $this->validator
                 ];
@@ -99,7 +99,7 @@ class Mon_compte extends BaseController
             $data = [
                 'titre' => 'REZO+ PC INLINE | Mon compte',
                 'heading' => 'Bienvenue dans REZO+ PC InLine',
-                'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+                'footing' => footer_html(),
                 'utilisateur' => $this->session->get('deliverdata'),
                 'validation' => $this->validator
             ];
@@ -113,7 +113,7 @@ class Mon_compte extends BaseController
             'error' => $message,
             'titre' => 'REZO+ PC INLINE | Mon compte',
             'heading' => 'Bienvenue dans REZO+ PC InLine',
-            'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+            'footing' => footer_html(),
             'utilisateur' => $this->session->get('deliverdata'),
             'validation' => $this->validator
         ];

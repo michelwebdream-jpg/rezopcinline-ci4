@@ -1822,7 +1822,8 @@ function creer_page_historique(){
 }
 function creer_page_a_propos(){
     $("#div_pour_page_a_propos").html('');
-    $('#div_pour_page_a_propos').load(base_url+"nonmodal/a_propos.php",{burl:base_url,version_soft:Global.version_du_soft});
+    var footerHtml = (document.getElementById('global_footer_html') && document.getElementById('global_footer_html').getAttribute('data-footer')) || '';
+    $('#div_pour_page_a_propos').load(base_url+"nonmodal/a_propos.php",{burl:base_url,version_soft:Global.version_du_soft,footing:footerHtml});
 }
 function creer_page_parametres(){
     $("#div_pour_page_parametres").html('');

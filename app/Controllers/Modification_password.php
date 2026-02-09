@@ -49,7 +49,7 @@ class Modification_password extends BaseController
                         'succes' => 'Votre mot de passe a bien été mis à jour. Vous devrez utiliser votre nouveau mot de passe lors de votre prochaine connexion.',
                         'titre' => 'REZO+ PC INLINE | Mon compte',
                         'heading' => 'Bienvenue dans REZO+ PC InLine',
-                        'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+                        'footing' => footer_html(),
                         'utilisateur' => $this->session->get('deliverdata')
                     ];
                     return view('mon_compte', $data);
@@ -64,7 +64,7 @@ class Modification_password extends BaseController
                 $data = [
                     'titre' => 'REZO+ PC INLINE | Modifier mon mot de passe',
                     'heading' => 'Bienvenue dans REZO+ PC InLine',
-                    'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+                    'footing' => footer_html(),
                     'utilisateur' => $this->session->get('deliverdata'),
                     'validation' => $this->validator
                 ];
@@ -75,7 +75,7 @@ class Modification_password extends BaseController
             $data = [
                 'titre' => 'REZO+ PC INLINE | Modifier mon mot de passe',
                 'heading' => 'Bienvenue dans REZO+ PC InLine',
-                'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+                'footing' => footer_html(),
                 'utilisateur' => $this->session->get('deliverdata'),
                 'validation' => $this->validator
             ];
@@ -89,7 +89,7 @@ class Modification_password extends BaseController
             'error' => $message,
             'titre' => 'REZO+ PC INLINE | Modifier mon mot de passe',
             'heading' => 'Bienvenue dans REZO+ PC InLine',
-            'footing' => 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>',
+            'footing' => footer_html(),
             'utilisateur' => $this->session->get('deliverdata'),
             'validation' => $this->validator
         ];

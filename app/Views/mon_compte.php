@@ -32,7 +32,7 @@
     </p>
     
 	
-    <p style="font-size:10px;text-align:center;"><?= getenv('VERSION_DU_SOFT') ?? 'Version 5.0' ?></p>
+    <p style="font-size:10px;text-align:center;"><?= getenv('VERSION_DU_SOFT') ?? 'Version 5.1' ?></p>
     
         
 	<div id="container_formulaire">

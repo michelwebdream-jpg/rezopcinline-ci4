@@ -35,7 +35,7 @@ class Membres extends BaseController
         
         $data['titre'] = 'REZO+ PC INLINE';
         $data['heading'] = 'Bienvenue dans REZO+ PC InLine';
-        $data['footing'] = 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>';
+        $data['footing'] = footer_html();
         $data['base_url'] = base_url();
         $data['utilisateur'] = $this->session->get('deliverdata');
         
@@ -51,7 +51,7 @@ class Membres extends BaseController
         $data['titre'] = 'REZOPCINLINE';
         $data['heading'] = 'Mon compte';
         $data['content'] = "mon_compte";
-        $data['footing'] = 'copyright@2019 <a href ="https://www.web-dream.fr" target="_blank">Web-Dream</a>';
+        $data['footing'] = footer_html();
         
         return view('template/template', $data);
     }
