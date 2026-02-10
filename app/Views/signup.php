@@ -1,5 +1,4 @@
 <?php
-// CI4: Plus besoin de BASEPATH check
 ?><!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -10,143 +9,175 @@
     <link rel="stylesheet" href="<?= base_url() ?>css/style.css"/>
 	<title><?= esc($titre ?? 'REZO+ PC INLINE') ?></title>
     <script type="text/javascript">
-
 		  var _gaq = _gaq || [];
 		  _gaq.push(['_setAccount', 'UA-19724464-1']);
 		  _gaq.push(['_trackPageview']);
-		
 		  (function() {
 			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
 			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 		  })();
-		
-		</script>
+	</script>
 </head>
-<body>
+<body class="page-signup">
 
-<div id="container">
-    <p style="text-align:center;">
-    <a href="<?php echo base_url();?>"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.png" width="100" height="100"></a>
-    </p>
-    
-	<h1 style="margin-bottom:0px;"><?php echo $heading;?></h1>
-<p style="font-size:10px;text-align:center;"><?= getenv('VERSION_DU_SOFT') ?? 'Version 5.1' ?></p>
-    
-        
-	<div id="container_formulaire">
+<div id="container" class="signup-container">
+    <div class="login-hero">
+        <div class="login-hero-content">
+            <h1 class="login-hero-title">REZO+ PC Inline</h1>
+            <hr class="login-separator">
+            <p class="login-hero-subtitle">Plateforme opérationnelle</p>
+            <hr class="login-separator">
+            <p class="login-hero-tagline">Coordination et information en temps réel</p>
+            <p class="login-hero-version"><?= getenv('VERSION_DU_SOFT') ?? 'Version 5.1' ?></p>
+        </div>
+    </div>
 
-        <div id="formulaire">
+    <div class="login-panel-wrapper signup-panel-wrapper">
         
-            <p style="font-size:18px;text-align:center;";>Créer un compte.</p>
-            <p style="text-align:center;">
-    
-        Veuillez remplir tous les champs ci-dessous pour créer votre compte REZO+ PC Inline.<br />Une clé de licence valide est nécessaire.<br />Si vous n'en possédez pas, vos pouvez en acquérir une à l'adresse suivante:<br /><br /><a href="http://www.web-dream.fr/app/downloads/cle-de-licence-rezo-pc-inline-1-an/" target="_blank">http://www.web-dream.fr/app/downloads/cle-de-licence-rezo-pc-inline-1-an/</a>
-    </p>
+
+        <div class="login-panel signup-panel">
+        
+            <div class="login-logo-top">
+                <img border="0" alt="Rezo+ pc inline" src="<?= base_url(); ?>images/icone_final_rezo_plus_PC_inline128.png" width="80" height="80">
+            </div>
+            
+            <h2 class="login-panel-title">Créer un compte</h2>
+
             <?php if(isset($error)):?>
             <div class="error"><?php echo $error;?></div>
             <?php endif;?>
-            <hr/><div style="height:15px;font-size:12px;"><i>Tous les champs sont obligatoires.</i></div>
-            
-            <?php echo form_open('signup');?>
 
-                <label for="text_input_mon_nom">Mon nom</label>
-                <input type="text" name="text_input_mon_nom" value="<?php echo set_value('text_input_mon_nom');?>"/>
-                <?php echo form_error('text_input_mon_nom','<div class="error">','</div>');?>
+            <div class="login-form-box signup-form-box">
+                <p class="login-helper-text signup-intro">
+                    Veuillez remplir tous les champs ci-dessous pour créer votre compte REZO+ PC Inline. Une clé de licence valide est nécessaire. Si vous n'en possédez pas, vous pouvez en acquérir une <a href="http://www.web-dream.fr/app/downloads/cle-de-licence-rezo-pc-inline-1-an/" target="_blank" rel="noopener">ici</a>
+                </p>
+                <hr class="login-separator">
+                <p class="login-helper-text" style="margin-bottom:12px;"><em>Tous les champs sont obligatoires.</em></p>
 
-                <label for="text_input_mon_prenom">Mon prénom</label>
-                <input type="text" name="text_input_mon_prenom" value="<?php echo set_value('text_input_mon_prenom');?>"/>
-                <?php echo form_error('text_input_mon_prenom','<div class="error">','</div>');?>
-            
-                <label for="text_input_mon_telephone">Mon téléphone</label>
-                <input type="text" name="text_input_mon_telephone" value="<?php echo set_value('text_input_mon_telephone');?>"/>
-                <?php echo form_error('text_input_mon_telephone','<div class="error">','</div>');?>
-            
-                <label for="text_input_mon_mail">Mon e-mail (doit être identique à l'adresse fournie lors de l'achat de la clé de licence)</label>
-                <input type="text" name="text_input_mon_mail" value="<?php echo set_value('text_input_mon_mail');?>"/>
-                <?php echo form_error('text_input_mon_mail','<div class="error">','</div>');?>
-            
-                <label for="text_input_mon_mail2">Confirmer votre e-mail</label>
-                <input type="text" name="text_input_mon_mail2" value="<?php echo set_value('text_input_mon_mail2');?>"/>
-                <?php echo form_error('text_input_mon_mail2','<div class="error">','</div>');?>  
-            
-                <label for="text_input_mon_indicatif">Mon indicatif</label>
-                <input type="text" name="text_input_mon_indicatif" value="<?php echo set_value('text_input_mon_indicatif');?>"/>
-                <?php echo form_error('text_input_mon_indicatif','<div class="error">','</div>');?>
-            
-                <label for="text_input_mon_password1">Mon mot de passe</label>
-                <input type="password" name="text_input_mon_password1" value="<?php echo set_value('text_input_mon_password1');?>"/>
-                <?php echo form_error('text_input_mon_password1','<div class="error">','</div>');?>
-            
-                <label for="text_input_mon_password2">Confirmer le mot de passe</label>
-                <input type="password" name="text_input_mon_password2" value="<?php echo set_value('text_input_mon_password2');?>"/>
-                <?php echo form_error('text_input_mon_password2','<div class="error">','</div>');?>
-            
-                <label for="text_input_cle_de_licence">Ma clé de licence</label>
-                <input type="text" name="text_input_cle_de_licence" value="<?php echo set_value('text_input_cle_de_licence');?>"/>
-                <?php echo form_error('text_input_cle_de_licence','<div class="error">','</div>');?>
-            
-                <label for="marker">Mon icône</label>
-                <table width="100%" border="1" align="center">
-                  <tr align="center">
-                    <td><input type="radio" id="marker_user_1" name="marker" value="1" checked="checked"/><img src="<?php echo base_url();?>images/marker_user_1.png" /></td>
-                    <td><input type="radio" id="marker_user_2" name="marker" value="2" /><img src="<?php echo base_url();?>images/marker_user_2.png" /></td>
-                    <td><input type="radio" id="marker_user_3" name="marker" value="3" /><img src="<?php echo base_url();?>images/marker_user_3.png" /></td>
-                    <td><input type="radio" id="marker_user_4" name="marker" value="4" /><img src="<?php echo base_url();?>images/marker_user_4.png" /></td>
-                    <td><input type="radio" id="marker_user_5" name="marker" value="5" /><img src="<?php echo base_url();?>images/marker_user_5.png" /></td>
-                  </tr>
-                  <tr align="center">
-                    <td><input type="radio" id="marker_user_6" name="marker" value="6" /><img src="<?php echo base_url();?>images/marker_user_6.png" /></td>
-                    <td><input type="radio" id="marker_user_7" name="marker" value="7" /><img src="<?php echo base_url();?>images/marker_user_7.png" /></td>
-                    <td><input type="radio" id="marker_user_8" name="marker" value="8" /><img src="<?php echo base_url();?>images/marker_user_8.png" /></td>
-                    <td><input type="radio" id="marker_user_9" name="marker" value="9" /><img src="<?php echo base_url();?>images/marker_user_9.png" /></td>
-                    <td><input type="radio" id="marker_user_10" name="marker" value="10" /><img src="<?php echo base_url();?>images/marker_user_10.png" /></td>
-                  </tr>
-                  <tr align="center">
-                    <td><input type="radio" id="marker_user_11" name="marker" value="11" /><img src="<?php echo base_url();?>images/marker_user_11.png" /></td>
-                    <td><input type="radio" id="marker_user_12" name="marker" value="12" /><img src="<?php echo base_url();?>images/marker_user_12.png" /></td>
-                    <td><input type="radio" id="marker_user_13" name="marker" value="13" /><img src="<?php echo base_url();?>images/marker_user_13.png" /></td>
-                    <td><input type="radio" id="marker_user_14" name="marker" value="14" /><img src="<?php echo base_url();?>images/marker_user_14.png" /></td>
-                    <td><input type="radio" id="marker_user_15" name="marker" value="15" /><img src="<?php echo base_url();?>images/marker_user_15.png" /></td>
-                  </tr>
-                    <tr align="center">
-                    <td><input type="radio" id="marker_user_16" name="marker" value="16" /><img src="<?php echo base_url();?>images/marker_user_16.png" /></td>
-                    <td><input type="radio" id="marker_user_17" name="marker" value="17" /><img src="<?php echo base_url();?>images/marker_user_17.png" /></td>
-                    <td><input type="radio" id="marker_user_18" name="marker" value="18" /><img src="<?php echo base_url();?>images/marker_user_18.png" /></td>
-                    <td><input type="radio" id="marker_user_19" name="marker" value="19" /><img src="<?php echo base_url();?>images/marker_user_19.png" /></td>
-                    <td><input type="radio" id="marker_user_20" name="marker" value="20" /><img src="<?php echo base_url();?>images/marker_user_20.png" /></td>
-                  </tr>
-                    <tr align="center">
-                    <td><input type="radio" id="marker_user_21" name="marker" value="21" /><img src="<?php echo base_url();?>images/marker_user_21.png" /></td>
-                    <td><input type="radio" id="marker_user_22" name="marker" value="22" /><img src="<?php echo base_url();?>images/marker_user_22.png" /></td>
-                    <td><input type="radio" id="marker_user_23" name="marker" value="23" /><img src="<?php echo base_url();?>images/marker_user_23.png" /></td>
-                    <td><input type="radio" id="marker_user_24" name="marker" value="24" /><img src="<?php echo base_url();?>images/marker_user_24.png" /></td>
-                    <td><input type="radio" id="marker_user_25" name="marker" value="25" /><img src="<?php echo base_url();?>images/marker_user_25.png" /></td>
-                  </tr>
-                    <tr align="center">
-                    <td><input type="radio" id="marker_user_26" name="marker" value="26" /><img src="<?php echo base_url();?>images/marker_user_26.png" /></td>
-                    <td><input type="radio" id="marker_user_27" name="marker" value="27" /><img src="<?php echo base_url();?>images/marker_user_27.png" /></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                  </tr>
-                </table>
-            
-                <p style="margin-top:20px;"><input id="button_submit" type="submit" value="Valider" /></p>
+                <?php echo form_open('signup');?>
 
-            <?php echo form_close();?>
-            
+                <div class="signup-fields-grid">
+                    <div class="signup-field signup-field--user">
+                        <input type="text" name="text_input_mon_nom" id="text_input_mon_nom" placeholder="Mon nom" value="<?php echo set_value('text_input_mon_nom');?>"/>
+                        <?php echo form_error('text_input_mon_nom','<div class="error">','</div>');?>
+                    </div>
+                    <div class="signup-field signup-field--user">
+                        <input type="text" name="text_input_mon_prenom" id="text_input_mon_prenom" placeholder="Mon prénom" value="<?php echo set_value('text_input_mon_prenom');?>"/>
+                        <?php echo form_error('text_input_mon_prenom','<div class="error">','</div>');?>
+                    </div>
+                    <div class="signup-field signup-field--phone">
+                        <input type="text" name="text_input_mon_telephone" id="text_input_mon_telephone" placeholder="Mon téléphone" value="<?php echo set_value('text_input_mon_telephone');?>"/>
+                        <?php echo form_error('text_input_mon_telephone','<div class="error">','</div>');?>
+                    </div>
+                    <div class="signup-field signup-field--email signup-field--email-first">
+                        <input type="text" name="text_input_mon_mail" id="text_input_mon_mail" placeholder="Mon e-mail" value="<?php echo set_value('text_input_mon_mail');?>"/>
+                        <span class="signup-field-hint">(ATTENTION : il doit être identique à l'email d'achat)</span>
+                        <?php echo form_error('text_input_mon_mail','<div class="error">','</div>');?>
+                    </div>
+                    <div class="signup-field signup-field--email">
+                        <input type="text" name="text_input_mon_mail2" id="text_input_mon_mail2" placeholder="Confirmer votre e-mail" value="<?php echo set_value('text_input_mon_mail2');?>"/>
+                        <?php echo form_error('text_input_mon_mail2','<div class="error">','</div>');?>
+                    </div>
+                    <div class="signup-field signup-field--indicatif">
+                        <input type="text" name="text_input_mon_indicatif" id="text_input_mon_indicatif" placeholder="Mon indicatif" value="<?php echo set_value('text_input_mon_indicatif');?>"/>
+                        <?php echo form_error('text_input_mon_indicatif','<div class="error">','</div>');?>
+                    </div>
+                    <div class="signup-field signup-field--pass">
+                        <input type="password" name="text_input_mon_password1" id="text_input_mon_password1" placeholder="Mon mot de passe" value="<?php echo set_value('text_input_mon_password1');?>"/>
+                        <?php echo form_error('text_input_mon_password1','<div class="error">','</div>');?>
+                    </div>
+                    <div class="signup-field signup-field--pass">
+                        <input type="password" name="text_input_mon_password2" id="text_input_mon_password2" placeholder="Confirmer le mot de passe" value="<?php echo set_value('text_input_mon_password2');?>"/>
+                        <?php echo form_error('text_input_mon_password2','<div class="error">','</div>');?>
+                    </div>
+                    <div class="signup-field signup-field--key signup-field--full">
+                        <input type="text" name="text_input_cle_de_licence" id="text_input_cle_de_licence" placeholder="Ma clé de licence" value="<?php echo set_value('text_input_cle_de_licence');?>"/>
+                        <?php echo form_error('text_input_cle_de_licence','<div class="error">','</div>');?>
+                    </div>
+                </div>
+
+                <?php $currentMarker = (int) set_value('marker', 1); ?>
+                <input type="hidden" name="marker" id="marker" value="<?= $currentMarker ?>" />
+
+                <div class="signup-marker-preview-row">
+                    <div class="signup-marker-preview">
+                        <img src="<?= base_url(); ?>images/marker_user_<?= $currentMarker ?>.png" alt="Icône sélectionnée" id="marker-preview-img">
+                    </div>
+                    <button type="button" class="signup-marker-button" id="marker-choose-btn">Choisir mon icône</button>
+                </div>
+
+                <p class="login-submit">
+                    <input id="button_submit" type="submit" value="Valider" />
+                </p>
+                <?php echo form_close();?>
+            </div>
+
+            <p class="login-back-link signup-back-link">
+                <a href="<?= base_url(); ?>signup/login">Me connecter à REZO+ PC Inline</a>
+            </p>
         </div>
-        <div style="height:30px;"></div>
-	</div>
+    </div>
 </div>
-    
-<div class="separator"></div>
-    <p style="text-align:center;";><a href="<?php echo base_url();?>signup/login" class="bouton_creer_un_compte">Me connecter à REZO+ PC Inline</a></p>
-    <footer>
-    
-        <p class="footer"><?php if(isset($footing)) echo $footing;?></p>
-    
-    </footer>
+
+<div class="signup-marker-modal" id="signup-marker-modal" aria-hidden="true">
+    <div class="signup-marker-modal-backdrop" data-marker-close></div>
+    <div class="signup-marker-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="signup-marker-modal-title">
+        <h3 id="signup-marker-modal-title">Choisir mon icône</h3>
+        <p class="signup-marker-modal-text">Cliquez sur une icône pour la sélectionner.</p>
+        <div class="signup-marker-grid">
+            <?php for ($i = 1; $i <= 27; $i++): ?>
+                <button type="button" class="signup-marker-cell signup-marker-choice" data-marker="<?= $i ?>">
+                    <img src="<?= base_url(); ?>images/marker_user_<?= $i ?>.png" alt="Icône <?= $i ?>">
+                </button>
+            <?php endfor; ?>
+        </div>
+        <button type="button" class="signup-marker-close" data-marker-close>Fermer</button>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var baseUrl = '<?= base_url(); ?>';
+    var markerInput = document.getElementById('marker');
+    var previewImg = document.getElementById('marker-preview-img');
+    var openBtn = document.getElementById('marker-choose-btn');
+    var modal = document.getElementById('signup-marker-modal');
+
+    if (!markerInput || !previewImg || !openBtn || !modal) {
+        return;
+    }
+
+    function openModal() {
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeModal() {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    openBtn.addEventListener('click', openModal);
+
+    modal.querySelectorAll('[data-marker-close]').forEach(function (el) {
+        el.addEventListener('click', closeModal);
+    });
+
+    modal.querySelectorAll('.signup-marker-choice').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var value = this.getAttribute('data-marker');
+            if (!value) return;
+            markerInput.value = value;
+            previewImg.src = baseUrl + 'images/marker_user_' + value + '.png';
+            closeModal();
+        });
+    });
+});
+</script>
+
+<footer>
+    <p class="footer"><?php if(isset($footing)) echo $footing;?></p>
+</footer>
 </body>
 </html>

@@ -104,3 +104,825 @@ input[type=radio] {
     padding:5px;
     background-color: #eee;
 }
+
+/* Accessibilité : labels visibles seulement pour les lecteurs d'écran */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* --------------------------------------------- */
+/* Page de connexion - nouveau design            */
+/* --------------------------------------------- */
+
+body.page-login,
+body.page-forgot,
+body.page-modification-password,
+body.page-signup,
+body.page-mon-compte {
+    margin: 0;
+    background-color: #000;
+    color: #e5e7eb;
+}
+
+body.page-login #container.login-container,
+body.page-forgot #container.forgot-container,
+body.page-modification-password #container.forgot-container,
+body.page-signup #container.signup-container,
+body.page-mon-compte #container.signup-container {
+    margin: 0;
+    border: none;
+    box-shadow: none;
+    min-height: 100vh;
+    display: flex;
+    align-items: stretch;
+    background: url(../images/fond_login_rezo.png) no-repeat center center;
+    background-size: cover;
+    position: relative;
+    overflow: hidden;
+}
+
+body.page-login #container.login-container::before,
+body.page-forgot #container.forgot-container::before,
+body.page-modification-password #container.forgot-container::before,
+body.page-signup #container.signup-container::before,
+body.page-mon-compte #container.signup-container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.28); /* léger assombrissement global du fond */
+    z-index: 0;
+}
+
+body.page-login .login-hero,
+body.page-forgot .login-hero,
+body.page-modification-password .login-hero,
+body.page-signup .login-hero,
+body.page-mon-compte .login-hero {
+    flex: 1 1 55%;
+    display: flex;
+    align-items: center;
+    padding: 40px 180px;
+    color: #ffffff;
+    position: relative;
+    z-index: 1; /* au-dessus de l'overlay */
+}
+
+body.page-login .login-hero-content,
+body.page-forgot .login-hero-content,
+body.page-modification-password .login-hero-content,
+body.page-signup .login-hero-content,
+body.page-mon-compte .login-hero-content {
+    max-width: 430px;
+}
+
+body.page-login .login-hero-title,
+body.page-forgot .login-hero-title,
+body.page-modification-password .login-hero-title,
+body.page-signup .login-hero-title,
+body.page-mon-compte .login-hero-title {
+    font-size: 43px;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    margin: 0 0 5px;
+    color: #ffffff;
+    text-align: left;
+}
+
+
+/* HR fin sur les pages login, mot de passe oublié, modification password et signup */
+body.page-login hr.login-separator,
+body.page-forgot hr.login-separator,
+body.page-modification-password hr.login-separator,
+body.page-signup hr.login-separator,
+body.page-mon-compte hr.login-separator {
+    margin: 12px 0;          /* espacements haut/bas */
+    border: 0;               /* supprime toutes les bordures par défaut */
+    border-top: 1px solid rgba(226, 226, 226, 0.41); /* trait fin */
+    height: 0;               /* évite toute épaisseur résiduelle */
+}
+ 
+
+
+body.page-login .login-hero-subtitle,
+body.page-forgot .login-hero-subtitle,
+body.page-modification-password .login-hero-subtitle,
+body.page-signup .login-hero-subtitle,
+body.page-mon-compte .login-hero-subtitle {
+    margin: 7px 0 15px;
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #ffffff;
+}
+
+body.page-login .login-hero-tagline,
+body.page-forgot .login-hero-tagline,
+body.page-modification-password .login-hero-tagline,
+body.page-signup .login-hero-tagline,
+body.page-mon-compte .login-hero-tagline {
+    margin: 0 0 18px;
+    font-size: 15px;
+    color: #ffffff;
+    text-align: left;
+    font-style: italic;
+    letter-spacing: 0.05em;
+}
+
+body.page-login .login-hero-version,
+body.page-forgot .login-hero-version,
+body.page-modification-password .login-hero-version,
+body.page-signup .login-hero-version,
+body.page-mon-compte .login-hero-version {
+    margin: 0;
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+body.page-login .login-panel-wrapper,
+body.page-forgot .login-panel-wrapper,
+body.page-modification-password .login-panel-wrapper,
+body.page-signup .login-panel-wrapper.signup-panel-wrapper,
+body.page-mon-compte .login-panel-wrapper.signup-panel-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+body.page-login .login-panel-wrapper,
+body.page-forgot .login-panel-wrapper,
+body.page-modification-password .login-panel-wrapper {
+    flex: 0 0 400px;
+    max-width: 440px;
+    justify-content: center;
+    padding: 40px 120px 40px 32px;
+    position: relative;
+    z-index: 1; /* au-dessus de l'overlay */
+}
+
+body.page-login .login-logo-top,
+body.page-forgot .login-logo-top,
+body.page-modification-password .login-logo-top,
+body.page-signup .login-logo-top,
+body.page-mon-compte .login-logo-top {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%); /* centré horizontalement et mordant sur le haut du bloc */
+    z-index: 2;
+}
+
+body.page-login .login-panel,
+body.page-forgot .login-panel,
+body.page-modification-password .login-panel,
+body.page-signup .login-panel,
+body.page-mon-compte .login-panel {
+    width: 100%;
+    background: radial-gradient(circle at top, #1f2937 0, #020617 60%);
+    border-radius: 10px;
+    padding: 55px 30px 35px;
+    box-shadow: 0 26px 60px rgba(0, 0, 0, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12); /* fin liseré clair autour du bloc */
+    margin-top: 36px; /* pour laisser la place au logo qui mord en haut */
+    position: relative;
+}
+
+body.page-login .login-panel-title,
+body.page-forgot .login-panel-title,
+body.page-modification-password .login-panel-title,
+body.page-signup .login-panel-title,
+body.page-mon-compte .login-panel-title {
+    margin: 0 0 18px;
+    font-size: 25px;
+    font-weight: 600;
+    text-align: center;
+    color: #f9fafb;
+}
+
+body.page-login .login-field,
+body.page-forgot .login-field,
+body.page-modification-password .login-field {
+    margin-bottom: 14px;
+}
+
+body.page-login .login-field label,
+body.page-forgot .login-field label,
+body.page-modification-password .login-field label {
+    display: block;
+    text-align: left;
+    margin: 0 0 4px;
+    font-size: 13px;
+    color: #e5e7eb;
+}
+
+body.page-login .login-field input[type="text"],
+body.page-login .login-field input[type="password"],
+body.page-forgot .login-field input[type="text"],
+body.page-forgot .login-field input[type="password"],
+body.page-modification-password .login-field input[type="text"],
+body.page-modification-password .login-field input[type="password"] {
+    width: 100%;
+    margin: 0;
+    padding: 9px 11px;
+    border-radius: 6px;
+    border: 1px solid #4b5563;
+    background-color: rgba(15, 23, 42, 0.95);
+    color: #f9fafb;
+    font-size: 15px;
+    box-sizing: border-box; /* empêche tout dépassement horizontal */
+    text-align: left; /* force l’alignement à gauche même si un style global centre les inputs */
+}
+
+/* Placeholders */
+body.page-login .login-field input::placeholder,
+body.page-forgot .login-field input::placeholder,
+body.page-modification-password .login-field input::placeholder {
+    color: #f9fafb;  /* texte blanc comme sur la maquette */
+    opacity: 0.8;
+    font-size: 15px;
+}
+
+/* Icônes dans les champs */
+body.page-login .login-field--user input[type="text"],
+body.page-login .login-field--pass input[type="password"],
+body.page-forgot .login-field--user input[type="text"],
+body.page-forgot .login-field--pass input[type="password"],
+body.page-modification-password .login-field--user input[type="text"],
+body.page-modification-password .login-field--pass input[type="password"] {
+    padding-left: 32px;
+    background-repeat: no-repeat;
+    background-position: 9px center;
+    background-size: 14px 14px;
+}
+
+/* Icône \"utilisateur\" (SVG inline) */
+body.page-login .login-field--user input[type="text"],
+body.page-forgot .login-field--user input[type="text"],
+body.page-modification-password .login-field--user input[type="text"] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23cbd5f5' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='8' r='3.2'/%3E%3Cpath d='M5.5 19.2c1.3-2.3 3.4-3.7 6.5-3.7s5.2 1.4 6.5 3.7'/%3E%3C/svg%3E");
+}
+
+/* Icône \"cadenas\" (SVG inline) */
+body.page-login .login-field--pass input[type="password"],
+body.page-forgot .login-field--pass input[type="password"],
+body.page-modification-password .login-field--pass input[type="password"] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23cbd5f5' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='10' width='14' height='10' rx='2'/%3E%3Cpath d='M9 10V7.5a3 3 0 0 1 6 0V10'/%3E%3Ccircle cx='12' cy='15' r='1.4'/%3E%3C/svg%3E");
+}
+
+body.page-login .login-field input[type="text"]:focus,
+body.page-login .login-field input[type="password"]:focus,
+body.page-forgot .login-field input[type="text"]:focus,
+body.page-forgot .login-field input[type="password"]:focus,
+body.page-modification-password .login-field input[type="text"]:focus,
+body.page-modification-password .login-field input[type="password"]:focus {
+    outline: none;
+    border-color: #f97316;
+    box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.6);
+}
+
+body.page-login .login-forgot,
+body.page-forgot .login-forgot {
+    text-align: right;
+    font-size: 11px;
+    margin: 4px 0 14px;
+}
+
+body.page-login .login-forgot a,
+body.page-forgot .login-forgot a {
+    color: #9ca3af;
+    text-decoration: none;
+}
+
+body.page-login .login-forgot a:hover,
+body.page-forgot .login-forgot a:hover {
+    color: #f97316;
+}
+
+body.page-login .login-submit,
+body.page-forgot .login-submit,
+body.page-modification-password .login-submit,
+body.page-signup .login-submit,
+body.page-mon-compte .login-submit {
+    margin: 0 0 16px;
+}
+
+body.page-forgot .login-back-link,
+body.page-modification-password .login-back-link {
+    margin: 0 0 8px;
+    font-size: 11px;
+    text-align: center;
+}
+
+body.page-forgot .login-back-link a,
+body.page-modification-password .login-back-link a {
+    color: #9ca3af;
+    text-decoration: none;
+}
+
+body.page-forgot .login-back-link a:hover,
+body.page-modification-password .login-back-link a:hover {
+    color: #f97316;
+}
+
+body.page-signup .login-panel-wrapper.signup-panel-wrapper,
+body.page-mon-compte .login-panel-wrapper.signup-panel-wrapper {
+    flex: 0 0 620px;
+    max-width: 680px;
+    justify-content: center;
+    padding: 40px 80px 40px 32px;
+    position: relative;
+    z-index: 1;
+}
+
+body.page-signup .signup-fields-grid,
+body.page-mon-compte .signup-fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 16px;
+    margin-bottom: 14px;
+}
+body.page-signup .signup-field--full,
+body.page-mon-compte .signup-field--full {
+    grid-column: 1 / -1;
+}
+
+body.page-signup .signup-form-box,
+body.page-mon-compte .signup-form-box {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+body.page-signup .signup-intro,
+body.page-mon-compte .signup-intro {
+    margin-bottom: 16px !important;
+}
+body.page-signup .signup-intro a,
+body.page-mon-compte .signup-intro a {
+    color: #93c5fd;
+    text-decoration: underline;
+}
+body.page-signup .signup-intro a:hover,
+body.page-mon-compte .signup-intro a:hover {
+    color: #f97316;
+}
+
+body.page-signup .signup-field,
+body.page-mon-compte .signup-field {
+    margin-bottom: 0;
+}
+body.page-signup .signup-field input[type="text"],
+body.page-signup .signup-field input[type="password"],
+body.page-mon-compte .signup-field input[type="text"],
+body.page-mon-compte .signup-field input[type="password"] {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    padding: 9px 11px;
+    padding-left: 32px;
+    font-size: 15px;
+    color: #f9fafb;
+    background-color: rgba(15, 23, 42, 0.95);
+    border: 1px solid #4b5563;
+    border-radius: 6px;
+    text-align: left;
+    background-repeat: no-repeat;
+    background-position: 9px center;
+    background-size: 14px 14px;
+}
+body.page-signup .signup-field--user input[type="text"],
+body.page-mon-compte .signup-field--user input[type="text"] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23cbd5f5' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='8' r='3.2'/%3E%3Cpath d='M5.5 19.2c1.3-2.3 3.4-3.7 6.5-3.7s5.2 1.4 6.5 3.7'/%3E%3C/svg%3E");
+}
+body.page-signup .signup-field--phone input[type="text"],
+body.page-mon-compte .signup-field--phone input[type="text"] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23cbd5f5' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z'/%3E%3C/svg%3E");
+}
+body.page-signup .signup-field--email input[type="text"],
+body.page-mon-compte .signup-field--email input[type="text"] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23cbd5f5' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z'/%3E%3Cpolyline points='22,6 12,13 2,6'/%3E%3C/svg%3E");
+}
+body.page-signup .signup-field--indicatif input[type="text"],
+body.page-mon-compte .signup-field--indicatif input[type="text"] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23cbd5f5' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z'/%3E%3Cline x1='7' y1='7' x2='7.01' y2='7'/%3E%3C/svg%3E");
+}
+body.page-signup .signup-field--key input[type="text"],
+body.page-mon-compte .signup-field--key input[type="text"] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23cbd5f5' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4'/%3E%3C/svg%3E");
+}
+body.page-signup .signup-field--pass input[type="password"],
+body.page-mon-compte .signup-field--pass input[type="password"] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23cbd5f5' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='10' width='14' height='10' rx='2'/%3E%3Cpath d='M9 10V7.5a3 3 0 0 1 6 0V10'/%3E%3Ccircle cx='12' cy='15' r='1.4'/%3E%3C/svg%3E");
+}
+body.page-signup .signup-field-hint,
+body.page-mon-compte .signup-field-hint {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    color: #9ca3af;
+}
+body.page-signup .signup-field-hint--muted,
+body.page-mon-compte .signup-field-hint--muted {
+    color: #ad0a03;
+}
+body.page-signup .signup-field input:disabled,
+body.page-mon-compte .signup-field input:disabled {
+    opacity: 0.9;
+    cursor: not-allowed;
+}
+body.page-signup .signup-field input::placeholder,
+body.page-mon-compte .signup-field input::placeholder {
+    color: #f9fafb;
+    opacity: 0.8;
+    font-size: 15px;
+}
+body.page-signup .signup-field input[type="text"]:focus,
+body.page-signup .signup-field input[type="password"]:focus,
+body.page-mon-compte .signup-field input[type="text"]:focus,
+body.page-mon-compte .signup-field input[type="password"]:focus {
+    outline: none;
+    border-color: #f97316;
+    box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.6);
+}
+body.page-signup .signup-field .error,
+body.page-mon-compte .signup-field .error {
+    margin-top: 4px;
+    font-size: 11px;
+}
+body.page-signup .signup-label-hint,
+body.page-mon-compte .signup-label-hint {
+    font-weight: normal;
+    color: #9ca3af;
+    font-size: 12px;
+}
+body.page-signup .signup-label-block,
+body.page-mon-compte .signup-label-block {
+    display: block;
+    font-size: 13px;
+    color: #d1d5db;
+    margin: 12px 0 8px;
+}
+body.page-signup .signup-marker-grid,
+body.page-mon-compte .signup-marker-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    column-gap: 8px;
+    row-gap: 12px;
+    margin-bottom: 14px;
+}
+body.page-signup .signup-marker-cell,
+body.page-mon-compte .signup-marker-cell {
+    flex: 0 0 calc(100% / 9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+body.page-signup .signup-marker-cell input,
+body.page-mon-compte .signup-marker-cell input {
+    margin: 4px 0 0;
+}
+body.page-signup .signup-marker-cell img,
+body.page-mon-compte .signup-marker-cell img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+body.page-signup .signup-back-link,
+body.page-mon-compte .signup-back-link {
+    margin: 0 0 8px;
+    font-size: 11px;
+    text-align: center;
+    margin-top: 10px;
+}
+body.page-signup .signup-back-link a,
+body.page-mon-compte .signup-back-link a {
+    color: #9ca3af;
+    text-decoration: none;
+}
+body.page-signup .signup-back-link a:hover,
+body.page-mon-compte .signup-back-link a:hover {
+    color: #f97316;
+}
+
+body.page-signup .signup-marker-preview-row,
+body.page-mon-compte .signup-marker-preview-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 10px 0 14px;
+}
+body.page-signup .signup-marker-preview img,
+body.page-mon-compte .signup-marker-preview img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+body.page-signup .signup-marker-button,
+body.page-mon-compte .signup-marker-button {
+    padding: 8px 16px;
+    font-size: 13px;
+    border-radius: 999px;
+    border: 1px solid #4b5563;
+    background-color: #111827;
+    color: #e5e7eb;
+    cursor: pointer;
+}
+body.page-signup .signup-marker-button:hover,
+body.page-mon-compte .signup-marker-button:hover {
+    border-color: #f97316;
+    color: #f97316;
+}
+
+body.page-login .login-form-box,
+body.page-forgot .login-form-box,
+body.page-signup .login-form-box.signup-form-box,
+body.page-mon-compte .login-form-box.signup-form-box {
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 8px;
+    padding: 25px 18px 14px;
+    background-color: rgba(15, 23, 42, 0.9);
+}
+
+body.page-login #button_submit,
+body.page-forgot #button_submit,
+body.page-modification-password #button_submit,
+body.page-signup #button_submit,
+body.page-mon-compte #button_submit {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(90deg, #f97316, #ea580c);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: none;
+}
+
+body.page-login #button_submit:hover,
+body.page-forgot #button_submit:hover,
+body.page-modification-password #button_submit:hover,
+body.page-signup #button_submit:hover,
+body.page-mon-compte #button_submit:hover {
+    background: linear-gradient(90deg, #fb923c, #f97316);
+}
+
+body.page-login .login-panel-actions,
+body.page-forgot .login-panel-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(148, 163, 184, 0.2); /* séparation visuelle sous la zone de connexion */
+}
+
+body.page-login .login-helper-text,
+body.page-forgot .login-helper-text,
+body.page-modification-password .login-helper-text,
+body.page-signup .login-helper-text,
+body.page-mon-compte .login-helper-text {
+    margin: 15px 0 0;
+    font-size: 13px;
+    color: #9ca3af;
+    text-align: left;
+}
+
+body.page-login .login-secondary-btn,
+body.page-forgot .login-secondary-btn {
+    display: block;
+    text-align: center;
+    padding: 9px 0;
+    font-size: 13px;
+    border-radius: 8px;
+    text-decoration: none;
+    background-color: #111827;
+    color: #e5e7eb;
+    border: 1px solid #374151;
+}
+
+body.page-login .login-secondary-btn--outline,
+body.page-forgot .login-secondary-btn--outline {
+    background-color: transparent;
+}
+
+body.page-login .login-secondary-btn:hover,
+body.page-forgot .login-secondary-btn:hover {
+    border-color: #f97316;
+    color: #f97316;
+}
+
+body.page-login .error,
+body.page-login .succes,
+body.page-forgot .error,
+body.page-forgot .succes,
+body.page-modification-password .error,
+body.page-modification-password .succes,
+body.page-signup .error,
+body.page-signup .succes,
+body.page-mon-compte .error,
+body.page-mon-compte .succes {
+    margin-bottom: 10px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+body.page-login .error,
+body.page-forgot .error,
+body.page-modification-password .error,
+body.page-signup .error,
+body.page-mon-compte .error {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #fecaca;
+}
+
+body.page-login .succes,
+body.page-forgot .succes,
+body.page-modification-password .succes,
+body.page-signup .succes,
+body.page-mon-compte .succes {
+    background-color: rgba(34, 197, 94, 0.15);
+    color: #bbf7d0;
+}
+
+body.page-login p.footer,
+body.page-forgot p.footer,
+body.page-modification-password p.footer,
+body.page-signup p.footer,
+body.page-mon-compte p.footer {
+    border-top: none;
+    color: #9ca3af;
+}
+
+/* Popin de sélection d'icône sur la page signup et mon compte */
+body.page-signup .signup-marker-modal,
+body.page-mon-compte .signup-marker-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+body.page-signup .signup-marker-modal.is-open,
+body.page-mon-compte .signup-marker-modal.is-open {
+    display: flex;
+}
+body.page-signup .signup-marker-modal-backdrop,
+body.page-mon-compte .signup-marker-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.85);
+}
+body.page-signup .signup-marker-modal-dialog,
+body.page-mon-compte .signup-marker-modal-dialog {
+    position: relative;
+    background: rgba(15, 23, 42, 0.98);
+    border-radius: 10px;
+    border: 1px solid rgba(148, 163, 184, 0.45);
+    padding: 18px 20px 16px;
+    max-width: 680px;
+    width: 90%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    z-index: 51;
+}
+body.page-signup .signup-marker-modal-dialog h3,
+body.page-mon-compte .signup-marker-modal-dialog h3 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    color: #f9fafb;
+}
+body.page-signup .signup-marker-modal-text,
+body.page-mon-compte .signup-marker-modal-text {
+    margin: 0 0 12px;
+    font-size: 13px;
+    color: #9ca3af;
+}
+body.page-signup .signup-marker-close,
+body.page-mon-compte .signup-marker-close {
+    margin-top: 12px;
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 999px;
+    border: 1px solid #4b5563;
+    background-color: transparent;
+    color: #e5e7eb;
+    cursor: pointer;
+}
+body.page-signup .signup-marker-close:hover,
+body.page-mon-compte .signup-marker-close:hover {
+    border-color: #f97316;
+    color: #f97316;
+}
+
+/* ---------------------------------------------------------- */
+/* Version mobile : empilement vertical des blocs             */
+/* ---------------------------------------------------------- */
+@media (max-width: 768px) {
+    body.page-login #container.login-container,
+    body.page-forgot #container.forgot-container,
+    body.page-modification-password #container.forgot-container,
+    body.page-signup #container.signup-container,
+    body.page-mon-compte #container.signup-container {
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 24px 16px;
+    }
+
+body.page-login .login-hero,
+body.page-forgot .login-hero,
+body.page-modification-password .login-hero,
+body.page-signup .login-hero,
+body.page-mon-compte .login-hero {
+        flex: 0 0 auto;
+        padding: 32px 16px 12px;
+        justify-content: center;
+        text-align: center;
+    }
+
+body.page-login .login-hero-content,
+body.page-forgot .login-hero-content,
+body.page-modification-password .login-hero-content,
+body.page-signup .login-hero-content,
+body.page-mon-compte .login-hero-content {
+        max-width: 320px;
+    }
+
+    body.page-login .login-hero-title,
+    body.page-login .login-hero-subtitle,
+    body.page-login .login-hero-tagline,
+    body.page-forgot .login-hero-title,
+    body.page-forgot .login-hero-subtitle,
+    body.page-forgot .login-hero-tagline,
+    body.page-modification-password .login-hero-title,
+    body.page-modification-password .login-hero-subtitle,
+    body.page-modification-password .login-hero-tagline,
+    body.page-signup .login-hero-title,
+    body.page-signup .login-hero-subtitle,
+    body.page-signup .login-hero-tagline,
+    body.page-mon-compte .login-hero-title,
+    body.page-mon-compte .login-hero-subtitle,
+    body.page-mon-compte .login-hero-tagline {
+        text-align: center;
+    }
+
+    body.page-login .login-panel-wrapper,
+    body.page-forgot .login-panel-wrapper,
+    body.page-modification-password .login-panel-wrapper,
+    body.page-signup .login-panel-wrapper.signup-panel-wrapper,
+    body.page-mon-compte .login-panel-wrapper.signup-panel-wrapper {
+        flex: 0 0 auto;
+        max-width: 100%;
+        align-items: center;
+        padding: 24px 0 16px;
+    }
+
+    body.page-signup .signup-form-box,
+    body.page-mon-compte .signup-form-box {
+        max-height: 60vh;
+    }
+
+    body.page-signup .signup-fields-grid,
+    body.page-mon-compte .signup-fields-grid {
+        grid-template-columns: 1fr;
+    }
+
+    body.page-signup .signup-marker-grid,
+    body.page-mon-compte .signup-marker-grid {
+        justify-content: center;
+    }
+
+    body.page-signup .signup-marker-cell,
+    body.page-mon-compte .signup-marker-cell {
+        flex-basis: calc(100% / 6);
+    }
+
+    body.page-login .login-logo-top,
+    body.page-forgot .login-logo-top,
+    body.page-modification-password .login-logo-top,
+    body.page-signup .login-logo-top,
+    body.page-mon-compte .login-logo-top {
+        left: 50%;
+        transform: translate(-50%, -65%);
+    }
+
+    body.page-login .login-panel,
+    body.page-forgot .login-panel,
+    body.page-modification-password .login-panel,
+    body.page-signup .login-panel.signup-panel,
+    body.page-mon-compte .login-panel.signup-panel {
+        margin-top: 36px;
+        width: 100%;
+    }
+}

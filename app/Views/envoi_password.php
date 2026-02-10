@@ -26,22 +26,31 @@
     </script>
 
 </head>
-<body>
+<body class="page-forgot">
 
-<div id="container">
-    <p style="text-align:center;">
-    <a href="<?php echo base_url();?>"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.png" width="100" height="100"></a>
-    </p>
-    
-	
-    <p style="font-size:10px;text-align:center;"><?= getenv('VERSION_DU_SOFT') ?? 'Version 5.1' ?></p>
-    
-        
-	<div id="container_formulaire">
+<div id="container" class="forgot-container">
+    <div class="login-hero">
+        <div class="login-hero-content">
+            <h1 class="login-hero-title">REZO+ PC Inline</h1>
+            <hr class="login-separator">
+            <p class="login-hero-subtitle">Plateforme opérationnelle</p>
+            <hr class="login-separator">
+            <p class="login-hero-tagline">Coordination et information en temps réel</p>
+            <p class="login-hero-version"><?= getenv('VERSION_DU_SOFT') ?? 'Version 5.1' ?></p>
+        </div>
+    </div>
 
-        <div id="formulaire">
+    <div class="login-panel-wrapper">
         
-            <p style="font-size:18px;text-align:center;">Mot de passe oublié.</p>
+
+        <div class="login-panel">
+
+            <div class="login-logo-top">
+                <img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.png" width="80" height="80">
+            </div>
+
+            <h2 class="login-panel-title">Mot de passe oublié</h2>
+
             <?php if(isset($error)):?>
             <div class="error"><?php echo $error;?></div>
             <?php endif;?>
@@ -51,30 +60,37 @@
         });</script>
             <div class="succes"><?php echo $succes;?></div>
             <?php endif;?>
-            
-            <p style="text-align:center;">Pour réinitialiser votre mot de passe REZO+ PC Inline, saisissez votre adresse email ci-dessous. Vous recevrez un lien par email (valide 1 heure).</p>
-            <hr/>
-            <div style="height:15px;font-size:12px;"></div>
-            
-            <?php echo form_open('envoi_password');?>
 
-                <label for="text_input_mon_email">Mon adresse email.</label>
-                <input type="text" name="text_input_mon_email" value=""/>
-                <?php echo form_error('text_input_mon_email','<div class="error">','</div>');?>
+            <div class="login-form-box">
+                <p class="login-helper-text" style="margin-bottom:10px;">
+                    Pour réinitialiser votre mot de passe REZO+ PC Inline, saisissez votre adresse email ci-dessous.
+                    Vous recevrez un lien par email (valide 1 heure).
+                </p>
 
-                <p style="margin-top:20px;"><input id="button_submit" type="submit" value="Envoyer" /></p>
+                <?php echo form_open('envoi_password');?>
 
-            <?php echo form_close();?>
-            
+                <div class="login-field login-field--user">
+                    <label for="text_input_mon_email" class="sr-only">Adresse email</label>
+                    <input type="text" name="text_input_mon_email" id="text_input_mon_email" placeholder="Adresse email" value=""/>
+                    <?php echo form_error('text_input_mon_email','<div class="error">','</div>');?>
+                </div>
+
+                <p class="login-submit">
+                    <input id="button_submit" type="submit" value="Envoyer" />
+                </p>
+
+                <p class="login-back-link">
+                    <a href="<?php echo base_url();?>signup/login">Retour à la connexion</a>
+                </p>
+
+                <?php echo form_close();?>
+            </div>
         </div>
-        <div style="height:30px;"></div>
-	</div>
+    </div>
 </div>
-    
-    <footer>
-    
-        <p class="footer"><?php if(isset($footing)) echo $footing;?></p>
-    
-    </footer>
+
+<footer>
+    <p class="footer"><?php if(isset($footing)) echo $footing;?></p>
+</footer>
 </body>
 </html>

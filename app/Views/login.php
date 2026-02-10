@@ -24,87 +24,81 @@
 		</script>
     <!---  ba7fd5f5 --->
 </head>
-<body>
+<body class="page-login">
 
-<div id="container">
-    <p style="text-align:center;">
-    <a href="<?php echo base_url();?>"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.png" width="100" height="100"></a>
-    </p>
-    
-	<h1 style="margin-bottom:0px;"><?php echo $heading;?></h1>
-<p style="font-size:10px;text-align:center;"><?= getenv('VERSION_DU_SOFT') ?? 'Version 5.1' ?></p>
-    <p style="text-align:center;">
-    
-        Merci d'avoir choisi REZO+ PC Inline !
-    </p>
-        
-	<div id="container_formulaire">
+<div id="container" class="login-container">
+    <div class="login-hero">
+        <div class="login-hero-content">
+            <h1 class="login-hero-title">REZO+ PC Inline</h1>
+            <hr class="login-separator"></hr>
+            <p class="login-hero-subtitle">Plateforme opérationnelle</p>
+            <hr class="login-separator"></hr>
+            <p class="login-hero-tagline">Coordination et information en temps réel</p>
+            <p class="login-hero-version"><?= getenv('VERSION_DU_SOFT') ?? 'Version 5.1' ?></p>
+        </div>
+    </div>
 
-        <div id="formulaire">
+    <div class="login-panel-wrapper">
         
-            <p style="font-size:18px;text-align:center;">J'ai un compte REZO+ PC Inline : je m'identifie.</p>
+        <div class="login-panel">
+
+            <div class="login-logo-top">
+                <img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.png" width="80" height="80">
+            </div>
+
+
+            <h2 class="login-panel-title">Connexion sécurisée</h2>
+
             <?php if(isset($success) && $success):?>
             <div class="succes"><?php echo $success;?></div>
             <?php endif;?>
             <?php if(isset($error)):?>
             <div class="error"><?php echo $error;?></div>
             <?php endif;?>
-            <hr /><div style="height:5px;"></div>
 
             <?php echo form_open('signup/login');?>
 
-            <label for="code">Mon code REZO+</label>
-            <input type="text" name="code" value="<?php echo set_value('code');?>"/>
-            <?php echo form_error('code','<div class="error">','</div>');?>
-            
+            <div class="login-form-box">
+                <div class="login-field login-field--user">
+                    <label for="code" class="sr-only">Identifiant</label>
+                    <input type="text" name="code" id="code" placeholder="Code REZO+" value="<?php echo set_value('code');?>"/>
+                    <?php echo form_error('code','<div class="error">','</div>');?>
+                </div>
 
-            <label for="pass">Mon mot de passe</label>
-            <input type="password" name="pass" value="<?php echo set_value('pass');?>"/>
-            <?php echo form_error('pass','<div class="error">','</div>');?>
-            
+                <div class="login-field login-field--pass">
+                    <label for="pass" class="sr-only">Mot de passe</label>
+                    <input type="password" name="pass" id="pass" placeholder="Mot de passe" value="<?php echo set_value('pass');?>"/>
+                    <?php echo form_error('pass','<div class="error">','</div>');?>
+                </div>
 
-            <p style="margin-top:20px;"><input id="button_submit" type="submit" value="Entrer dans REZO+ PC Inline" /></p>
+                <p class="login-forgot">
+                    <?php echo anchor('envoi_password','Mot de passe oublié ?','target=_blank');?>
+                </p>
 
-            <p style="text-align:center;font-size:10px;"><?php echo anchor('envoi_password','J\'ai oublié mes identifiants','target=_blank');?></p>
-            
+                <p class="login-submit">
+                    <input id="button_submit" type="submit" value="Se connecter" />
+                </p>
+            </div>
+
             <?php echo form_close();?>
-            
+
+            <div class="login-panel-actions">
+                <p class="login-helper-text">
+                    Si vous venez d'acheter une licence, vous devez d'abord créer un compte ici.
+                </p>
+                <a href="<?php echo base_url();?>signup" class="login-secondary-btn">Créer un compte</a>
+
+                <p class="login-helper-text">
+                    Des problèmes de connexion ? Visitez notre guide de démarrage ici.
+                </p>
+                <a href="https://www.web-dream.fr/app/guide-de-demarrage-rapide-rezo/" target="_blank" class="login-secondary-btn login-secondary-btn--outline">Guide de démarrage rapide</a>
+            </div>
         </div>
-        <div style="height:30px;"></div>
-        <div id="formulaire">
-        
-            <p style="font-size:18px;text-align:center;";>Je n'ai pas de compte REZO+ PC Inline : je dois en créer un.</p>
-            <hr /><div style="height:5px;"></div>
-            <?php //echo anchor('signup','Inscription');?>
-            <p style="text-align:center;";><a href="<?php echo base_url();?>signup"><button type="button" id="button_creer_compte">Créer un compte</button></a></p>
-            
-            
-        </div>
-        
-        <div style="height:30px;"></div>
-        <div id="formulaire">
-        
-            <p style="font-size:18px;text-align:center;";>Besoin d'Aide ?</p>
-            <hr /><div style="height:5px;"></div>
-            <?php //echo anchor('signup','Inscription');?>
-            <p style="text-align:center;";><a href="https://www.web-dream.fr/app/guide-de-demarrage-rapide-rezo/" target="_blank"><button type="button" id="button_creer_compte">Guide de démarrage rapide</button></a></p>
-            
-            
-        </div>
-        
-        <div style="height:30px;"></div>
-	</div>
-    
-    
-    
+    </div>
 </div>
-    
-<div class="separator"></div>
-    
-    <footer>
-    
-        <p class="footer"><?php if(isset($footing)) echo $footing;?></p>
-    
-    </footer>
+
+<footer>
+    <p class="footer"><?php if(isset($footing)) echo $footing;?></p>
+</footer>
 </body>
 </html>
