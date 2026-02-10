@@ -8,6 +8,7 @@
     <link rel="apple-touch-icon" href="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.png">
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="<?php echo base_url();?>css/style_main.css"/>
+    <link rel="stylesheet" href="<?php echo base_url();?>css/style.css"/>
     <link rel="stylesheet" href="<?php echo base_url();?>css/blueimp-gallery.min.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.13/css/jquery.dataTables.css">
@@ -33,7 +34,7 @@
 		
     </script>
 </head>
-<body>
+<body class="page-mes-documents">
 <div id="div_pour_loader">
     <div id="text_div_pour_loader"></div>
 </div>
@@ -49,9 +50,9 @@
     <ol class="indicator"></ol>
 </div>
     
-<div id="container">
+<div id="container" class="mes-documents-container">
     
-    <div id="my_menu_documents">
+    <div id="my_menu_documents" class="mes-documents-sidebar">
 
         <div id="header_logo">
                 <a href="<?php echo base_url();?>"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.jpg" width="100" height="100"></a>
@@ -73,7 +74,7 @@
         </div>
     </div>
         
-    <div id="right_container">
+    <div id="right_container" class="mes-documents-main">
         <div class="div_header_documents">
             <h1>Mes documents</h1>
             <hr />

@@ -926,3 +926,235 @@ body.page-mon-compte .login-hero-content {
         width: 100%;
     }
 }
+
+/* ========== Page Mes documents (thème aligné login/signup) ========== */
+body.page-mes-documents {
+    background-color: #000;
+    color: #e5e7eb;
+}
+body.page-mes-documents #container.mes-documents-container {
+    margin: 0;
+    border: none;
+    box-shadow: none;
+    min-height: 100vh;
+    display: flex;
+    align-items: stretch;
+    background: url(../images/fond_login_rezo.png) no-repeat center center;
+    background-size: cover;
+    position: relative;
+    overflow: hidden;
+    background-color: #0f172a;
+}
+body.page-mes-documents #container.mes-documents-container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.28);
+    z-index: 0;
+}
+body.page-mes-documents #my_menu_documents.mes-documents-sidebar,
+body.page-mes-documents #right_container.mes-documents-main {
+    position: relative;
+    z-index: 1;
+}
+body.page-mes-documents #my_menu_documents.mes-documents-sidebar {
+    float: none;
+    flex: 0 0 360px;
+    max-width: 360px;
+    padding: 24px 20px;
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    margin: 20px 0 20px 20px;
+    background: radial-gradient(circle at top, #1f2937 0, #020617 60%);
+    box-shadow: 0 26px 60px rgba(0, 0, 0, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #e5e7eb;
+}
+body.page-mes-documents #my_menu_documents.mes-documents-sidebar #header_logo p,
+body.page-mes-documents #my_menu_documents.mes-documents-sidebar h2,
+body.page-mes-documents #my_menu_documents.mes-documents-sidebar p {
+    color: #e5e7eb;
+}
+body.page-mes-documents #my_menu_documents.mes-documents-sidebar h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 12px 0 10px;
+}
+@media (max-width: 767px) {
+    body.page-mes-documents #container.mes-documents-container {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    body.page-mes-documents #my_menu_documents.mes-documents-sidebar {
+        flex: 0 0 auto;
+        width: 320px;
+        max-width: calc(100% - 40px);
+        margin: 20px auto 0 auto;
+        border-right: none;
+        border-radius: 10px;
+        box-sizing: border-box;
+    }
+    body.page-mes-documents #right_container.mes-documents-main {
+        float: none;
+        display: block;
+        width: 320px;
+        max-width: calc(100% - 40px);
+        margin: 0 auto 20px auto;
+        flex: 0 0 auto;
+        align-self: center;
+        box-sizing: border-box;
+    }
+}
+body.page-mes-documents #right_container.mes-documents-main {
+    float: none;
+    flex: 1;
+    padding: 24px 28px;
+    margin: 20px 20px 20px 0;
+    border-radius: 10px;
+    background: radial-gradient(circle at top, #1f2937 0, #020617 60%);
+    box-shadow: 0 26px 60px rgba(0, 0, 0, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #e5e7eb;
+}
+body.page-mes-documents #right_container.mes-documents-main .div_header_documents h1 {
+    color: #f9fafb;
+    margin: 0 0 10px;
+}
+body.page-mes-documents #right_container.mes-documents-main .div_header_documents hr {
+    border: 0;
+    border-top: 1px solid rgba(226, 226, 226, 0.41);
+    margin: 0 0 20px;
+}
+body.page-mes-documents #links {
+    background-color: transparent;
+    color: #e5e7eb;
+}
+body.page-mes-documents #bouton_supprimer_dossier_selectionne.bouton_fermer {
+    color: #f97316;
+    text-decoration: none;
+    font-size: 13px;
+}
+body.page-mes-documents #bouton_supprimer_dossier_selectionne.bouton_fermer:hover {
+    color: #fb923c;
+    text-decoration: underline;
+}
+/* DataTable Mes documents – thème sombre */
+body.page-mes-documents div#tableau_document_utilisateur_wrapper.dataTables_wrapper {
+    background-color: rgba(15, 23, 42, 0.95) !important;
+    color: #e5e7eb !important;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 8px;
+    max-width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 20px;
+}
+body.page-mes-documents div#tableau_document_utilisateur_wrapper.dataTables_wrapper .dataTables_length label,
+body.page-mes-documents div#tableau_document_utilisateur_wrapper.dataTables_wrapper .dataTables_filter label {
+    color: #ffffff !important;
+}
+body.page-mes-documents div#tableau_document_utilisateur_wrapper.dataTables_wrapper .dataTables_filter {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+body.page-mes-documents div#tableau_document_utilisateur_wrapper.dataTables_wrapper .dataTables_filter label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
+    color: #ffffff !important;
+}
+body.page-mes-documents div#tableau_document_utilisateur_wrapper.dataTables_wrapper .dataTables_filter input {
+    max-width: 180px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+body.page-mes-documents div#tableau_document_utilisateur_wrapper .dataTables_scrollBody,
+body.page-mes-documents div#tableau_document_utilisateur_wrapper .dataTables_scrollHead {
+    background-color: rgba(15, 23, 42, 0.95) !important;
+}
+body.page-mes-documents table#tableau_document_utilisateur.display.dataTable.no-footer {
+    background-color: rgba(15, 23, 42, 0.95) !important;
+    color: #e5e7eb !important;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 8px;
+}
+body.page-mes-documents table#tableau_document_utilisateur thead th {
+    background-color: #111827 !important;
+    color: #f9fafb !important;
+    border-color: rgba(148, 163, 184, 0.35) !important;
+    padding: 8px 10px !important;
+}
+body.page-mes-documents table#tableau_document_utilisateur tbody,
+body.page-mes-documents table#tableau_document_utilisateur tbody tr,
+body.page-mes-documents table#tableau_document_utilisateur tbody tr.odd,
+body.page-mes-documents table#tableau_document_utilisateur tbody tr.even {
+    background-color: rgba(15, 23, 42, 0.95) !important;
+    color: #e5e7eb !important;
+}
+body.page-mes-documents table#tableau_document_utilisateur tbody td,
+body.page-mes-documents table#tableau_document_utilisateur tbody td.dataTables_empty {
+    background-color: rgba(15, 23, 42, 0.95) !important;
+    color: #e5e7eb !important;
+    border-color: rgba(148, 163, 184, 0.2) !important;
+}
+body.page-mes-documents table#tableau_document_utilisateur tbody tr:hover {
+    background-color: rgba(55, 65, 81, 0.6) !important;
+}
+body.page-mes-documents table#tableau_document_utilisateur tbody tr:hover td {
+    background-color: rgba(55, 65, 81, 0.6) !important;
+}
+body.page-mes-documents div#tableau_document_utilisateur_wrapper.dataTables_wrapper .dataTables_filter input,
+body.page-mes-documents div#tableau_document_utilisateur_wrapper.dataTables_wrapper .dataTables_length select {
+    background-color: rgba(15, 23, 42, 0.95);
+    border: 1px solid #4b5563;
+    color: #f9fafb;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+body.page-mes-documents div#tableau_document_utilisateur_wrapper.dataTables_wrapper .dataTables_length {
+    max-width: 100%;
+}
+body.page-mes-documents div#tableau_document_utilisateur_wrapper.dataTables_wrapper .dataTables_length select {
+    max-width: 100%;
+}
+body.page-mes-documents div#tableau_document_utilisateur_wrapper.dataTables_wrapper .dataTables_info,
+body.page-mes-documents div#tableau_document_utilisateur_wrapper.dataTables_wrapper .dataTables_paginate {
+    color: #9ca3af;
+}
+body.page-mes-documents div#tableau_document_utilisateur_wrapper.dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: #e5e7eb !important;
+    border-color: #4b5563 !important;
+    background: #111827 !important;
+}
+body.page-mes-documents div#tableau_document_utilisateur_wrapper.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    border-color: #f97316 !important;
+    color: #f97316 !important;
+}
+body.page-mes-documents div#tableau_document_utilisateur_wrapper.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: linear-gradient(90deg, #f97316, #ea580c) !important;
+    border-color: #f97316 !important;
+    color: #fff !important;
+}
+/* Barre de progression (jQuery UI) */
+body.page-mes-documents #h_bar_size_document.ui-progressbar {
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid #4b5563;
+    border-radius: 6px;
+    height: 20px !important;
+}
+body.page-mes-documents #h_bar_size_document .ui-progressbar-value {
+    background: linear-gradient(90deg, #f97316, #ea580c) !important;
+    border-radius: 4px;
+}
+body.page-mes-documents p.footer {
+    border-top: none;
+    color: #9ca3af;
+}
