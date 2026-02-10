@@ -16,6 +16,8 @@ $routes->group('signup', function($routes) {
     $routes->post('login', 'Signup::login');
     $routes->get('logout', 'Signup::logout');
     $routes->get('membres', 'Signup::membres');
+    $routes->get('reset_password', 'Signup::reset_password');
+    $routes->post('reset_password', 'Signup::reset_password');
 });
 
 // Routes Membres

@@ -41,18 +41,18 @@
 
         <div id="formulaire">
         
-            <p style="font-size:18px;text-align:center;";>Code et mot de passe oubliés.</p>
+            <p style="font-size:18px;text-align:center;">Mot de passe oublié.</p>
             <?php if(isset($error)):?>
             <div class="error"><?php echo $error;?></div>
             <?php endif;?>
             <?php if(isset($succes)):?>
-            <script>swal({   title: "Succès.",   text: "Votre code et mot de passe ont bien étés envoyés à votre adresse email !",   type: "success",   showCancelButton: false,   confirmButtonColor: "#DD6B55",   confirmButtonText: "Ok",   cancelButtonText: "", closeOnConfirm: true }, function(){   
+            <script>swal({   title: "Succès.",   text: "Un lien de réinitialisation a été envoyé à votre adresse email. Consultez votre boîte de réception (et les spams).",   type: "success",   showCancelButton: false,   confirmButtonColor: "#DD6B55",   confirmButtonText: "Ok",   cancelButtonText: "", closeOnConfirm: true }, function(){   
                 window.location = "<?= base_url(); ?>";   
         });</script>
             <div class="succes"><?php echo $succes;?></div>
             <?php endif;?>
             
-            <p style="text-align:center;">Pour recevoir votre code et votre mot de passe à REZO+ PC Inline, veuillez saisir votre adresse email dans le champ ci-dessous.</p>
+            <p style="text-align:center;">Pour réinitialiser votre mot de passe REZO+ PC Inline, saisissez votre adresse email ci-dessous. Vous recevrez un lien par email (valide 1 heure).</p>
             <hr/>
             <div style="height:15px;font-size:12px;"></div>
             

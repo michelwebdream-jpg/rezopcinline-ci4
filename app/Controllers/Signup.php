@@ -258,7 +258,8 @@ class Signup extends BaseController
                     'titre' => 'REZO+ PC INLINE | Connexion',
                     'heading' => 'Bienvenue dans REZO+ PC InLine',
                     'footing' => footer_html(),
-                    'validation' => $this->validator
+                    'validation' => $this->validator,
+                    'success' => $this->session->getFlashdata('success'),
                 ];
                 return view('login', $data);
             }
@@ -268,7 +269,8 @@ class Signup extends BaseController
                 'titre' => 'REZO+ PC INLINE | Connexion',
                 'heading' => 'Bienvenue dans REZO+ PC InLine',
                 'footing' => footer_html(),
-                'validation' => $this->validator
+                'validation' => $this->validator,
+                'success' => $this->session->getFlashdata('success'),
             ];
             return view('login', $data);
         }
@@ -279,6 +281,53 @@ class Signup extends BaseController
         $this->session->remove(['login', 'logged', 'deliverdata']);
         $this->session->destroy();
         return redirect()->to('/');
+    }
+
+    /**
+     * Réinitialisation du mot de passe via le lien reçu par email (token).
+     * GET : affiche le formulaire nouveau mot de passe + confirmation.
+     * POST : valide le token et met à jour le mot de passe.
+     */
+    public function reset_password()
+    {
+        $token = $this->request->getGet('token') ?? $this->request->getPost('token') ?? '';
+        if ($token === '') {
+            return redirect()->to('/envoi_password')->with('error', 'Lien invalide ou expiré. Veuillez demander un nouveau lien de réinitialisation.');
+        }
+
+        if ($this->request->getMethod() === 'POST') {
+            $rules = [
+                'token' => 'required',
+                'text_input_mon_password_new' => 'trim|required|min_length[5]',
+                'text_input_mon_password_confirm' => 'trim|required|matches[text_input_mon_password_new]',
+            ];
+            if ($this->validate($rules)) {
+                $newPassword = $this->request->getPost('text_input_mon_password_new');
+                $result = $this->signupModel->reset_password_by_token($token, $newPassword);
+                if ($result !== false && trim($result) === '1') {
+                    return redirect()->to('/signup/login')->with('success', 'Votre mot de passe a été réinitialisé. Vous pouvez vous connecter.');
+                }
+                $data = [
+                    'titre' => 'REZO+ PC INLINE | Réinitialisation du mot de passe',
+                    'heading' => 'Bienvenue dans REZO+ PC InLine',
+                    'footing' => footer_html(),
+                    'token' => $token,
+                    'error' => 'Ce lien est invalide ou a expiré. Veuillez demander un nouveau lien depuis la page « Mot de passe oublié ».',
+                    'validation' => $this->validator,
+                ];
+                return view('reset_password', $data);
+            }
+        }
+
+        $data = [
+            'titre' => 'REZO+ PC INLINE | Réinitialisation du mot de passe',
+            'heading' => 'Bienvenue dans REZO+ PC InLine',
+            'footing' => footer_html(),
+            'token' => $token,
+            'error' => $this->request->getGet('error') ?? ($this->session->getFlashdata('error') ?? null),
+            'validation' => $this->validator,
+        ];
+        return view('reset_password', $data);
     }
     
     public function membres()

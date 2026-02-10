@@ -42,7 +42,10 @@
 
         <div id="formulaire">
         
-            <p style="font-size:18px;text-align:center;";>J'ai un compte REZO+ PC Inline : je m'identifie.</p>
+            <p style="font-size:18px;text-align:center;">J'ai un compte REZO+ PC Inline : je m'identifie.</p>
+            <?php if(isset($success) && $success):?>
+            <div class="succes"><?php echo $success;?></div>
+            <?php endif;?>
             <?php if(isset($error)):?>
             <div class="error"><?php echo $error;?></div>
             <?php endif;?>

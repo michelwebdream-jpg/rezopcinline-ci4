@@ -89,6 +89,22 @@ class SignupModel extends Model
         $url = $this->getAppServerURL() . $this->envUri('UPDATEPASSWORD_URI', '/dev/rezo_flash_code/update_password.php');
         return $this->postCURL($url, $data);
     }
+
+    /**
+     * Réinitialise le mot de passe via un token (lien « mot de passe oublié »).
+     * @param string $token Token reçu par email
+     * @param string $newPassword Nouveau mot de passe
+     * @return string|false '1' succès, '0' ou '-1' échec, false erreur réseau
+     */
+    public function reset_password_by_token(string $token, string $newPassword)
+    {
+        $url = $this->getAppServerURL() . '/dev/rezo_flash_code/reset_password_by_token.php';
+        $data = [
+            'token' => $token,
+            'mon_password_new' => $newPassword,
+        ];
+        return $this->postCURL($url, $data);
+    }
     
     public function update_compte_administrateur($data)
     {

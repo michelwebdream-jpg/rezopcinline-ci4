@@ -28,7 +28,8 @@ class Envoi_password extends BaseController
             
             if ($this->validate($rules)) {
             $data = [
-                'mon_email' => $this->request->getPost('text_input_mon_email')
+                'mon_email' => $this->request->getPost('text_input_mon_email'),
+                'base_url' => base_url(),
             ];
             
             $resultat_envoi_password = $this->signupModel->envoi_mot_de_passe($data);
@@ -36,7 +37,7 @@ class Envoi_password extends BaseController
             if ($resultat_envoi_password !== false) {
                 if ($resultat_envoi_password == "1") {
                     $data = [
-                        'succes' => 'Votre code et mot de passe ont bien étés envoyés à votre adresse email.',
+                        'succes' => 'Un lien de réinitialisation a été envoyé à votre adresse email. Consultez votre boîte de réception (et les spams) puis cliquez sur le lien pour définir un nouveau mot de passe.',
                         'titre' => 'REZO+ PC INLINE | Mon compte',
                         'heading' => 'Bienvenue dans REZO+ PC InLine',
                         'footing' => footer_html()
@@ -61,10 +62,11 @@ class Envoi_password extends BaseController
         } else {
             // Affichage initial du formulaire (GET)
             $data = [
-                'titre' => 'REZO+ PC INLINE | Envoyer mon code et mon mot de passe',
+                'titre' => 'REZO+ PC INLINE | Mot de passe oublié',
                 'heading' => 'Bienvenue dans REZO+ PC InLine',
                 'footing' => footer_html(),
-                'validation' => $this->validator
+                'validation' => $this->validator,
+                'error' => $this->session->getFlashdata('error'),
             ];
             return view('envoi_password', $data);
         }
