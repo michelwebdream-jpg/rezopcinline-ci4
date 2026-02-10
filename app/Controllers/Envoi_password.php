@@ -23,7 +23,10 @@ class Envoi_password extends BaseController
         // Ne valider que si c'est une requête POST
         if ($this->request->getMethod() === 'POST') {
             $rules = [
-                'text_input_mon_email' => 'trim|required|valid_email'
+                'text_input_mon_email' => [
+                    'label' => 'Mon adresse email',
+                    'rules' => 'trim|required|valid_email',
+                ],
             ];
             
             if ($this->validate($rules)) {

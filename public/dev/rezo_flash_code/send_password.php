@@ -57,22 +57,22 @@ $db->query("INSERT INTO rezo_password_reset (token, mail, expires_at) VALUES ('$
 $reset_link = $base_url . '/signup/reset_password?token=' . $token;
 $reset_link_safe = htmlspecialchars($reset_link, ENT_QUOTES, 'UTF-8');
 
-$message = 'Vous avez demandé une réinitialisation du mot de passe pour votre compte REZO+ PC Inline.<br/><br/>'
-	. 'Cliquez sur le lien ci-dessous pour définir un nouveau mot de passe (lien valide 1 heure) :<br/><br/>'
-	. '<a href="' . $reset_link_safe . '">' . $reset_link_safe . '</a><br/><br/>'
-	. 'Si vous n\'êtes pas à l\'origine de cette demande, ignorez ce message.<br/><br/>Web-dream vous remercie.';
-
 $subject = 'Réinitialisation du mot de passe - REZO+ PC Inline';
 $headers = 'MIME-Version: 1.0' . "\r\n";
 $headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
-$headers .= 'From: info@web-dream.fr' . "\r\n";
+$headers .= 'From: "REZO+ PC Inline" <info@web-dream.fr>' . "\r\n";
 
-$template = '<div style="padding:50px; color:white;"><h2>Réinitialisation du mot de passe</h2><br/>'
-	. '<br/>' . $message . '<br/><br/>'
-	. 'Envoyé de l\'application web REZO+ PC Inline.'
-	. '<br/>';
-$sendmessage = "<div style=\"background-color:#7E7E7E; color:white;\">" . $template . "</div>";
-$sendmessage = wordwrap($sendmessage, 70);
+$sendmessage = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.5; color: #333; background: #fff;">'
+	. '<div style="max-width: 560px; margin: 0 auto; padding: 24px 20px;">'
+	. '<h1 style="margin: 0 0 20px; font-size: 20px; color: #222;">Réinitialisation du mot de passe</h1>'
+	. '<p style="margin: 0 0 16px;">Vous avez demandé une réinitialisation du mot de passe pour votre compte REZO+ PC Inline.</p>'
+	. '<p style="margin: 0 0 16px;">Cliquez sur le lien ci-dessous pour définir un nouveau mot de passe. Ce lien est valable 1 heure.</p>'
+	. '<p style="margin: 0 0 24px;">'
+	. '<a href="' . $reset_link_safe . '" style="color: #0066cc; text-decoration: underline;">' . $reset_link_safe . '</a>'
+	. '</p>'
+	. '<p style="margin: 0 0 16px; color: #666; font-size: 13px;">Si vous n\'êtes pas à l\'origine de cette demande, ignorez ce message. Aucune modification ne sera effectuée.</p>'
+	. '<p style="margin: 24px 0 0; padding-top: 16px; border-top: 1px solid #eee; color: #888; font-size: 12px;">REZO+ PC Inline – Web-dream</p>'
+	. '</div></body></html>';
 
 mail($mon_email, $subject, $sendmessage, $headers);
 

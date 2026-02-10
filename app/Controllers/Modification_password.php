@@ -27,8 +27,14 @@ class Modification_password extends BaseController
         // Ne valider que si c'est une requête POST
         if ($this->request->getMethod() === 'POST') {
             $rules = [
-                'text_input_mon_password_actuel' => 'trim|required|min_length[5]',
-                'text_input_mon_password_new' => 'trim|required|min_length[5]'
+                'text_input_mon_password_actuel' => [
+                    'label' => 'Mot de passe actuel',
+                    'rules' => 'trim|required|min_length[5]',
+                ],
+                'text_input_mon_password_new' => [
+                    'label' => 'Nouveau mot de passe',
+                    'rules' => 'trim|required|min_length[5]',
+                ],
             ];
             
             if ($this->validate($rules)) {

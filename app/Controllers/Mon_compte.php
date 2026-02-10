@@ -27,10 +27,22 @@ class Mon_compte extends BaseController
         // Ne valider que si c'est une requête POST
         if ($this->request->getMethod() === 'POST') {
             $rules = [
-                'text_input_mon_nom' => 'trim|required',
-                'text_input_mon_prenom' => 'trim|required',
-                'text_input_mon_telephone' => 'trim|required',
-                'text_input_mon_indicatif' => 'trim|required'
+                'text_input_mon_nom' => [
+                    'label' => 'Mon nom',
+                    'rules' => 'trim|required',
+                ],
+                'text_input_mon_prenom' => [
+                    'label' => 'Mon prénom',
+                    'rules' => 'trim|required',
+                ],
+                'text_input_mon_telephone' => [
+                    'label' => 'Mon téléphone',
+                    'rules' => 'trim|required',
+                ],
+                'text_input_mon_indicatif' => [
+                    'label' => 'Mon indicatif',
+                    'rules' => 'trim|required',
+                ],
             ];
             
             if ($this->validate($rules)) {

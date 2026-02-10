@@ -32,15 +32,42 @@ class Signup extends BaseController
         // Ne valider que si c'est une requête POST
         if ($this->request->getMethod() === 'POST') {
             $rules = [
-                'text_input_mon_nom' => 'trim|required',
-                'text_input_mon_prenom' => 'trim|required',
-                'text_input_mon_telephone' => 'trim|required',
-                'text_input_mon_mail' => 'trim|required|valid_email|matches[text_input_mon_mail2]',
-                'text_input_mon_mail2' => 'trim|required|valid_email',
-                'text_input_mon_indicatif' => 'trim|required',
-                'text_input_mon_password1' => 'trim|required|min_length[5]|matches[text_input_mon_password2]',
-                'text_input_mon_password2' => 'trim|required|min_length[5]',
-                'text_input_cle_de_licence' => 'trim|required',
+                'text_input_mon_nom' => [
+                    'label' => 'Mon nom',
+                    'rules' => 'trim|required',
+                ],
+                'text_input_mon_prenom' => [
+                    'label' => 'Mon prénom',
+                    'rules' => 'trim|required',
+                ],
+                'text_input_mon_telephone' => [
+                    'label' => 'Mon téléphone',
+                    'rules' => 'trim|required',
+                ],
+                'text_input_mon_mail' => [
+                    'label' => 'Mon e-mail',
+                    'rules' => 'trim|required|valid_email|matches[text_input_mon_mail2]',
+                ],
+                'text_input_mon_mail2' => [
+                    'label' => 'Confirmer votre e-mail',
+                    'rules' => 'trim|required|valid_email',
+                ],
+                'text_input_mon_indicatif' => [
+                    'label' => 'Mon indicatif',
+                    'rules' => 'trim|required',
+                ],
+                'text_input_mon_password1' => [
+                    'label' => 'Mon mot de passe',
+                    'rules' => 'trim|required|min_length[5]|matches[text_input_mon_password2]',
+                ],
+                'text_input_mon_password2' => [
+                    'label' => 'Confirmer le mot de passe',
+                    'rules' => 'trim|required|min_length[5]',
+                ],
+                'text_input_cle_de_licence' => [
+                    'label' => 'Ma clé de licence',
+                    'rules' => 'trim|required',
+                ],
             ];
             
             if ($this->validate($rules)) {
@@ -130,8 +157,14 @@ class Signup extends BaseController
             error_log('Pass: ' . (strlen($this->request->getPost('pass')) > 0 ? 'present' : 'vide'));
             
             $rules = [
-                'code' => 'trim|required',
-                'pass' => 'trim|required'
+                'code' => [
+                    'label' => 'Mon code REZO+',
+                    'rules' => 'trim|required',
+                ],
+                'pass' => [
+                    'label' => 'Mon mot de passe',
+                    'rules' => 'trim|required',
+                ],
             ];
             
             if ($this->validate($rules)) {
@@ -297,9 +330,18 @@ class Signup extends BaseController
 
         if ($this->request->getMethod() === 'POST') {
             $rules = [
-                'token' => 'required',
-                'text_input_mon_password_new' => 'trim|required|min_length[5]',
-                'text_input_mon_password_confirm' => 'trim|required|matches[text_input_mon_password_new]',
+                'token' => [
+                    'label' => 'Token',
+                    'rules' => 'required',
+                ],
+                'text_input_mon_password_new' => [
+                    'label' => 'Nouveau mot de passe',
+                    'rules' => 'trim|required|min_length[5]',
+                ],
+                'text_input_mon_password_confirm' => [
+                    'label' => 'Confirmer le mot de passe',
+                    'rules' => 'trim|required|matches[text_input_mon_password_new]',
+                ],
             ];
             if ($this->validate($rules)) {
                 $newPassword = $this->request->getPost('text_input_mon_password_new');
