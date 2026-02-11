@@ -1158,3 +1158,342 @@ body.page-mes-documents p.footer {
     border-top: none;
     color: #9ca3af;
 }
+
+/* ========== Page membre (template_main) – thème sombre, même disposition ========== */
+body.page-membre {
+    background-color: #0f172a;
+    color: #e5e7eb;
+}
+body.page-membre #container {
+    background-color: transparent;
+}
+/* Sidebar gauche */
+body.page-membre #my_menu {
+    background: radial-gradient(circle at top, #1f2937 0, #020617 60%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    padding: 12px 10px 12px 10px;
+}
+body.page-membre #header_logo p,
+body.page-membre #my_menu .copyright,
+body.page-membre #my_menu a#load_non_modal_a_propos {
+    color: #e5e7eb;
+}
+body.page-membre #my_menu a#load_non_modal_a_propos:hover {
+    color: #f97316;
+}
+body.page-membre #zone_affichage_coordonnees {
+    color: #9ca3af;
+    font-size: 10px;
+}
+/* Boutons du menu latéral */
+body.page-membre #menu a {
+    background-color: #111827;
+    border: 1px solid #374151;
+    color: #e5e7eb;
+    border-radius: 8px;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+body.page-membre #menu a:hover {
+    background-color: rgba(249, 115, 22, 0.2);
+    border-color: #f97316;
+    color: #f97316;
+}
+/* Barre du haut (div_header) */
+body.page-membre .div_header {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    color: #e5e7eb;
+}
+body.page-membre .info_user_time p,
+body.page-membre .info_user_time a {
+    color: #e5e7eb;
+}
+body.page-membre .info_user_time a:hover {
+    color: #f97316;
+}
+body.page-membre .info_user_time {
+    border-left-color: rgba(255, 255, 255, 0.15);
+}
+/* Bloc connexion / position */
+body.page-membre #my_connexion_internet {
+    border-left-color: rgba(255, 255, 255, 0.15);
+}
+/* Indicateurs connexion / position : fond vert ou rouge → texte blanc ; fond blanc → texte noir */
+body.page-membre #id_connexion_internet {
+    border: 1px solid rgba(34, 197, 94, 0.5);
+    border-radius: 6px;
+    color: #ffffff !important;
+}
+body.page-membre #id_connexion_internet[style*="FFFFFF"],
+body.page-membre #id_connexion_internet[style*="ffffff"],
+body.page-membre #id_connexion_internet[style*="255, 255, 255"] {
+    color: #000000 !important;
+}
+body.page-membre #my_position_emise {
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    border-radius: 6px;
+    color: #ffffff !important;
+}
+/* États verts/rouges (JS fixe le fond) : on force le texte blanc au cas où */
+body.page-membre #id_connexion_internet[style*="53ab5b"],
+body.page-membre #id_connexion_internet[style*="FFC000"],
+body.page-membre #my_position_emise[style*="53ab5b"],
+body.page-membre #my_position_emise[style*="ab2b2b"] {
+    color: #ffffff !important;
+}
+body.page-membre #bouton_modifier_mon_statut.bouton_fermer {
+    background: linear-gradient(90deg, #f97316, #ea580c);
+    border-color: #ea580c;
+    color: #fff;
+}
+body.page-membre #bouton_modifier_mon_statut.bouton_fermer:hover {
+    background: linear-gradient(90deg, #fb923c, #f97316);
+    color: #fff;
+}
+/* Zones texte activité / info */
+body.page-membre #menu_nom_activite,
+body.page-membre #menu_info_text,
+body.page-membre #menu_info_text p {
+    background-color: rgba(15, 23, 42, 0.9);
+    border-color: rgba(148, 163, 184, 0.35);
+    color: #e5e7eb;
+    border-radius: 5px;
+}
+/* Boutons d’action (Déclarer victime, Bilan, Main courante, etc.) */
+body.page-membre .div_header .bouton_fermer,
+body.page-membre #bouton_menu_stop_activite.bouton_fermer,
+body.page-membre #load_non_modal_page_saisie_victime.bouton_fermer,
+body.page-membre #bouton_voir_bilan.bouton_fermer,
+body.page-membre #bouton_menu_historique.bouton_fermer,
+body.page-membre #bouton_voir_main_courante.bouton_fermer {
+    background: linear-gradient(90deg, #f97316, #ea580c);
+    border-color: #ea580c;
+    color: #fff;
+    border-radius: 8px;
+}
+body.page-membre .div_header .bouton_fermer:hover,
+body.page-membre #bouton_menu_stop_activite.bouton_fermer:hover,
+body.page-membre #load_non_modal_page_saisie_victime.bouton_fermer:hover,
+body.page-membre #bouton_voir_bilan.bouton_fermer:hover,
+body.page-membre #bouton_menu_historique.bouton_fermer:hover,
+body.page-membre #bouton_voir_main_courante.bouton_fermer:hover {
+    background: linear-gradient(90deg, #fb923c, #f97316);
+    color: #fff;
+}
+/* Panneaux modaux / pages (activités, paramètres, historique, etc.) */
+body.page-membre #content_non_modal,
+body.page-membre #div_pour_page_parametres,
+body.page-membre #div_pour_page_historique {
+    background-color: rgba(31, 41, 55, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 26px 60px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    color: #e5e7eb;
+}
+body.page-membre #content_non_modal h1,
+body.page-membre #content_non_modal h2,
+body.page-membre #div_pour_page_parametres h1,
+body.page-membre #div_pour_page_historique h2 {
+    color: #f9fafb;
+}
+body.page-membre #content_non_modal .bouton_fermer,
+body.page-membre #div_pour_page_parametres .bouton_fermer,
+body.page-membre #div_pour_page_historique .bouton_fermer {
+    background: linear-gradient(90deg, #f97316, #ea580c);
+    border-color: #ea580c;
+    color: #fff;
+    border-radius: 8px;
+}
+body.page-membre #content_non_modal .bouton_fermer:hover,
+body.page-membre #div_pour_page_parametres .bouton_fermer:hover,
+body.page-membre #div_pour_page_historique .bouton_fermer:hover {
+    background: linear-gradient(90deg, #fb923c, #f97316);
+    color: #fff;
+}
+/* Fenêtre « Ma position / Marqueurs fixes » : fonds gris remplacés par thème sombre */
+body.page-membre #content_non_modal #id_view_choix_marker td[style*="background"],
+body.page-membre #content_non_modal #id_view_choix_marker td {
+    background: rgba(30, 41, 59, 0.95) !important;
+    color: #e5e7eb;
+}
+body.page-membre #content_non_modal #id_view_choix_marker details,
+body.page-membre #content_non_modal #id_view_choix_marker details summary,
+body.page-membre #content_non_modal #id_view_choix_marker p {
+    color: #e5e7eb;
+}
+body.page-membre #content_non_modal #id_view_choix_marker input[type="text"] {
+    background-color: rgba(15, 23, 42, 0.95);
+    border: 1px solid #4b5563;
+    color: #f9fafb;
+    border-radius: 6px;
+}
+/* Fenêtre Réglages : alignement cases à cocher / texte, texte sur toute la largeur (labels en dehors de #id_view_parametres) */
+body.page-membre #div_pour_page_parametres label.reglage-option {
+    display: flex !important;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+    cursor: pointer;
+    color: #e5e7eb;
+    width: 100%;
+    max-width: 100%;
+    text-align: left;
+}
+body.page-membre #div_pour_page_parametres label.reglage-option input[type="checkbox"] {
+    margin: 0;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+}
+body.page-membre #div_pour_page_parametres label.reglage-option .reglage-option-text {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+}
+/* Fenêtre Historique : tableau et contrôles en thème sombre */
+body.page-membre #div_pour_page_historique #id_view_historique hr {
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    margin: 10px 0;
+}
+body.page-membre #div_pour_page_historique table#table_historique.display.dataTable.no-footer,
+body.page-membre #div_pour_page_historique table#table_historique thead th,
+body.page-membre #div_pour_page_historique table#table_historique tbody td,
+body.page-membre #div_pour_page_historique table#table_historique tbody tr,
+body.page-membre #div_pour_page_historique table#table_historique tbody tr.odd,
+body.page-membre #div_pour_page_historique table#table_historique tbody tr.even {
+    background-color: rgba(15, 23, 42, 0.95) !important;
+    color: #e5e7eb !important;
+    border-color: rgba(148, 163, 184, 0.25) !important;
+}
+body.page-membre #div_pour_page_historique table#table_historique thead th {
+    background-color: #111827 !important;
+    color: #f9fafb !important;
+    padding: 8px 10px !important;
+}
+body.page-membre #div_pour_page_historique table#table_historique tbody tr:hover td {
+    background-color: rgba(55, 65, 81, 0.6) !important;
+}
+body.page-membre #div_pour_page_historique div#table_historique_wrapper.dataTables_wrapper,
+body.page-membre #div_pour_page_historique div#table_historique_wrapper.dataTables_wrapper .dataTables_scrollBody {
+    background-color: transparent !important;
+    color: #e5e7eb;
+}
+body.page-membre #div_pour_page_historique div#table_historique_wrapper .dataTables_length label,
+body.page-membre #div_pour_page_historique div#table_historique_wrapper .dataTables_filter label {
+    color: #ffffff !important;
+}
+body.page-membre #div_pour_page_historique div#table_historique_wrapper .dataTables_filter input,
+body.page-membre #div_pour_page_historique div#table_historique_wrapper .dataTables_length select {
+    background-color: rgba(15, 23, 42, 0.95);
+    border: 1px solid #4b5563;
+    color: #f9fafb;
+    border-radius: 6px;
+}
+body.page-membre #div_pour_page_historique div#table_historique_wrapper .dataTables_info,
+body.page-membre #div_pour_page_historique div#table_historique_wrapper .dataTables_paginate {
+    color: #9ca3af;
+}
+body.page-membre #div_pour_page_historique div#table_historique_wrapper .dataTables_paginate .paginate_button {
+    color: #e5e7eb !important;
+    border-color: #4b5563 !important;
+    background: #111827 !important;
+}
+body.page-membre #div_pour_page_historique div#table_historique_wrapper .dataTables_paginate .paginate_button:hover {
+    border-color: #f97316 !important;
+    color: #f97316 !important;
+}
+body.page-membre #div_pour_page_historique div#table_historique_wrapper .dataTables_paginate .paginate_button.current {
+    background: linear-gradient(90deg, #f97316, #ea580c) !important;
+    border-color: #f97316 !important;
+    color: #fff !important;
+}
+body.page-membre #div_pour_page_historique #input_destinataire_mail_historique,
+body.page-membre #div_pour_page_historique input[name="input_destinataire_mail_historique"] {
+    background-color: rgba(15, 23, 42, 0.95);
+    border: 1px solid #4b5563;
+    color: #f9fafb;
+    border-radius: 6px;
+}
+body.page-membre #div_pour_page_historique #container_mail_hisrotique label {
+    color: #e5e7eb;
+}
+body.page-membre #div_pour_page_historique #div_bouton_ajouter_evenement_historique {
+    color: #e5e7eb;
+}
+/* Page recherche adresse */
+body.page-membre #div_pour_recherche {
+    background-color: rgba(31, 41, 55, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    color: #e5e7eb;
+    padding: 16px 14px 20px;
+}
+body.page-membre #div_pour_recherche h2 {
+    color: #f9fafb;
+    margin-bottom: 10px;
+    display: block;
+}
+body.page-membre #div_pour_recherche #pac-input.controls {
+    display: block;
+    margin-bottom: 16px;
+}
+body.page-membre #div_pour_recherche #pac-input.controls,
+body.page-membre #pac-input.controls {
+    background-color: rgba(15, 23, 42, 0.95);
+    border: 1px solid #4b5563;
+    color: #f9fafb;
+    border-radius: 6px;
+    margin-left: 0;
+}
+body.page-membre #bouton_fermer_page_recherche.bouton_fermer {
+    background: linear-gradient(90deg, #f97316, #ea580c);
+    border-color: #ea580c;
+    color: #fff;
+    margin-top: 4px;
+    padding: 8px 16px;
+    display: block;
+    width: 70px;
+    box-sizing: border-box;
+    text-align: center;
+}
+body.page-membre #bouton_fermer_page_recherche.bouton_fermer:hover {
+    background: linear-gradient(90deg, #fb923c, #f97316);
+    color: #fff;
+}
+/* Page erreur réseau */
+body.page-membre #div_pour_page_erreur_reseau {
+    background-color: rgba(31, 41, 55, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    color: #e5e7eb;
+}
+body.page-membre #div_pour_page_erreur_reseau .bouton_fermer {
+    background: linear-gradient(90deg, #f97316, #ea580c);
+    border-color: #ea580c;
+    color: #fff;
+}
+body.page-membre #div_pour_page_erreur_reseau .bouton_fermer:hover {
+    background: linear-gradient(90deg, #fb923c, #f97316);
+    color: #fff;
+}
+/* Footer page membre */
+body.page-membre p.footer {
+    border-top-color: rgba(255, 255, 255, 0.1);
+    color: #9ca3af;
+}
+body.page-membre .bouton_infowindow {
+    background-color: #111827;
+    border-color: #374151;
+    color: #e5e7eb;
+    border-radius: 8px;
+}
+body.page-membre .bouton_infowindow:hover {
+    background-color: rgba(249, 115, 22, 0.3);
+    border-color: #f97316;
+    color: #f97316;
+}

@@ -12,6 +12,7 @@
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     
     <link rel="stylesheet" href="<?php echo base_url();?>css/style_main.css"/>
+    <link rel="stylesheet" href="<?php echo base_url();?>css/style.css"/>
     <title><?php if(isset($titre)) echo $titre;?></title>
     <!--<script src="https://code.jquery.com/jquery-1.10.2.js"></script>-->
     <script src="https://code.jquery.com/jquery-latest.min.js"></script>
@@ -70,7 +71,7 @@
 		</script>
     
 </head>
-<body>
+<body class="page-membre">
     
     <div id="div_pour_deplacement_marker"></div>
     <div id="div_pour_page_historique"></div>

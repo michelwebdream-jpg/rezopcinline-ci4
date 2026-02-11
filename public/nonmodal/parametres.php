@@ -8,13 +8,13 @@
 </div>
 </div><div class="separator"></div>
 <hr />
-<label style="display:block;">
+<label class="reglage-option">
   <input type="checkbox" id="cbox_parametre_centrage_auto" value="checkbox1">
-  Centrage automatique de la carte sur tous les utilisateurs.
+  <span class="reglage-option-text">Centrage automatique de la carte sur tous les utilisateurs.</span>
 </label>
-<label>
+<label class="reglage-option">
   <input type="checkbox" id="cbox_parametre_alerte_sonore" value="checkbox1">
-  Alerte sonore pour un départ en intervention ou une urgence.
+  <span class="reglage-option-text">Alerte sonore pour un départ en intervention ou une urgence.</span>
 </label>
 
 <script>
