@@ -314,6 +314,16 @@ body.page-mon-compte .login-logo-top {
     z-index: 2;
 }
 
+body.page-login .login-logo-link,
+body.page-forgot .login-logo-link,
+body.page-modification-password .login-logo-link,
+body.page-signup .login-logo-link,
+body.page-mon-compte .login-logo-link {
+    display: block;
+    text-decoration: none;
+    line-height: 0;
+}
+
 body.page-login .login-panel,
 body.page-forgot .login-panel,
 body.page-modification-password .login-panel,
@@ -1401,6 +1411,42 @@ body.page-membre #div_pour_page_historique .bouton_fermer:hover {
     background: linear-gradient(90deg, #fb923c, #f97316);
     color: #fff;
 }
+/* Page « À propos & Bug report » – thème sombre */
+body.page-membre #div_pour_page_a_propos {
+    background-color: rgba(31, 41, 55, 0.98);
+    background-image: none;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 26px 60px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    color: #e5e7eb;
+}
+body.page-membre #div_pour_page_a_propos h1,
+body.page-membre #div_pour_page_a_propos #header_logo h1 {
+    color: #f9fafb;
+}
+body.page-membre #div_pour_page_a_propos p {
+    color: #e5e7eb;
+}
+body.page-membre #div_pour_page_a_propos a {
+    color: #93c5fd;
+}
+body.page-membre #div_pour_page_a_propos a:hover {
+    color: #bfdbfe;
+}
+body.page-membre #div_pour_page_a_propos hr,
+body.page-membre #div_pour_page_a_propos .separator {
+    border-color: rgba(255, 255, 255, 0.12);
+}
+body.page-membre #div_pour_page_a_propos #bouton_fermer_page_a_propos.bouton_fermer {
+    background: linear-gradient(90deg, #f97316, #ea580c);
+    border-color: #ea580c;
+    color: #fff;
+    border-radius: 8px;
+}
+body.page-membre #div_pour_page_a_propos #bouton_fermer_page_a_propos.bouton_fermer:hover {
+    background: linear-gradient(90deg, #fb923c, #f97316);
+    color: #fff;
+}
 /* Fenêtre « Ma position / Marqueurs fixes » : fonds gris remplacés par thème sombre */
 body.page-membre #content_non_modal #id_view_choix_marker td[style*="background"],
 body.page-membre #content_non_modal #id_view_choix_marker td {
@@ -1694,7 +1740,8 @@ body.page-membre.mode-clair #bouton_voir_main_courante.bouton_fermer:hover {
 }
 body.page-membre.mode-clair #content_non_modal,
 body.page-membre.mode-clair #div_pour_page_parametres,
-body.page-membre.mode-clair #div_pour_page_historique {
+body.page-membre.mode-clair #div_pour_page_historique,
+body.page-membre.mode-clair #div_pour_page_a_propos {
     background-color: #f2f2f2;
     border-color: #d0d0d0;
     color: #374151;
@@ -1702,15 +1749,34 @@ body.page-membre.mode-clair #div_pour_page_historique {
 body.page-membre.mode-clair #content_non_modal h1,
 body.page-membre.mode-clair #content_non_modal h2,
 body.page-membre.mode-clair #div_pour_page_parametres h1,
-body.page-membre.mode-clair #div_pour_page_historique h2 {
+body.page-membre.mode-clair #div_pour_page_historique h2,
+body.page-membre.mode-clair #div_pour_page_a_propos h1,
+body.page-membre.mode-clair #div_pour_page_a_propos #header_logo h1 {
     color: #1f2937;
 }
 body.page-membre.mode-clair #content_non_modal .bouton_fermer,
 body.page-membre.mode-clair #div_pour_page_parametres .bouton_fermer,
-body.page-membre.mode-clair #div_pour_page_historique .bouton_fermer {
+body.page-membre.mode-clair #div_pour_page_historique .bouton_fermer,
+body.page-membre.mode-clair #div_pour_page_a_propos #bouton_fermer_page_a_propos.bouton_fermer {
     background: linear-gradient(90deg, #f97316, #ea580c);
     border-color: #ea580c;
     color: #fff;
+}
+body.page-membre.mode-clair #div_pour_page_a_propos p {
+    color: #374151;
+}
+body.page-membre.mode-clair #div_pour_page_a_propos a {
+    color: #2563eb;
+}
+body.page-membre.mode-clair #div_pour_page_a_propos a:hover {
+    color: #1d4ed8;
+}
+body.page-membre.mode-clair #div_pour_page_a_propos {
+    background-image: none;
+}
+body.page-membre.mode-clair #div_pour_page_a_propos hr,
+body.page-membre.mode-clair #div_pour_page_a_propos .separator {
+    border-color: #d1d5db;
 }
 body.page-membre.mode-clair #content_non_modal #id_view_choix_marker td,
 body.page-membre.mode-clair #content_non_modal #id_view_choix_marker details,

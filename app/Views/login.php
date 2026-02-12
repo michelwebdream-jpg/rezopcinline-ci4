@@ -50,7 +50,7 @@
         <div class="login-panel">
 
             <div class="login-logo-top">
-                <img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.png" width="80" height="80">
+                <a href="<?php echo base_url();?>" class="login-logo-link" title="Accueil"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.png" width="80" height="80"></a>
             </div>
 
 
@@ -91,7 +91,7 @@
 
             <div class="login-panel-actions">
                 <p class="login-helper-text">
-                    Si vous venez d'acheter une licence, vous devez d'abord créer un compte ici.
+                    <u>Si vous venez d'acheter une licence</u>, vous devez d'abord créer un compte ici.
                 </p>
                 <a href="<?php echo base_url();?>signup" class="login-secondary-btn">Créer un compte</a>
 

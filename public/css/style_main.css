@@ -141,11 +141,12 @@ p.footer {
 	margin-left: auto;
 	margin-right: auto;
 	display: block;
+    border-radius: 10px;
 }
 #header_logo {
     
     /*background-color: #550;*/
-    
+    margin-top: 5px;
 }
 #menu_nom_activite_container{
    /* background-color: #ff0ff0;*/
@@ -185,7 +186,7 @@ p.footer {
 
 #menu{
     padding: 5px 0;
-    margin-top: 10px;
+    margin-top: 0px;
     margin-bottom: 0px;
     margin-right: 5px;
     margin-left: 5px;

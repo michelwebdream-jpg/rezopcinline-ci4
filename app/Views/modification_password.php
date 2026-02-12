@@ -36,7 +36,7 @@
     <div class="login-panel-wrapper">
         <div class="login-panel">
             <div class="login-logo-top">
-                <img border="0" alt="Rezo+ pc inline" src="<?= base_url(); ?>images/icone_final_rezo_plus_PC_inline128.png" width="80" height="80">
+                <a href="<?= base_url(); ?>" class="login-logo-link" title="Accueil"><img border="0" alt="Rezo+ pc inline" src="<?= base_url(); ?>images/icone_final_rezo_plus_PC_inline128.png" width="80" height="80"></a>
             </div>
 
             <h2 class="login-panel-title">Modifier mon mot de passe</h2>
