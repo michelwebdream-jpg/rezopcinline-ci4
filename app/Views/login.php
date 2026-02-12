@@ -35,6 +35,13 @@
             <hr class="login-separator"></hr>
             <p class="login-hero-tagline">Coordination et information en temps réel</p>
             <p class="login-hero-version"><?= getenv('VERSION_DU_SOFT') ?? 'Version 5.1' ?></p>
+            <div class="login-hero-notice">
+                <span class="login-hero-notice-title">Votre plateforme évolue !</span>
+                <p>Nous avons repensé le design de votre espace pour vous offrir une expérience plus moderne, plus fluide et plus confortable.</p>
+                <p>Découvrez également une nouvelle fonctionnalité :<br /><br />
+                🌗 le mode clair / sombre, désormais accessible depuis le menu principal, pour adapter l’affichage à vos préférences.</p>
+                <p><i><br />Bonne découverte !</i></p>
+            </div>
         </div>
     </div>
 
