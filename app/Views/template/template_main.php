@@ -127,7 +127,7 @@
                     <div class="header_user_zone">
                         <div class="info_user_time">
                             <p><span id="nom_utilisateur"></span><br /><a href="<?= base_url('mon_compte') ?>" target="_blank">Mon compte</a> - <a href="<?= base_url('signup/logout') ?>">Déconnexion</a><br />
-                            <span id="div_horloge"></span></p>
+                            <p><span id="div_horloge"></span></p>
                         </div>
                     </div>
 
