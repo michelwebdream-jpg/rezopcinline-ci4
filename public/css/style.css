@@ -1615,6 +1615,216 @@ body.page-membre #div_pour_page_erreur_reseau .bouton_fermer:hover {
     background: linear-gradient(90deg, #fb923c, #f97316);
     color: #fff;
 }
+/* SweetAlert (swal) – thème sombre page membre + page Mes documents */
+body.page-membre .sweet-overlay,
+body.page-mes-documents .sweet-overlay {
+    background-color: rgba(0, 0, 0, 0.65);
+}
+body.page-membre .sweet-alert,
+body.page-mes-documents .sweet-alert {
+    background-color: rgba(31, 41, 55, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 26px 60px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+}
+body.page-membre .sweet-alert h2,
+body.page-mes-documents .sweet-alert h2 {
+    color: #f9fafb;
+}
+body.page-membre .sweet-alert p,
+body.page-mes-documents .sweet-alert p {
+    color: #e5e7eb;
+}
+body.page-membre .sweet-alert button,
+body.page-mes-documents .sweet-alert button {
+    background: linear-gradient(90deg, #f97316, #ea580c) !important;
+    border: 1px solid #ea580c !important;
+    color: #fff !important;
+    border-radius: 8px;
+}
+body.page-membre .sweet-alert button:hover,
+body.page-mes-documents .sweet-alert button:hover {
+    background: linear-gradient(90deg, #fb923c, #f97316) !important;
+    color: #fff !important;
+}
+body.page-membre .sweet-alert button.cancel,
+body.page-mes-documents .sweet-alert button.cancel {
+    background: #4b5563 !important;
+    border-color: #4b5563 !important;
+    color: #e5e7eb !important;
+}
+body.page-membre .sweet-alert button.cancel:hover,
+body.page-mes-documents .sweet-alert button.cancel:hover {
+    background: #6b7280 !important;
+    color: #fff !important;
+}
+body.page-membre .sweet-alert input,
+body.page-mes-documents .sweet-alert input {
+    background-color: rgba(15, 23, 42, 0.95);
+    border-color: #4b5563;
+    color: #f9fafb;
+}
+body.page-membre .sweet-alert input:focus,
+body.page-mes-documents .sweet-alert input:focus {
+    border-color: #f97316;
+    box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.25);
+}
+body.page-membre .sweet-alert input::placeholder,
+body.page-mes-documents .sweet-alert input::placeholder {
+    color: #9ca3af;
+}
+body.page-membre .sweet-alert .sa-error-container,
+body.page-mes-documents .sweet-alert .sa-error-container {
+    background-color: rgba(127, 29, 29, 0.3);
+}
+body.page-membre .sweet-alert .sa-error-container p,
+body.page-mes-documents .sweet-alert .sa-error-container p {
+    color: #fca5a5;
+}
+/* Icône succès : masques blancs → fond du modal */
+body.page-membre .sweet-alert .sa-icon.sa-success::before,
+body.page-membre .sweet-alert .sa-icon.sa-success::after,
+body.page-mes-documents .sweet-alert .sa-icon.sa-success::before,
+body.page-mes-documents .sweet-alert .sa-icon.sa-success::after {
+    background: rgb(31, 41, 55) !important;
+}
+body.page-membre .sweet-alert .sa-icon.sa-success .sa-fix,
+body.page-mes-documents .sweet-alert .sa-icon.sa-success .sa-fix {
+    background-color: rgb(31, 41, 55) !important;
+}
+/* SweetAlert (swal) – thème clair page membre */
+body.page-membre.mode-clair .sweet-overlay {
+    background-color: rgba(0, 0, 0, 0.45);
+}
+body.page-membre.mode-clair .sweet-alert {
+    background-color: #f2f2f2;
+    border: 1px solid #d0d0d0;
+    box-shadow: 0 26px 60px rgba(0, 0, 0, 0.2);
+    color: #374151;
+}
+body.page-membre.mode-clair .sweet-alert h2 {
+    color: #1f2937;
+}
+body.page-membre.mode-clair .sweet-alert p {
+    color: #374151;
+}
+body.page-membre.mode-clair .sweet-alert button.cancel {
+    background: #9ca3af !important;
+    border-color: #9ca3af !important;
+    color: #fff !important;
+}
+body.page-membre.mode-clair .sweet-alert button.cancel:hover {
+    background: #6b7280 !important;
+}
+body.page-membre.mode-clair .sweet-alert input {
+    background-color: #fff;
+    border-color: #d0d0d0;
+    color: #1f2937;
+}
+body.page-membre.mode-clair .sweet-alert input::placeholder {
+    color: #9ca3af;
+}
+/* SweetAlert2 (Swal.fire) – thème sombre page membre */
+body.page-membre .swal2-container.swal2-shown {
+    background-color: rgba(0, 0, 0, 0.65) !important;
+}
+body.page-membre .swal2-popup {
+    background-color: rgba(31, 41, 55, 0.98) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 26px 60px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+}
+body.page-membre .swal2-title {
+    color: #f9fafb !important;
+}
+body.page-membre .swal2-html-container {
+    color: #e5e7eb !important;
+}
+body.page-membre .swal2-styled.swal2-confirm {
+    background: linear-gradient(90deg, #f97316, #ea580c) !important;
+    border: 1px solid #ea580c !important;
+    border-radius: 8px;
+}
+body.page-membre .swal2-styled.swal2-confirm:hover {
+    background: linear-gradient(90deg, #fb923c, #f97316) !important;
+}
+body.page-membre .swal2-styled.swal2-cancel {
+    background: #4b5563 !important;
+    border: 1px solid #4b5563 !important;
+    color: #e5e7eb !important;
+    border-radius: 8px;
+}
+body.page-membre .swal2-styled.swal2-cancel:hover {
+    background: #6b7280 !important;
+    color: #fff !important;
+}
+body.page-membre .swal2-close {
+    color: #9ca3af !important;
+}
+body.page-membre .swal2-close:hover {
+    color: #f97316 !important;
+}
+body.page-membre .swal2-icon.swal2-question {
+    border-color: rgba(249, 115, 22, 0.5);
+    color: #f97316;
+}
+body.page-membre .swal2-icon.swal2-error {
+    border-color: #f87171;
+}
+body.page-membre .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+    background-color: #f87171;
+}
+body.page-membre .swal2-icon.swal2-warning {
+    border-color: #fbbf24;
+    color: #fbbf24;
+}
+body.page-membre .swal2-icon.swal2-success {
+    border-color: #86efac;
+}
+body.page-membre .swal2-input,
+body.page-membre .swal2-textarea {
+    background-color: rgba(15, 23, 42, 0.95) !important;
+    border-color: #4b5563 !important;
+    color: #f9fafb !important;
+}
+body.page-membre .swal2-input:focus,
+body.page-membre .swal2-textarea:focus {
+    border-color: #f97316 !important;
+    box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.25) !important;
+}
+body.page-membre .swal2-validation-message {
+    background: rgba(127, 29, 29, 0.3) !important;
+    color: #fca5a5 !important;
+}
+/* SweetAlert2 – thème clair page membre */
+body.page-membre.mode-clair .swal2-container.swal2-shown {
+    background-color: rgba(0, 0, 0, 0.45) !important;
+}
+body.page-membre.mode-clair .swal2-popup {
+    background-color: #f2f2f2 !important;
+    border: 1px solid #d0d0d0;
+    box-shadow: 0 26px 60px rgba(0, 0, 0, 0.2);
+    color: #374151;
+}
+body.page-membre.mode-clair .swal2-title {
+    color: #1f2937 !important;
+}
+body.page-membre.mode-clair .swal2-html-container {
+    color: #374151 !important;
+}
+body.page-membre.mode-clair .swal2-styled.swal2-cancel {
+    background: #9ca3af !important;
+    border-color: #9ca3af !important;
+}
+body.page-membre.mode-clair .swal2-styled.swal2-cancel:hover {
+    background: #6b7280 !important;
+}
+body.page-membre.mode-clair .swal2-input,
+body.page-membre.mode-clair .swal2-textarea {
+    background-color: #fff !important;
+    border-color: #d0d0d0 !important;
+    color: #1f2937 !important;
+}
 /* Footer page membre */
 body.page-membre p.footer {
     border-top-color: rgba(255, 255, 255, 0.1);
