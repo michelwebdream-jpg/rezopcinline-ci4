@@ -1173,7 +1173,7 @@ body.page-membre #my_menu {
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    padding: 12px 10px 12px 10px;
+    padding: 6px 5px;
 }
 body.page-membre #header_logo p,
 body.page-membre #my_menu .copyright,
@@ -1216,6 +1216,58 @@ body.page-membre .info_user_time a:hover {
 }
 body.page-membre .info_user_time {
     border-left-color: rgba(255, 255, 255, 0.15);
+}
+/* Zone utilisateur + switch thème (en haut à droite, sous date/heure) */
+body.page-membre .header_user_zone {
+    float: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    border-left: 1px solid rgba(255, 255, 255, 0.15);
+    padding-left: 10px;
+}
+body.page-membre .header_user_zone .info_user_time {
+    float: none;
+    border-left: none;
+    margin-bottom: 6px;
+}
+body.page-membre .theme_switch_membre {
+    display: flex;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 999px;
+    padding: 2px 4px;
+    gap: 2px;
+    margin-top: 8px;
+}
+body.page-membre .theme_switch_btn {
+    flex: 1 1 0;
+    height: 22px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: #9ca3af;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background 0.2s, color 0.2s;
+}
+body.page-membre .theme_switch_btn:hover {
+    color: #e5e7eb;
+    background: rgba(255, 255, 255, 0.08);
+}
+body.page-membre .theme_switch_btn.is-active {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: #fff;
+}
+body.page-membre .theme_switch_btn.is-active:hover {
+    background: linear-gradient(135deg, #fb923c, #f97316);
+    color: #fff;
 }
 /* Bloc connexion / position */
 body.page-membre #my_connexion_internet {
@@ -1496,4 +1548,240 @@ body.page-membre .bouton_infowindow:hover {
     background-color: rgba(249, 115, 22, 0.3);
     border-color: #f97316;
     color: #f97316;
+}
+
+/* ========== Page membre – Mode clair (switch en haut à droite) ========== */
+body.page-membre.mode-clair {
+    background-color: #e0e0e0;
+    color: #374151;
+}
+body.page-membre.mode-clair #my_menu {
+    background: #f0f0f0;
+    border-color: #d0d0d0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+body.page-membre.mode-clair #header_logo p,
+body.page-membre.mode-clair #my_menu .copyright,
+body.page-membre.mode-clair #my_menu #load_non_modal_a_propos {
+    color: #374151;
+}
+body.page-membre.mode-clair #my_menu #load_non_modal_a_propos:hover {
+    color: #ea580c;
+}
+body.page-membre.mode-clair #zone_affichage_coordonnees {
+    color: #6b7280;
+}
+body.page-membre.mode-clair #menu a {
+    background-color: #e8e8e8;
+    border-color: #d0d0d0;
+    color: #1f2937;
+}
+body.page-membre.mode-clair #menu a:hover {
+    background-color: rgba(249, 115, 22, 0.15);
+    border-color: #f97316;
+    color: #ea580c;
+}
+body.page-membre.mode-clair .div_header {
+    background: linear-gradient(135deg, #ececec 0%, #e5e5e5 100%);
+    border-color: #d0d0d0;
+    color: #374151;
+}
+body.page-membre.mode-clair .info_user_time p,
+body.page-membre.mode-clair .info_user_time a {
+    color: #1f2937;
+}
+body.page-membre.mode-clair .info_user_time a:hover {
+    color: #ea580c;
+}
+body.page-membre.mode-clair .info_user_time {
+    border-left-color: #d0d0d0;
+}
+body.page-membre.mode-clair .header_user_zone {
+    border-left-color: #d0d0d0;
+}
+body.page-membre.mode-clair .header_user_zone .info_user_time {
+    border-left: none;
+}
+body.page-membre.mode-clair .theme_switch_membre {
+    background: #e0e0e0;
+    border-color: #d0d0d0;
+}
+body.page-membre.mode-clair .theme_switch_btn {
+    color: #6b7280;
+}
+body.page-membre.mode-clair .theme_switch_btn:hover {
+    color: #374151;
+    background: rgba(0, 0, 0, 0.06);
+}
+body.page-membre.mode-clair .theme_switch_btn.is-active {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: #fff;
+}
+body.page-membre.mode-clair .theme_switch_btn.is-active:hover {
+    background: linear-gradient(135deg, #fb923c, #f97316);
+    color: #fff;
+}
+body.page-membre.mode-clair #my_connexion_internet {
+    border-left-color: #d0d0d0;
+}
+body.page-membre.mode-clair #id_connexion_internet,
+body.page-membre.mode-clair #my_position_emise {
+    color: #ffffff !important;
+}
+body.page-membre.mode-clair #menu_nom_activite,
+body.page-membre.mode-clair #menu_info_text,
+body.page-membre.mode-clair #menu_info_text p {
+    background-color: #f0f0f0;
+    border-color: #d0d0d0;
+    color: #374151;
+}
+body.page-membre.mode-clair .div_header .bouton_fermer,
+body.page-membre.mode-clair #bouton_modifier_mon_statut.bouton_fermer,
+body.page-membre.mode-clair #bouton_menu_stop_activite.bouton_fermer,
+body.page-membre.mode-clair #load_non_modal_page_saisie_victime.bouton_fermer,
+body.page-membre.mode-clair #bouton_voir_bilan.bouton_fermer,
+body.page-membre.mode-clair #bouton_menu_historique.bouton_fermer,
+body.page-membre.mode-clair #bouton_voir_main_courante.bouton_fermer {
+    background: linear-gradient(90deg, #f97316, #ea580c);
+    border-color: #ea580c;
+    color: #fff;
+}
+body.page-membre.mode-clair .div_header .bouton_fermer:hover,
+body.page-membre.mode-clair #bouton_modifier_mon_statut.bouton_fermer:hover,
+body.page-membre.mode-clair #bouton_menu_stop_activite.bouton_fermer:hover,
+body.page-membre.mode-clair #load_non_modal_page_saisie_victime.bouton_fermer:hover,
+body.page-membre.mode-clair #bouton_voir_bilan.bouton_fermer:hover,
+body.page-membre.mode-clair #bouton_menu_historique.bouton_fermer:hover,
+body.page-membre.mode-clair #bouton_voir_main_courante.bouton_fermer:hover {
+    background: linear-gradient(90deg, #fb923c, #f97316);
+    color: #fff;
+}
+body.page-membre.mode-clair #content_non_modal,
+body.page-membre.mode-clair #div_pour_page_parametres,
+body.page-membre.mode-clair #div_pour_page_historique {
+    background-color: #f2f2f2;
+    border-color: #d0d0d0;
+    color: #374151;
+}
+body.page-membre.mode-clair #content_non_modal h1,
+body.page-membre.mode-clair #content_non_modal h2,
+body.page-membre.mode-clair #div_pour_page_parametres h1,
+body.page-membre.mode-clair #div_pour_page_historique h2 {
+    color: #1f2937;
+}
+body.page-membre.mode-clair #content_non_modal .bouton_fermer,
+body.page-membre.mode-clair #div_pour_page_parametres .bouton_fermer,
+body.page-membre.mode-clair #div_pour_page_historique .bouton_fermer {
+    background: linear-gradient(90deg, #f97316, #ea580c);
+    border-color: #ea580c;
+    color: #fff;
+}
+body.page-membre.mode-clair #content_non_modal #id_view_choix_marker td,
+body.page-membre.mode-clair #content_non_modal #id_view_choix_marker details,
+body.page-membre.mode-clair #content_non_modal #id_view_choix_marker details summary,
+body.page-membre.mode-clair #content_non_modal #id_view_choix_marker p {
+    background: #ececec !important;
+    color: #374151;
+}
+body.page-membre.mode-clair #content_non_modal #id_view_choix_marker input[type="text"] {
+    background-color: #f0f0f0;
+    border-color: #d0d0d0;
+    color: #1f2937;
+}
+body.page-membre.mode-clair #div_pour_page_parametres label.reglage-option,
+body.page-membre.mode-clair #div_pour_page_parametres label.reglage-option .reglage-option-text {
+    color: #374151;
+}
+body.page-membre.mode-clair #div_pour_recherche {
+    background-color: #f2f2f2;
+    border-color: #d0d0d0;
+    color: #374151;
+}
+body.page-membre.mode-clair #div_pour_recherche h2 {
+    color: #1f2937;
+}
+body.page-membre.mode-clair #pac-input.controls {
+    background-color: #f0f0f0;
+    border-color: #d0d0d0;
+    color: #1f2937;
+}
+body.page-membre.mode-clair #div_pour_page_historique #id_view_historique hr {
+    border-top-color: #d1d5db;
+}
+body.page-membre.mode-clair #div_pour_page_historique table#table_historique.display.dataTable.no-footer,
+body.page-membre.mode-clair #div_pour_page_historique table#table_historique thead th,
+body.page-membre.mode-clair #div_pour_page_historique table#table_historique tbody td,
+body.page-membre.mode-clair #div_pour_page_historique table#table_historique tbody tr,
+body.page-membre.mode-clair #div_pour_page_historique table#table_historique tbody tr.odd,
+body.page-membre.mode-clair #div_pour_page_historique table#table_historique tbody tr.even {
+    background-color: #f5f5f5 !important;
+    color: #374151 !important;
+    border-color: #e0e0e0 !important;
+}
+body.page-membre.mode-clair #div_pour_page_historique table#table_historique thead th {
+    background-color: #e8e8e8 !important;
+    color: #1f2937 !important;
+}
+body.page-membre.mode-clair #div_pour_page_historique table#table_historique tbody tr.odd {
+    background-color: #f0f0f0 !important;
+}
+body.page-membre.mode-clair #div_pour_page_historique table#table_historique tbody tr:hover td {
+    background-color: #e8e8e8 !important;
+}
+body.page-membre.mode-clair #div_pour_page_historique div#table_historique_wrapper .dataTables_length label,
+body.page-membre.mode-clair #div_pour_page_historique div#table_historique_wrapper .dataTables_filter label {
+    color: #374151 !important;
+}
+body.page-membre.mode-clair #div_pour_page_historique div#table_historique_wrapper .dataTables_filter input,
+body.page-membre.mode-clair #div_pour_page_historique div#table_historique_wrapper .dataTables_length select {
+    background-color: #f0f0f0;
+    border-color: #d0d0d0;
+    color: #1f2937;
+}
+body.page-membre.mode-clair #div_pour_page_historique div#table_historique_wrapper .dataTables_info,
+body.page-membre.mode-clair #div_pour_page_historique div#table_historique_wrapper .dataTables_paginate {
+    color: #6b7280;
+}
+body.page-membre.mode-clair #div_pour_page_historique div#table_historique_wrapper .dataTables_paginate .paginate_button {
+    color: #374151 !important;
+    border-color: #d0d0d0 !important;
+    background: #f0f0f0 !important;
+}
+body.page-membre.mode-clair #div_pour_page_historique div#table_historique_wrapper .dataTables_paginate .paginate_button:hover {
+    border-color: #f97316 !important;
+    color: #ea580c !important;
+}
+body.page-membre.mode-clair #div_pour_page_historique div#table_historique_wrapper .dataTables_paginate .paginate_button.current {
+    background: linear-gradient(90deg, #f97316, #ea580c) !important;
+    border-color: #f97316 !important;
+    color: #fff !important;
+}
+body.page-membre.mode-clair #div_pour_page_historique #input_destinataire_mail_historique,
+body.page-membre.mode-clair #div_pour_page_historique input[name="input_destinataire_mail_historique"] {
+    background-color: #f0f0f0;
+    border-color: #d0d0d0;
+    color: #1f2937;
+}
+body.page-membre.mode-clair #div_pour_page_historique #container_mail_hisrotique label,
+body.page-membre.mode-clair #div_pour_page_historique #div_bouton_ajouter_evenement_historique {
+    color: #374151;
+}
+body.page-membre.mode-clair #div_pour_page_erreur_reseau {
+    background-color: #f2f2f2;
+    border-color: #d0d0d0;
+    color: #374151;
+}
+body.page-membre.mode-clair p.footer {
+    border-top-color: #d0d0d0;
+    color: #6b7280;
+}
+body.page-membre.mode-clair .bouton_infowindow {
+    background-color: #f3f4f6;
+    border-color: #d1d5db;
+    color: #1f2937;
+}
+body.page-membre.mode-clair .bouton_infowindow:hover {
+    background-color: rgba(249, 115, 22, 0.2);
+    border-color: #f97316;
+    color: #ea580c;
 }

@@ -711,6 +711,47 @@ function init_UI(){
     });
     
     $('#page_slide_alert_photo').hide();
+
+    /* Switch mode sombre / clair (page membre) */
+    (function init_theme_membre() {
+        var STORAGE_KEY = 'theme_membre';
+        var btnSombre = document.getElementById('theme_btn_sombre');
+        var btnClair = document.getElementById('theme_btn_clair');
+        if (!btnSombre || !btnClair) return;
+        function setActive(isClair) {
+            if (isClair) {
+                btnClair.classList.add('is-active');
+                btnSombre.classList.remove('is-active');
+            } else {
+                btnSombre.classList.add('is-active');
+                btnClair.classList.remove('is-active');
+            }
+        }
+        function applyTheme(isClair) {
+            if (isClair) {
+                document.body.classList.add('mode-clair');
+            } else {
+                document.body.classList.remove('mode-clair');
+            }
+            setActive(isClair);
+        }
+        function getSaved() {
+            try { return localStorage.getItem(STORAGE_KEY); } catch (e) { return null; }
+        }
+        function setSaved(val) {
+            try { localStorage.setItem(STORAGE_KEY, val); } catch (e) {}
+        }
+        var saved = getSaved();
+        applyTheme(saved === 'clair');
+        btnSombre.addEventListener('click', function() {
+            applyTheme(false);
+            setSaved('sombre');
+        });
+        btnClair.addEventListener('click', function() {
+            applyTheme(true);
+            setSaved('clair');
+        });
+    })();
 }
 
 
