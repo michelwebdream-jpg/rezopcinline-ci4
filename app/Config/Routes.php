@@ -20,6 +20,11 @@ $routes->group('signup', function($routes) {
     $routes->post('reset_password', 'Signup::reset_password');
 });
 
+// Routes Admin (back-office)
+$routes->get('admin', 'Admin\Dashboard::index');
+$routes->get('admin/dashboard', 'Admin\Dashboard::index');
+$routes->get('admin/connected', 'Admin\Connected::index');
+
 // Routes Membres
 $routes->get('membres', 'Membres::index');
 $routes->get('membres/mon_compte', 'Membres::mon_compte');

@@ -47,7 +47,13 @@
     <script src="//cdn.datatables.net/plug-ins/1.10.19/sorting/datetime-moment.js"></script>
     
     
-    <script type="text/javascript">var utilisateur_session = <?= json_encode($utilisateur ?? []) ?></script>
+    <?php
+    $u = $utilisateur ?? [];
+    if (!empty($u)) {
+        $u['is_admin'] = is_admin($u);
+    }
+    ?>
+    <script type="text/javascript">var utilisateur_session = <?= json_encode($u) ?></script>
     <script type="text/javascript">var base_url = "<?= base_url() ?>";</script>
     <script type="text/javascript">var v_soft = "<?= getenv('VERSION_DU_SOFT') ?? 'Version 5.1' ?>";</script>
     
@@ -103,7 +109,8 @@
                     <a href ="#" id="load_non_modal_page_recherche_adresse"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/loupe.png" width="35" height="35"><br /> Rechercher<br />une adresse </a>
                     <a id="lien_mes_documents" href="<?php echo base_url();?>mes_documents" target="_blank"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/button_documents.png" width="35" height="35"><br /> Mes documents </a>
                     <a href ="#" id="load_non_modal_page_parametres"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/button_setting.png" width="35" height="35"><br /> Réglages </a>
-                    <?php if (isset($utilisateur) && isset($utilisateur['code_administrateur']) && $utilisateur['code_administrateur'] === 'ba7fd5f5'): ?>
+                    <?php if (is_admin($utilisateur ?? [])): ?>
+                    <a href="<?= base_url('admin') ?>" target="_blank"><img border="0" alt="Admin" src="<?php echo base_url();?>images/button_setting.png" width="35" height="35"><br /> Administration </a>
                     <a href ="#" id="toggle_debug_window"><img border="0" alt="Debug" src="<?php echo base_url();?>images/warning_petit.png" width="35" height="35"><br /> Debug<br />Géolocalisation </a>
                     <?php endif; ?>
                 </div>
@@ -196,7 +203,7 @@
                 <input id="pac-input" class="controls" type="text" placeholder="Entrez votre recherche.">
                     <a href ="#" id="bouton_fermer_page_recherche" class="bouton_fermer"> fermer </a>
                     </div>
-                <?php if (isset($utilisateur) && isset($utilisateur['code_administrateur']) && $utilisateur['code_administrateur'] === 'ba7fd5f5'): ?>
+                <?php if (is_admin($utilisateur ?? [])): ?>
                 <div id="div_debug_geolocalisation" style="display:none; position:fixed; top:100px; right:20px; width:600px; max-height:500px; background-color:#fff; border:2px solid #333; border-radius:5px; padding:15px; z-index:10000; box-shadow:0 4px 8px rgba(0,0,0,0.3); overflow:auto;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid #ccc; padding-bottom:10px;">
                         <h2 style="margin:0; color:#333;">Debug - Trames Géolocalisation</h2>

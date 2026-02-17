@@ -9,6 +9,7 @@ var Global = {
 		APPLI_TYPE_PC:"3",
 	
 		code_administrateur:utilisateur_session['code_administrateur'],
+		is_admin:!!(utilisateur_session['is_admin']),
 		indicatif_administrateur:utilisateur_session['indicatif_administrateur'],
 		genre_administrateur:"",
 		nom_administrateur:utilisateur_session['nom_administrateur'],
@@ -237,8 +238,8 @@ $(document).ready( function() {
     cache: false
     });
     
-    // Gestion de la fenêtre de debug géolocalisation (uniquement pour le code ba7fd5f5)
-    if (Global.code_administrateur === 'ba7fd5f5') {
+    // Gestion de la fenêtre de debug géolocalisation (uniquement pour les admins)
+    if (Global.is_admin) {
         $('#toggle_debug_window').on('click', function(e) {
             e.preventDefault();
             $('#div_debug_geolocalisation').toggle();
@@ -2675,7 +2676,7 @@ function recherche_membre_activite(liste_des_codes){
         }
     
     // Ajouter à la fenêtre de debug (uniquement si le code correspond) - Envoi de requête
-    if (Global.code_administrateur === 'ba7fd5f5' && $('#div_debug_geolocalisation').is(':visible')) {
+    if (Global.is_admin && $('#div_debug_geolocalisation').is(':visible')) {
         var debugContent = $('#debug_content');
         var timestamp = new Date().toLocaleTimeString('fr-FR');
         var debugEntry = '<div style="margin-bottom:15px; padding:10px; background-color:#fff; border-left:3px solid #FF9800; border-radius:3px;">';
@@ -2710,7 +2711,7 @@ function recherche_membre_activite(liste_des_codes){
             console.log('HTTP Status:', jqXHR.status);
             
             // Ajouter à la fenêtre de debug (uniquement si le code correspond)
-            if (Global.code_administrateur === 'ba7fd5f5' && $('#div_debug_geolocalisation').is(':visible')) {
+            if (Global.is_admin && $('#div_debug_geolocalisation').is(':visible')) {
                 var debugContent = $('#debug_content');
                 var timestamp = new Date().toLocaleTimeString('fr-FR');
                 var debugEntry = '<div style="margin-bottom:15px; padding:10px; background-color:#fff; border-left:3px solid #4CAF50; border-radius:3px;">';
@@ -2852,7 +2853,7 @@ function recherche_membre_activite(liste_des_codes){
       console.error('Status:', jqXHR.status);
       
       // Ajouter l'erreur à la fenêtre de debug (uniquement si le code correspond)
-      if (Global.code_administrateur === 'ba7fd5f5' && $('#div_debug_geolocalisation').is(':visible')) {
+      if (Global.is_admin && $('#div_debug_geolocalisation').is(':visible')) {
           var debugContent = $('#debug_content');
           var timestamp = new Date().toLocaleTimeString('fr-FR');
           var debugEntry = '<div style="margin-bottom:15px; padding:10px; background-color:#fff; border-left:3px solid #f44336; border-radius:3px;">';
