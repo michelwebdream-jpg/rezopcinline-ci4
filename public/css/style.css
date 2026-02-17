@@ -13,7 +13,7 @@
 		border: 1px solid #D0D0D0;
 		box-shadow: 0 0 8px #D0D0D0;
          background-color: #cccccc;
-        background: url(../images/fond_login_final_rezo_plus_PC_inline.png) no-repeat top center fixed;
+        /*background: url(../images/fond_login_final_rezo_plus_PC_inline.png) no-repeat top center fixed;*/
         
 	}
 
@@ -143,7 +143,7 @@ body.page-mon-compte #container.signup-container {
     min-height: 100vh;
     display: flex;
     align-items: stretch;
-    background: url(../images/fond_login_rezo.png) no-repeat center center;
+    background: url(../images/fond_login_rezo.jpg) no-repeat center center;
     background-size: cover;
     position: relative;
     overflow: hidden;
@@ -985,7 +985,7 @@ body.page-mes-documents #container.mes-documents-container {
     min-height: 100vh;
     display: flex;
     align-items: stretch;
-    background: url(../images/fond_login_rezo.png) no-repeat center center;
+    background: url(../images/fond_login_rezo.jpg) no-repeat center center;
     background-size: cover;
     position: relative;
     overflow: hidden;
@@ -1216,11 +1216,19 @@ body.page-membre #container {
 /* Sidebar gauche */
 body.page-membre #my_menu {
     background: radial-gradient(circle at top, #1f2937 0, #020617 60%);
+    /*background: url(../images/fond_login_rezo.jpg) no-repeat top center;*/
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     padding: 6px 5px;
 }
+/*body.page-membre #my_menu:before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92); 
+    z-index: 0;
+}*/
 body.page-membre #header_logo p,
 body.page-membre #my_menu .copyright,
 body.page-membre #my_menu a#load_non_modal_a_propos {
