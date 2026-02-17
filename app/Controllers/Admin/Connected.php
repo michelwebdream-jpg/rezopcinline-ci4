@@ -28,11 +28,10 @@ class Connected extends BaseAdmin
             return $redirect;
         }
 
-        $showAll = (bool) $this->request->getGet('all');
-        $format  = strtolower((string) $this->request->getGet('format')) === 'json' ? 'json' : 'html';
+        $format = strtolower((string) $this->request->getGet('format')) === 'json' ? 'json' : 'html';
 
         $sessionPath = config('Session')->savePath;
-        $windowSeconds = $showAll ? $this->sessionLifetime : ($this->activeMinutes * 60);
+        $windowSeconds = $this->activeMinutes * 60;
         $cutoff = time() - $windowSeconds;
 
         $users = $this->readSessionsFromPath($sessionPath, $cutoff);
@@ -74,14 +73,12 @@ class Connected extends BaseAdmin
             'activeUsers'     => $activeUsers,
             'activeUsersWithCoords' => $activeUsersWithCoords,
             'dbLoad'          => $dbLoad,
-            'showAll'         => $showAll,
             'activeMinutes'   => $this->activeMinutes,
-            'sessionLifetime' => $this->sessionLifetime,
             'activeGeolocMinutes' => $this->activeGeolocMinutes,
             'mapRefreshIntervalSeconds' => $this->mapRefreshIntervalSeconds,
             'mapAutoRecenteringDefault' => $this->mapAutoRecenteringDefault,
             'googleMapsApiKey' => $googleMapsApiKey,
-            'jsonUrl'         => base_url('admin/connected') . '?format=json' . ($showAll ? '&all=1' : ''),
+            'jsonUrl'         => base_url('admin/connected') . '?format=json',
         ];
 
         return $this->response->setBody(view('admin/template_admin', $data));

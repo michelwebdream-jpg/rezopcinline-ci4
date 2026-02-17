@@ -40,7 +40,7 @@ $content = $content ?? 'admin/dashboard';
         .admin-user a { color: #0ea5e9; }
         .admin-card {
             background: #fff; border-radius: 8px; padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
     </style>
 </head>
