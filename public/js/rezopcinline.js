@@ -571,52 +571,106 @@ function horloge_1000ms(el) {
   actualiser_time();
   setInterval(actualiser_time,1000);
 }
-function test_ping_5000ms(el) {
-  if(typeof el=="string") { el = document.getElementById(el); }
-  
-    function actualiser_ping() {
-        
-          if (jqxhr) {
-            jqxhr.abort();
-        }
+var pingHistory = [];
+var PING_CHART_MAX = 30;
+var jqxhr_ping = null;
 
-        var startDate = new Date();
-        var resultat;
-        var color;
-        
-        var jqxhr = $.post(base_url+"js/test_ping.html")
-        
-        .done(function(data, textStatus, jqXHR ) {
-            var endDate   = new Date();
-            var temps_aller_retour = (endDate.getTime() - startDate.getTime()) ;
-            
-
-            if (temps_aller_retour>1500){
-                resultat="Mauvaise connexion Internet"
-                color  = "#ab2b2b";
-            }else if (temps_aller_retour>500){
-                resultat="Connexion Internet Moyenne"
-                color  = "#FFC000";
-            }else{
-                resultat="Connexion Internet Correcte"
-                color  = "#53ab5b";
-            }
-            
-      })
-      .fail(function(jqXHR, textStatus, errorThrown) {
-        
-        resultat="Pas de connexion Internet"
-        color  = "#FFFFFF";
-      })
-      .always(function() {
-        el.innerHTML = resultat ;
-        el.style.backgroundColor=color;
-
-      })
-      ;
-    
+function drawPingChart() {
+  var canvas = document.getElementById('ping_chart');
+  if (!canvas || pingHistory.length < 1) return;
+  var parent = canvas.parentElement;
+  if (!parent) return;
+  var w = parent.offsetWidth;
+  var h = parent.offsetHeight;
+  if (w <= 0 || h <= 0) return;
+  if (canvas.width !== w || canvas.height !== h) {
+    canvas.width = w;
+    canvas.height = h;
   }
+  var ctx = canvas.getContext('2d');
+  var marginTop = 4, marginBottom = 4;
+  var chartH = h - marginTop - marginBottom;
+  var data = pingHistory.slice(-PING_CHART_MAX);
+  var validData = data.filter(function(v){ return v != null && v > 0; });
+  var minMs = 0, maxMs = 2000;
+  if (validData.length > 0) {
+    minMs = Math.min.apply(null, validData);
+    maxMs = Math.max.apply(null, validData);
+    if (minMs === maxMs) {
+      minMs = Math.max(0, minMs - 50);
+      maxMs = maxMs + 50;
+    }
+  }
+  var rangeMs = maxMs - minMs;
+  var pts = [];
+  for (var j = 0; j < data.length; j++) {
+    var v = data[j];
+    if (v == null || v < 0) continue;
+    var x = data.length > 1 ? (j / (data.length - 1)) * w : w / 2;
+    var y = rangeMs > 0 ? marginTop + chartH - ((v - minMs) / rangeMs) * chartH : marginTop + chartH / 2;
+    pts.push({ x: x, y: y });
+  }
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(46, 46, 46, 0.9)';
+  ctx.lineWidth = 1;
+  if (pts.length < 2) return;
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (var i = 0; i < pts.length - 1; i++) {
+    var p0 = pts[Math.max(0, i - 1)];
+    var p1 = pts[i];
+    var p2 = pts[i + 1];
+    var p3 = pts[Math.min(pts.length - 1, i + 2)];
+    var cp1x = p1.x + (p2.x - p0.x) / 6;
+    var cp1y = p1.y + (p2.y - p0.y) / 6;
+    var cp2x = p2.x - (p3.x - p1.x) / 6;
+    var cp2y = p2.y - (p3.y - p1.y) / 6;
+    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+  }
+  ctx.stroke();
+}
+
+function test_ping_5000ms(el) {
+  var container = typeof el === "string" ? document.getElementById(el) : el;
+  var textEl = document.getElementById('id_connexion_internet_text');
+  if (!textEl) textEl = container;
+  
+  function actualiser_ping() {
+    if (jqxhr_ping) jqxhr_ping.abort();
+    var startDate = new Date();
+    var resultat;
+    var color;
     
+    jqxhr_ping = $.post(base_url+"js/test_ping.html")
+    .done(function(data, textStatus, jqXHR ) {
+        var endDate = new Date();
+        var temps_aller_retour = endDate.getTime() - startDate.getTime();
+        pingHistory.push(temps_aller_retour);
+        if (pingHistory.length > PING_CHART_MAX) pingHistory.shift();
+        drawPingChart();
+        if (temps_aller_retour > 1500){
+            resultat = "Mauvaise connexion Internet";
+            color = "#ab2b2b";
+        } else if (temps_aller_retour > 500){
+            resultat = "Connexion Internet Moyenne";
+            color = "#FFC000";
+        } else {
+            resultat = "Connexion Internet Correcte";
+            color = "#53ab5b";
+        }
+    })
+    .fail(function(jqXHR, textStatus, errorThrown) {
+        pingHistory.push(null);
+        if (pingHistory.length > PING_CHART_MAX) pingHistory.shift();
+        drawPingChart();
+        resultat = "Pas de connexion Internet";
+        color = "#FFFFFF";
+    })
+    .always(function() {
+        textEl.innerHTML = resultat;
+        container.style.backgroundColor = color;
+    });
+  }
   actualiser_ping();
 }
 function test_position_admin_2000(){
@@ -630,7 +684,9 @@ function init_UI(){
     
     $('#div_pour_deplacement_marker').hide();
     
-    document.getElementById('id_connexion_internet').innerHTML = "Evaluation de la connexion..." ;
+    var txt = document.getElementById('id_connexion_internet_text');
+    if (txt) txt.innerHTML = "Evaluation de la connexion...";
+    else document.getElementById('id_connexion_internet').innerHTML = "Evaluation de la connexion...";
     document.getElementById('id_connexion_internet').style.backgroundColor='#aaa';
     document.getElementById('my_position_emise').style.backgroundColor="#ab2b2b";
     document.getElementById('my_position_emise').innerHTML="Votre position n'est pas diffusée";

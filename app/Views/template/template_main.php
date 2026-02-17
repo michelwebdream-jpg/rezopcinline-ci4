@@ -132,7 +132,10 @@
                     </div>
 
                     <div id="my_connexion_internet">
-                        <div id="id_connexion_internet"></div>
+                        <div id="id_connexion_internet">
+                            <span id="id_connexion_internet_text"></span>
+                            <canvas id="ping_chart" title="Latence ping (ms)"></canvas>
+                        </div>
                         <div id="my_position_emise"></div>
                         <button id="bouton_modifier_mon_statut" class="bouton_fermer"> Modifier mon statuts </button>
 
