@@ -382,6 +382,21 @@ $(document).ready( function() {
         
         zoomtofit(true);
     });
+
+    $('#open_ecran2').on("click", function(e) {
+        e.preventDefault();
+        var w = window.screen.availWidth || 1920;
+        var h = window.screen.availHeight || 1080;
+        window.open(base_url + 'membres/carte-ecran2', 'ecran2', 'left=0,top=0,width=' + w + ',height=' + h + ',resizable=yes,scrollbars=no');
+        return false;
+    });
+
+    $('#logout_link').on("click", function(e) {
+        e.preventDefault();
+        try { localStorage.setItem('rezo_ecran2_logout', String(Date.now())); } catch (err) {}
+        window.location.href = $(this).attr('href');
+        return false;
+    });
     
     $('#load_non_modal_page_recherche_adresse').on("click", function() {
         

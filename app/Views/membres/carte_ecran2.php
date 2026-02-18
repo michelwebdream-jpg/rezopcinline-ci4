@@ -61,6 +61,8 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
         var STORAGE_KEY_STYLES   = 'rezo_geoloc_styles';
         var STORAGE_KEY_CENTRAGE_AUTO = 'rezo_centrage_auto';
         var STORAGE_KEY_GEOLOC_ACTIF = 'rezo_geoloc_actif';
+        var STORAGE_KEY_ECRAN2_LOGOUT = 'rezo_ecran2_logout';
+        var LOGIN_URL = <?= json_encode($loginUrl ?? '') ?>;
         var defaultCenter = { lat: 46.6, lng: 2.4 };
 
         function isGeolocActif() {
@@ -327,6 +329,10 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             if (e && e.key === STORAGE_KEY_MA_POSITION) updateMaPositionFromStorage();
             if (e && e.key === STORAGE_KEY_MAP_TYPE) applyMapTypeFromStorage();
             if (e && e.key === STORAGE_KEY_GEOLOC_ACTIF && e.newValue !== '1') updateMarkers([], null);
+            if (e && e.key === STORAGE_KEY_ECRAN2_LOGOUT) {
+                try { window.close(); } catch (e2) {}
+                if (!window.closed) window.location.href = (LOGIN_URL || (location.origin + '/signup/login'));
+            }
         }
 
         window.ecran2PostInit = function() {
@@ -381,6 +387,15 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             }, 0);
             setInterval(fetchAndUpdate, REFRESH_MS);
             try { window.addEventListener('storage', onStorageUpdate); } catch (e) {}
+            var hadOpener = !!window.opener;
+            if (hadOpener) {
+                setInterval(function() {
+                    try {
+                        if (window.closed) return;
+                        if (!window.opener || window.opener.closed) window.close();
+                    } catch (e2) {}
+                }, 500);
+            }
         };
     })();
     </script>

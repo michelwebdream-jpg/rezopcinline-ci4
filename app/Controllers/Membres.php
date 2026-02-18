@@ -126,6 +126,7 @@ class Membres extends BaseController
             'googleMapsApiKey' => $googleMapsApiKey,
             'refreshIntervalSeconds' => $refreshIntervalSeconds,
             'map' => $mapEcran2,
+            'loginUrl' => base_url('signup/login'),
         ];
 
         return view('membres/carte_ecran2', $data);
