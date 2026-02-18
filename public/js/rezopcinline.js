@@ -362,6 +362,7 @@ $(document).ready( function() {
                     }
                     markers_fixe_on_map = new Array(); 
                     markers_map_label_fixe_on_map = new Array();
+                    if (typeof save_marqueurs_fixes_to_storage === 'function') save_marqueurs_fixes_to_storage();
                 });
             
             
@@ -1735,6 +1736,24 @@ function update_position_administrateur(){
     }
 
 var marker_fixe_is_draged=false;
+var REZO_STORAGE_KEY_MARQUEURS_FIXES = 'rezo_marqueurs_fixes';
+
+function save_marqueurs_fixes_to_storage() {
+    var arr = [];
+    try {
+        for (var i = 0; i < markers_fixe_on_map.length; i++) {
+            var marker = markers_fixe_on_map[i];
+            var label = (i < markers_map_label_fixe_on_map.length) ? (markers_map_label_fixe_on_map[i].get('text') || '') : '';
+            if (label === 'Ma position') continue;
+            var pos = marker.getPosition();
+            if (!pos) continue;
+            var iconUrl = (marker.getIcon && typeof marker.getIcon === 'function') ? marker.getIcon() : null;
+            if (typeof iconUrl !== 'string') iconUrl = '';
+            arr.push({ lat: pos.lat(), lng: pos.lng(), label: label || 'Marqueur fixe', icon: iconUrl });
+        }
+        localStorage.setItem(REZO_STORAGE_KEY_MARQUEURS_FIXES, JSON.stringify(arr));
+    } catch (e) {}
+}
 
 function placeMarker_fixe(latLng, map, src,id_marqueur_fixe) {
   var mapLabel = new MapLabel({
@@ -1768,7 +1787,7 @@ function placeMarker_fixe(latLng, map, src,id_marqueur_fixe) {
         }else{
             markers_fixe_on_map.push(marker);
             markers_map_label_fixe_on_map.push(mapLabel);
-            
+            save_marqueurs_fixes_to_storage();
         }
         google.maps.event.addListener(marker, 'dragstart', function() {
             marker_fixe_is_draged=true;
@@ -1779,6 +1798,7 @@ function placeMarker_fixe(latLng, map, src,id_marqueur_fixe) {
         });
         google.maps.event.addListener(marker, 'dragend', function() {
             marker_fixe_is_draged=false;
+            if (typeof save_marqueurs_fixes_to_storage === 'function') save_marqueurs_fixes_to_storage();
         });
         google.maps.event.addListener(marker, 'click', function(event) {
                 
@@ -1830,6 +1850,7 @@ function placeMarker_fixe(latLng, map, src,id_marqueur_fixe) {
 
                               var maplabel=markers_map_label_fixe_on_map[index_maplabel];
                               maplabel.set('text',inputValue);
+                              if (typeof save_marqueurs_fixes_to_storage === 'function') save_marqueurs_fixes_to_storage();
                             return true;
                             });
                           }else if (
@@ -1839,6 +1860,7 @@ function placeMarker_fixe(latLng, map, src,id_marqueur_fixe) {
                               doit_etre_efface.setMap(null);
                               markers_fixe_on_map.splice(index_maplabel, 1);
                               markers_map_label_fixe_on_map.splice(index_maplabel, 1);
+                              if (typeof save_marqueurs_fixes_to_storage === 'function') save_marqueurs_fixes_to_storage();
                           }
                         });
                         

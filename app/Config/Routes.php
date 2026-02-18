@@ -28,6 +28,7 @@ $routes->get('admin/connected', 'Admin\Connected::index');
 // Routes Membres
 $routes->get('membres', 'Membres::index');
 $routes->get('membres/mon_compte', 'Membres::mon_compte');
+$routes->get('membres/carte-ecran2', 'Membres::carteEcran2');
 
 // Routes autres
 $routes->get('envoi_password', 'Envoi_password::index');
