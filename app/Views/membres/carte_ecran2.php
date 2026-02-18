@@ -59,7 +59,16 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
         var STORAGE_KEY_MA_POSITION = 'rezo_ma_position';
         var STORAGE_KEY_MAP_TYPE = 'rezo_map_type';
         var STORAGE_KEY_STYLES   = 'rezo_geoloc_styles';
+        var STORAGE_KEY_CENTRAGE_AUTO = 'rezo_centrage_auto';
+        var STORAGE_KEY_GEOLOC_ACTIF = 'rezo_geoloc_actif';
         var defaultCenter = { lat: 46.6, lng: 2.4 };
+
+        function isGeolocActif() {
+            try { return localStorage.getItem(STORAGE_KEY_GEOLOC_ACTIF) === '1'; } catch (e) { return false; }
+        }
+        function isCentrageAutoEnabled() {
+            try { return localStorage.getItem(STORAGE_KEY_CENTRAGE_AUTO) === '1'; } catch (e) { return false; }
+        }
 
         var map = null;
         var infowindow = null;
@@ -184,11 +193,20 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             });
         }
 
+        function getLatLng(u) {
+            var lat = u.latitude != null ? parseFloat(u.latitude) : parseFloat(u.lat);
+            var lng = u.longitude != null ? parseFloat(u.longitude) : parseFloat(u.lng);
+            if (isNaN(lat) || isNaN(lng)) return null;
+            return { lat: lat, lng: lng };
+        }
+
         function updateMarkers(usersData, maPos) {
-            if (!map || !infowindow || !window.google || !google.maps) return;
-            if (typeof map.setCenter !== 'function') return;
+            var targetMap = window.map_ecran2 || map;
+            if (!targetMap || !window.google || !google.maps) return;
+            if (typeof targetMap.setCenter !== 'function') return;
+            map = targetMap;
             usersData = Array.isArray(usersData) ? usersData : [];
-            var maPositionCode = (maPos && maPos.code) ? maPos.code : null;
+            var maPositionCode = (maPos && maPos.code) ? String(maPos.code) : null;
             labelsGeoloc.forEach(function(l) { try { if (l && l.setMap) l.setMap(null); } catch (e) {} });
             labelsGeoloc = [];
             markers.forEach(function(m) { try { if (m && m.setMap) m.setMap(null); } catch (e) {} });
@@ -196,16 +214,17 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             var bounds = new google.maps.LatLngBounds();
             var stylesMap = getGeolocStylesFromStorage();
             usersData.forEach(function(u) {
-                if (maPositionCode && (u.code === maPositionCode)) return;
-                var pos = { lat: parseFloat(u.latitude), lng: parseFloat(u.longitude) };
-                if (isNaN(pos.lat) || isNaN(pos.lng)) return;
+                if (!u) return;
+                if (maPositionCode && String(u.code) === maPositionCode) return;
+                var pos = getLatLng(u);
+                if (!pos) return;
                 bounds.extend(pos);
                 try {
-                    var style = (stylesMap && u.code && stylesMap[u.code]) ? stylesMap[u.code] : null;
+                    var style = (stylesMap && u.code != null && stylesMap[u.code]) ? stylesMap[u.code] : null;
                     var markerOpts = {
                         position: pos,
-                        map: map,
-                        title: (style && style.label) ? String(style.label) : (u.code || ''),
+                        map: targetMap,
+                        title: (style && style.label) ? String(style.label) : (u.code != null ? String(u.code) : ''),
                         clickable: false
                     };
                     if (style && style.icon) {
@@ -213,12 +232,13 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
                         if (iconUrl) markerOpts.icon = iconUrl;
                     }
                     var marker = new google.maps.Marker(markerOpts);
+                    marker.setMap(targetMap);
                     markers.push(marker);
                     if (LabelOverlay) {
-                        var labelText = (style && style.label) ? String(style.label) : (u.code || '');
+                        var labelText = (style && style.label) ? String(style.label) : (u.code != null ? String(u.code) : '');
                         var backColor = (style && style.back_color) ? String(style.back_color) : '';
                         var labelOverlay = new LabelOverlay(new google.maps.LatLng(pos.lat, pos.lng), labelText, backColor);
-                        labelOverlay.setMap(map);
+                        labelOverlay.setMap(targetMap);
                         labelsGeoloc.push(labelOverlay);
                     }
                 } catch (e) {}
@@ -227,24 +247,46 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             if (maPos && maPos.latitude != null && maPos.longitude != null) {
                 bounds.extend({ lat: parseFloat(maPos.latitude), lng: parseFloat(maPos.longitude) });
             }
-            if (usersData.length > 0 || (maPos && maPos.latitude != null)) {
-                try {
-                    if (bounds.getNorthEast() && !bounds.getNorthEast().equals(bounds.getSouthWest())) {
-                        if (markers.length + (markerMaPosition ? 1 : 0) > 1) {
-                            map.fitBounds(bounds, 50);
-                        } else {
-                            map.setCenter(bounds.getCenter());
-                            map.setZoom(14);
-                        }
-                    }
-                } catch (e) {}
+            if (!isCentrageAutoEnabled()) {
+                return;
             }
+            try {
+                var rawMa = localStorage.getItem(STORAGE_KEY_MA_POSITION);
+                if (rawMa) {
+                    var dataMa = JSON.parse(rawMa);
+                    if (dataMa && dataMa.visible && dataMa.lat != null && dataMa.lng != null) {
+                        bounds.extend({ lat: parseFloat(dataMa.lat), lng: parseFloat(dataMa.lng) });
+                    }
+                }
+                var listFixes = getMarqueursFixesFromStorage();
+                if (Array.isArray(listFixes)) {
+                    listFixes.forEach(function(item) {
+                        if (!item) return;
+                        var lat = parseFloat(item.lat);
+                        var lng = parseFloat(item.lng);
+                        if (!isNaN(lat) && !isNaN(lng)) bounds.extend({ lat: lat, lng: lng });
+                    });
+                }
+                var n = markers.length + (markerMaPosition ? 1 : 0) + (listFixes ? listFixes.length : 0);
+                if (n === 0) return;
+                if (bounds.getNorthEast() && !bounds.getNorthEast().equals(bounds.getSouthWest())) {
+                    if (n > 1) {
+                        targetMap.fitBounds(bounds, 50);
+                    } else {
+                        targetMap.setCenter(bounds.getCenter());
+                        targetMap.setZoom(14);
+                    }
+                }
+            } catch (e) {}
         }
 
         function filterCoords(activeUsers) {
             activeUsers = Array.isArray(activeUsers) ? activeUsers : [];
             return activeUsers.filter(function(u) {
-                return u && u.latitude != null && u.longitude != null && (u.latitude != 0 || u.longitude != 0);
+                if (!u) return false;
+                var lat = u.latitude != null ? parseFloat(u.latitude) : parseFloat(u.lat);
+                var lng = u.longitude != null ? parseFloat(u.longitude) : parseFloat(u.lng);
+                return !isNaN(lat) && !isNaN(lng) && (lat !== 0 || lng !== 0);
             });
         }
 
@@ -258,7 +300,10 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
                     var coords = filterCoords(data.active_geoloc_users || []);
-                    updateMarkers(coords, data.ma_position || null);
+                    var maPos = data.ma_position || null;
+                    // Ne pas effacer les marqueurs géoloc si le fetch renvoie vide (garder l’état précédent)
+                    if (!isGeolocActif()) coords = [];
+                    updateMarkers(coords, maPos);
                     updateMarqueursFixes();
                     updateMaPositionFromStorage();
                     setLastUpdate();
@@ -281,6 +326,7 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             if (e && e.key === STORAGE_KEY_FIXES) updateMarqueursFixes();
             if (e && e.key === STORAGE_KEY_MA_POSITION) updateMaPositionFromStorage();
             if (e && e.key === STORAGE_KEY_MAP_TYPE) applyMapTypeFromStorage();
+            if (e && e.key === STORAGE_KEY_GEOLOC_ACTIF && e.newValue !== '1') updateMarkers([], null);
         }
 
         window.ecran2PostInit = function() {
@@ -325,11 +371,14 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             }
 
             applyMapTypeFromStorage();
-            updateMarkers(initialCoords || [], initialMaPosition || null);
             updateMarqueursFixes();
             updateMaPositionFromStorage();
             setLastUpdate();
-            fetchAndUpdate();
+            setTimeout(function() {
+                var coordsInit = isGeolocActif() ? (initialCoords || []) : [];
+                updateMarkers(coordsInit, initialMaPosition || null);
+                fetchAndUpdate();
+            }, 0);
             setInterval(fetchAndUpdate, REFRESH_MS);
             try { window.addEventListener('storage', onStorageUpdate); } catch (e) {}
         };

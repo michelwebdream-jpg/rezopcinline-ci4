@@ -10,6 +10,7 @@
     <link rel="apple-touch-icon" href="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.png">
     
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     
     <?php $assetVersion = '2026.02.11-1'; // version manuelle des assets CSS/JS ?>
     <link rel="stylesheet" href="<?= base_url('css/style_main.css?v='.$assetVersion) ?>"/>
@@ -100,19 +101,18 @@
                     <p style="text-align:center;margin-top:5px;margin-bottom:5px;"><?= getenv('VERSION_DU_SOFT') ?? 'Version 5.1' ?></p>
                 </div>
                 <div id="menu">
-                    
-                    <a href ="#" id="load_non_modal_page_activite"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/button_my_group_green.png" width="35" height="35"><br /> Activités / DPS</a>
-                    <a href ="#" id="load_non_modal_page_mission"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/button_my_group_green.png" width="35" height="35"><br /> Missions </a>
-                    <a href ="#" id="load_non_modal_page_markers"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/button_my_geo_green_petit.png" width="35" height="35"><br /> Ma position<br />Marqueurs fixes<br />Fichier KML/KMZ</a>
-                    <a href ="#" id="load_non_modal_page_efface_markers_fixe"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/button_delete.png" width="35" height="35"><br /> Effacer tous les<br />marqueurs fixes</a>
-                    <a href ="#" id="load_non_modal_page_centrage_carte"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/button_centrer.png" width="35" height="35"><br /> Centrer la carte </a>
-                    <a href="<?= base_url('membres/carte-ecran2') ?>" target="_blank" rel="noopener" title="Ouvrir la carte sur un deuxième écran"><img border="0" alt="Écran 2" src="<?php echo base_url();?>images/button_my_geo_green_petit.png" width="35" height="35"><br /> Ouvrir la carte<br />sur l'écran 2 </a>
-                    <a href ="#" id="load_non_modal_page_recherche_adresse"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/loupe.png" width="35" height="35"><br /> Rechercher<br />une adresse </a>
-                    <a id="lien_mes_documents" href="<?php echo base_url();?>mes_documents" target="_blank"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/button_documents.png" width="35" height="35"><br /> Mes documents </a>
-                    <a href ="#" id="load_non_modal_page_parametres"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/button_setting.png" width="35" height="35"><br /> Réglages </a>
+                    <a href="#" id="load_non_modal_page_activite"><i class="menu-icon fa-regular fa-calendar-days" aria-hidden="true"></i>Activités / DPS</a>
+                    <a href="#" id="load_non_modal_page_mission"><i class="menu-icon fa-regular fa-flag" aria-hidden="true"></i>Missions </a>
+                    <a href="#" id="load_non_modal_page_markers"><i class="menu-icon fa-regular fa-location-dot" aria-hidden="true"></i>Ma position<br />Marqueurs fixes<br />Fichier KML/KMZ</a>
+                    <a href="#" id="load_non_modal_page_efface_markers_fixe"><i class="menu-icon fa-regular fa-trash-can" aria-hidden="true"></i>Effacer tous les<br />marqueurs fixes</a>
+                    <a href="#" id="load_non_modal_page_centrage_carte"><i class="menu-icon fa-regular fa-bullseye" aria-hidden="true"></i>Centrer la carte </a>
+                    <a href="<?= base_url('membres/carte-ecran2') ?>" target="_blank" rel="noopener" title="Ouvrir la carte sur un deuxième écran"><i class="menu-icon fa-regular fa-display" aria-hidden="true"></i>Ouvrir la carte<br />sur l'écran 2 </a>
+                    <a href="#" id="load_non_modal_page_recherche_adresse"><i class="menu-icon fa-regular fa-magnifying-glass" aria-hidden="true"></i>Rechercher une adresse </a>
+                    <a id="lien_mes_documents" href="<?php echo base_url();?>mes_documents" target="_blank"><i class="menu-icon fa-regular fa-folder" aria-hidden="true"></i>Mes documents </a>
+                    <a href="#" id="load_non_modal_page_parametres"><i class="menu-icon fa-regular fa-gear" aria-hidden="true"></i>Réglages</a>
                     <?php if (is_admin($utilisateur ?? [])): ?>
-                    <a href="<?= base_url('admin') ?>" target="_blank"><img border="0" alt="Admin" src="<?php echo base_url();?>images/button_setting.png" width="35" height="35"><br /> Administration </a>
-                    <a href ="#" id="toggle_debug_window"><img border="0" alt="Debug" src="<?php echo base_url();?>images/warning_petit.png" width="35" height="35"><br /> Debug<br />Géolocalisation </a>
+                    <a href="<?= base_url('admin') ?>" target="_blank"><i class="menu-icon fa-regular fa-shield-halved" aria-hidden="true"></i>Administration</a>
+                    <a href="#" id="toggle_debug_window"><i class="menu-icon fa-regular fa-bug" aria-hidden="true"></i>Debug Géolocalisation </a>
                     <?php endif; ?>
                 </div>
                 <div id="zone_affichage_coordonnees" style="font-size:10px;text-align:center;margin-bottom:5px;"></div>

@@ -106,6 +106,7 @@ class Membres extends BaseController
             'map_width'        => '100%',
             'map_height'       => '100%',
             'center_controls'  => false,  // pas de CenterControl / CenterControl2 ni initAutocomplete (évite trace.png et dépendances rezopcinline)
+            'disableMapTypeControl' => true,  // pas d'onglets Plan/Satellite/etc. sur l'écran 2 (type de carte synchronisé depuis la carte 1)
             'directions'        => false,
             'drawing'          => false,
             'places'           => '',     // vide = pas de chargement de la lib "places" ni de code associé

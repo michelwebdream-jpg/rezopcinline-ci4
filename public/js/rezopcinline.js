@@ -772,7 +772,7 @@ function init_UI(){
     
     
     $('#menu_nom_activite').html("<p>Pas d'activité ou de mission en cours de géolocalisation.</p>");
-    $('#menu_nom_activite').css({'background-color':'rgba(155, 155, 155, 1)','border': '2px solid #979499'});
+    $('#menu_nom_activite').css({'background-color':'rgba(15, 23, 42, 0.9)','border': '2px solid rgba(148, 163, 184, 0.35)'});
      
     $('#bouton_fermer_page_erreur').click(function(){
         
@@ -2385,6 +2385,7 @@ function start_activite2(nom_de_activite,code_a_traiter,liens_kml,marqueurs_fixe
 	
     	activite_en_cours=nom_de_activite;
 		activite_is_running=true;
+		try { localStorage.setItem('rezo_geoloc_actif', '1'); } catch (e) {}
 		ajoute_dans_historique($('#div_horloge').html()+","+"Lancement de l'activité "+nom_de_activite);
         
 		$('#menu_nom_activite').html('<p>Activité : ' + nom_de_activite+'</p>');
@@ -2446,7 +2447,7 @@ function stop_activite(){
         Id_activite_en_cours="";
 		activite_is_running=false;
 		$('#menu_nom_activite').html("<p>Pas d'activité ou de mission en cours de géolocalisation.</p>");
-        $('#menu_nom_activite').css({'background-color':'rgba(155, 155, 155, 1)','border': '2px solid #979499'});
+        $('#menu_nom_activite').css({'background-color':'rgba(15, 23, 42, 0.9)','border': '2px solid rgba(148, 163, 184, 0.35)'});
         stop_blink();
 		$('#menu_info_text').html('');
 		$('#bouton_menu_historique').hide();
@@ -2462,13 +2463,14 @@ function stop_activite(){
 		remove_user_marker();
         remove_trace_kml();
 		affiche_texte_geolocalisation_admin(false);
-		
+		try { localStorage.setItem('rezo_geoloc_actif', '0'); } catch (e) {}
 	}
 }
 function start_mission2(nom_de_mission,code_a_traiter){
 	
 		mission_en_cours=nom_de_mission;
 		mission_is_running=true;
+		try { localStorage.setItem('rezo_geoloc_actif', '1'); } catch (e) {}
 		ajoute_dans_historique($('#div_horloge').html()+","+"Géolocalisation de la mission "+nom_de_mission);
 	    $('#menu_nom_activite').html('<p>Mission : ' + nom_de_mission+'</p>');	
         $('#menu_nom_activite').css({'background-color':'rgba(37, 159, 28, 0.75)','border': '2px solid #42993d'});
@@ -2501,7 +2503,7 @@ function stop_mission(){
 		mission_en_cours="";
 		mission_is_running=false;
 		$('#menu_nom_activite').html("<p>Pas d'activité ou de mission en cours de géolocalisation.</p>");
-        $('#menu_nom_activite').css({'background-color':'rgba(155, 155, 155, 1)','border': '2px solid #979499'});
+        $('#menu_nom_activite').css({'background-color':'rgba(15, 23, 42, 0.9)','border': '2px solid rgba(148, 163, 184, 0.35)'});
         stop_blink();
 		$('#menu_info_text').html('');
 		$('#bouton_menu_historique').hide();
@@ -2516,8 +2518,7 @@ function stop_mission(){
         
 		remove_user_marker();
 		affiche_texte_geolocalisation_admin(false);
-		
-		
+		try { localStorage.setItem('rezo_geoloc_actif', '0'); } catch (e) {}
 	}
 }
 function ajoute_dans_historique(texte_a_ajouter){
@@ -3278,7 +3279,7 @@ function zoomtofit(force){
 	}
 	
 	var centrage_sur_utilisateur=$('input[id=cbox_parametre_centrage_auto]').is(':checked');
-	
+	try { localStorage.setItem('rezo_centrage_auto', centrage_sur_utilisateur ? '1' : '0'); } catch (e) {}
 	if (centrage_sur_utilisateur || force){
         
         if (markerArray.length==0 && markers_fixe_on_map.length==0 && marker_ma_position_on_map.length==0){

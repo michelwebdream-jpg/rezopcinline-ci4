@@ -48,10 +48,10 @@ function lecture_configuration_administrateur(){
 				if (temp[0]==="1")
 				{
                     $('input[id=cbox_parametre_centrage_auto]').prop("checked", true);
-					
 				}else{
 					$('input[id=cbox_parametre_centrage_auto]').prop("checked", false);
 				}
+				try { localStorage.setItem('rezo_centrage_auto', $('input[id=cbox_parametre_centrage_auto]').is(':checked') ? '1' : '0'); } catch (e) {}
 				var typedecarte=temp[1];
 
 				if (temp[2]==="1")
@@ -82,7 +82,7 @@ function sauve_configuration_administrateur(){
 	}else{
 		centrage_carte="0";
 	}
-	
+	try { localStorage.setItem('rezo_centrage_auto', centrage_carte); } catch (e) {}
     var alerte_sonore_depart_intervention="1";
     
 	if ($('input[id=cbox_parametre_alerte_sonore]').is(':checked'))
@@ -139,7 +139,9 @@ $(document).ready( function () {
         sauve_configuration_administrateur();
         ferme_page_reglages();
     });
-    
+    $(document).off('change', '#cbox_parametre_centrage_auto').on('change', '#cbox_parametre_centrage_auto', function() {
+        try { localStorage.setItem('rezo_centrage_auto', $(this).is(':checked') ? '1' : '0'); } catch (e) {}
+    });
     lecture_configuration_administrateur();
 });
     
