@@ -231,7 +231,7 @@ window.onbeforeunload = function (e) {
 };
 
 $(document).ready( function() {
-   
+    try { localStorage.setItem('rezo_ma_position', JSON.stringify({ visible: false })); } catch (e) {}
     
     $.ajaxSetup ({
     // Disable caching of AJAX responses
@@ -682,6 +682,17 @@ function test_position_admin_2000(){
     
 }
 function init_UI(){
+    // Synchronisation du type de carte avec l’écran 2 (localStorage rezo_map_type)
+    if (typeof map !== 'undefined' && map && map.addListener) {
+        try {
+            map.addListener('maptypeid_changed', function() {
+                var id = map.getMapTypeId();
+                if (id) try { localStorage.setItem('rezo_map_type', String(id)); } catch (e) {}
+            });
+            var current = map.getMapTypeId();
+            if (current) try { localStorage.setItem('rezo_map_type', String(current)); } catch (e) {}
+        } catch (e) {}
+    }
     document.getElementById("nom_utilisateur").innerHTML = "Utilisateur : " + Global.nom_administrateur + " " + Global.prenom_administrateur;
     
     $('#div_pour_deplacement_marker').hide();
@@ -1769,6 +1780,7 @@ function placeMarker_fixe(latLng, map, src,id_marqueur_fixe) {
         mapLabel.set('text','Ma position');
         Global.administrateur_sur_carte=true;
         Global.position_administrateur=latLng;
+        try { localStorage.setItem('rezo_ma_position', JSON.stringify({ visible: true, lat: latLng.lat(), lng: latLng.lng() })); } catch (e) {}
     }
     //var marker = new google.maps.Marker();
       var marker = new google.maps.Marker({
@@ -1783,6 +1795,8 @@ function placeMarker_fixe(latLng, map, src,id_marqueur_fixe) {
             marker_ma_position_on_map.push(marker);
             marker.addListener('dragend', function(e) {
                 Global.position_administrateur=e.latLng;
+                try { localStorage.setItem('rezo_ma_position', JSON.stringify({ visible: true, lat: e.latLng.lat(), lng: e.latLng.lng() })); } catch (err) {}
+                update_position_administrateur();
             });
         }else{
             markers_fixe_on_map.push(marker);
@@ -1808,7 +1822,10 @@ function placeMarker_fixe(latLng, map, src,id_marqueur_fixe) {
                         google.maps.event.clearListeners(this, 'dragend');
                         marker_ma_position_on_map.splice(i, 1);
                         Global.administrateur_sur_carte=false;
-                        
+                        Global.position_administrateur = { lat: 0, lng: 0 };
+                        try { localStorage.setItem('rezo_ma_position', JSON.stringify({ visible: false })); } catch (e) {}
+                        update_position_administrateur();
+                        affiche_texte_geolocalisation_admin(false);
                     }
                 }
                 for (var i = 0; i < markers_fixe_on_map.length; i++) {
@@ -3194,6 +3211,25 @@ function refresh_position_user(code, statut,indicatif,latitude,longitude,etat,ic
 	if ($('#menu_info_text p').html().lenght==0){
 		$('#menu_info_text p').html("Tous les utilisateurs de l'activité sont actifs.");
 	}
+
+    // Export des styles (icone + libellé + couleur) des moyens géolocalisés vers localStorage
+    // pour permettre à la carte écran 2 de réutiliser la même apparence.
+    try {
+        var stylesGeoloc = {};
+        for (i = 0; i < indicatif.length; i++) {
+            if (!code[i]) { continue; }
+            var etatInt = parseInt(etat[i]);
+            var iconInt = parseInt(iconId[i]);
+            var backColor = gere_couleur_etat(etatInt);
+            stylesGeoloc[code[i]] = {
+                label: indicatif[i],
+                icon: base_url + "images/marker_user_" + iconInt + ".png",
+                back_color: backColor
+            };
+        }
+        localStorage.setItem('rezo_geoloc_styles', JSON.stringify(stylesGeoloc));
+    } catch (e) {}
+
 	zoomtofit(false);
 }
 

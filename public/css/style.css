@@ -1244,9 +1244,10 @@ body.page-membre #zone_affichage_coordonnees {
 /* Boutons du menu latéral */
 body.page-membre #menu a {
     background-color: #111827;
-    border: 1px solid #374151;
+    border-top: 1px solid #374151;
+    border-bottom: 1px solid #374151;
     color: #e5e7eb;
-    border-radius: 8px;
+    border-radius: 0px;
     transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 }
 body.page-membre #menu a:hover {

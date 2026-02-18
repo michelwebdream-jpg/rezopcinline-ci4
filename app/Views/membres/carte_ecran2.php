@@ -1,6 +1,8 @@
 <?php
+$map = $map ?? null;
 $activeUsersWithCoords = $activeUsersWithCoords ?? [];
 $maPosition = $maPosition ?? null;
+$maPositionIconUrl = $maPositionIconUrl ?? '';
 $googleMapsApiKey = $googleMapsApiKey ?? '';
 $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
 ?>
@@ -20,26 +22,54 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             padding: 6px 10px; font-size: 12px; border-radius: 4px;
             z-index: 999; font-family: sans-serif;
         }
+        .ecran2-marker-label {
+            position: absolute;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-family: sans-serif;
+            color: #000;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            white-space: nowrap;
+            pointer-events: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
     </style>
+    <?php if (!empty($map['js'])): ?>
+    <?= $map['js'] ?>
+    <?php endif; ?>
 </head>
 <body>
+    <?php if (!empty($map['html'])): ?>
+    <?= $map['html'] ?>
+    <?php else: ?>
     <div id="map_ecran2"></div>
+    <?php endif; ?>
     <div id="last_update"></div>
     <script>
     (function() {
         var REFRESH_MS = <?= (int) $refreshIntervalSeconds * 1000 ?>;
         var jsonUrl = window.location.pathname + '?format=json';
-        var googleMapsApiKey = <?= json_encode($googleMapsApiKey) ?>;
         var initialCoords = <?= json_encode($activeUsersWithCoords, JSON_UNESCAPED_UNICODE) ?>;
         var initialMaPosition = <?= json_encode($maPosition, JSON_UNESCAPED_UNICODE) ?>;
+        var maPositionIconUrl = <?= json_encode($maPositionIconUrl, JSON_UNESCAPED_UNICODE) ?>;
         var STORAGE_KEY_FIXES = 'rezo_marqueurs_fixes';
+        var STORAGE_KEY_MA_POSITION = 'rezo_ma_position';
+        var STORAGE_KEY_MAP_TYPE = 'rezo_map_type';
+        var STORAGE_KEY_STYLES   = 'rezo_geoloc_styles';
         var defaultCenter = { lat: 46.6, lng: 2.4 };
 
         var map = null;
         var infowindow = null;
         var markers = [];
         var markerMaPosition = null;
+        var labelMaPosition = null;
         var markersFixes = [];
+        var labelsFixes = [];
+        var labelsGeoloc = [];
+        var LabelOverlay = null;
 
         function escapeHtml(str) {
             return String(str == null ? '' : str)
@@ -59,32 +89,49 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             } catch (e) { return []; }
         }
 
-        function updateMaPosition(maPos) {
-            if (!map || !window.google || !google.maps) return;
+        function getGeolocStylesFromStorage() {
+            try {
+                var raw = localStorage.getItem(STORAGE_KEY_STYLES);
+                if (!raw) return {};
+                var obj = JSON.parse(raw);
+                return (obj && typeof obj === 'object') ? obj : {};
+            } catch (e) { return {}; }
+        }
+
+        function updateMaPositionFromStorage() {
+            if (!map || !window.google || !google.maps || !LabelOverlay) return;
+            if (labelMaPosition) { labelMaPosition.setMap(null); labelMaPosition = null; }
             if (markerMaPosition) { markerMaPosition.setMap(null); markerMaPosition = null; }
-            if (!maPos || maPos.latitude == null || maPos.longitude == null) return;
-            var pos = { lat: parseFloat(maPos.latitude), lng: parseFloat(maPos.longitude) };
+            var raw, data;
+            try {
+                raw = localStorage.getItem(STORAGE_KEY_MA_POSITION);
+                if (!raw) return;
+                data = JSON.parse(raw);
+            } catch (e) { return; }
+            if (!data || !data.visible || data.lat == null || data.lng == null) return;
+            var pos = { lat: parseFloat(data.lat), lng: parseFloat(data.lng) };
             if (isNaN(pos.lat) || isNaN(pos.lng)) return;
-            markerMaPosition = new google.maps.Marker({
-                position: pos,
-                map: map,
-                title: 'Ma position (poste de commandement)',
-                label: { text: 'PC', color: 'white', fontWeight: 'bold' },
-                icon: {
+            var iconOpt = (maPositionIconUrl && maPositionIconUrl.length > 0)
+                ? maPositionIconUrl
+                : {
                     path: google.maps.SymbolPath.CIRCLE,
                     scale: 12,
                     fillColor: '#1a73e8',
                     fillOpacity: 1,
                     strokeColor: '#0d47a1',
                     strokeWeight: 2
-                }
+                };
+            markerMaPosition = new google.maps.Marker({
+                position: pos,
+                map: map,
+                title: 'Ma position (poste de commandement)',
+                icon: iconOpt
             });
-            if (infowindow) {
-                markerMaPosition.addListener('click', function() {
-                    infowindow.setContent('<div style="padding:10px;"><strong>Ma position</strong><br>Poste de commandement</div>');
-                    infowindow.open(map, markerMaPosition);
-                });
+            if (LabelOverlay) {
+                labelMaPosition = new LabelOverlay(new google.maps.LatLng(pos.lat, pos.lng), 'Ma position');
+                labelMaPosition.setMap(map);
             }
+            markerMaPosition.setClickable(false);
         }
 
         function resolveIconUrl(icon) {
@@ -94,7 +141,9 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
         }
 
         function updateMarqueursFixes() {
-            if (!map || !infowindow || !window.google || !google.maps) return;
+            if (!map || !infowindow || !window.google || !google.maps || !LabelOverlay) return;
+            labelsFixes.forEach(function(l) { try { if (l && l.setMap) l.setMap(null); } catch (e) {} });
+            labelsFixes = [];
             markersFixes.forEach(function(m) { try { if (m && m.setMap) m.setMap(null); } catch (e) {} });
             markersFixes = [];
             var list = getMarqueursFixesFromStorage();
@@ -116,7 +165,8 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
                 var markerOpts = {
                     position: pos,
                     map: map,
-                    title: label
+                    title: label,
+                    clickable: false
                 };
                 if (iconUrl) {
                     markerOpts.icon = iconUrl;
@@ -125,13 +175,12 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
                     markerOpts.icon = defaultIcon;
                 }
                 var marker = new google.maps.Marker(markerOpts);
-                (function(lbl) {
-                    marker.addListener('click', function() {
-                        infowindow.setContent('<div style="padding:10px;"><strong>' + escapeHtml(lbl) + '</strong></div>');
-                        infowindow.open(map, marker);
-                    });
-                })(label);
                 markersFixes.push(marker);
+                if (LabelOverlay) {
+                    var labelOverlay = new LabelOverlay(new google.maps.LatLng(pos.lat, pos.lng), label, null);
+                    labelOverlay.setMap(map);
+                    labelsFixes.push(labelOverlay);
+                }
             });
         }
 
@@ -140,27 +189,41 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             if (typeof map.setCenter !== 'function') return;
             usersData = Array.isArray(usersData) ? usersData : [];
             var maPositionCode = (maPos && maPos.code) ? maPos.code : null;
+            labelsGeoloc.forEach(function(l) { try { if (l && l.setMap) l.setMap(null); } catch (e) {} });
+            labelsGeoloc = [];
             markers.forEach(function(m) { try { if (m && m.setMap) m.setMap(null); } catch (e) {} });
             markers = [];
             var bounds = new google.maps.LatLngBounds();
+            var stylesMap = getGeolocStylesFromStorage();
             usersData.forEach(function(u) {
                 if (maPositionCode && (u.code === maPositionCode)) return;
                 var pos = { lat: parseFloat(u.latitude), lng: parseFloat(u.longitude) };
                 if (isNaN(pos.lat) || isNaN(pos.lng)) return;
                 bounds.extend(pos);
                 try {
-                    var marker = new google.maps.Marker({ position: pos, map: map, title: u.code });
-                    var dateStr = u.derniere_inscription ? new Date(String(u.derniere_inscription).replace(' ', 'T')).toLocaleString('fr-FR') : '—';
-                    (function(usr, mkr) {
-                        mkr.addListener('click', function() {
-                            infowindow.setContent('<div style="padding:10px;"><strong>' + escapeHtml(usr.code || '') + '</strong><br>Dernière position : ' + escapeHtml(dateStr) + '</div>');
-                            infowindow.open(map, mkr);
-                        });
-                    })(u, marker);
+                    var style = (stylesMap && u.code && stylesMap[u.code]) ? stylesMap[u.code] : null;
+                    var markerOpts = {
+                        position: pos,
+                        map: map,
+                        title: (style && style.label) ? String(style.label) : (u.code || ''),
+                        clickable: false
+                    };
+                    if (style && style.icon) {
+                        var iconUrl = resolveIconUrl(style.icon);
+                        if (iconUrl) markerOpts.icon = iconUrl;
+                    }
+                    var marker = new google.maps.Marker(markerOpts);
                     markers.push(marker);
+                    if (LabelOverlay) {
+                        var labelText = (style && style.label) ? String(style.label) : (u.code || '');
+                        var backColor = (style && style.back_color) ? String(style.back_color) : '';
+                        var labelOverlay = new LabelOverlay(new google.maps.LatLng(pos.lat, pos.lng), labelText, backColor);
+                        labelOverlay.setMap(map);
+                        labelsGeoloc.push(labelOverlay);
+                    }
                 } catch (e) {}
             });
-            updateMaPosition(maPos || null);
+            updateMaPositionFromStorage();
             if (maPos && maPos.latitude != null && maPos.longitude != null) {
                 bounds.extend({ lat: parseFloat(maPos.latitude), lng: parseFloat(maPos.longitude) });
             }
@@ -197,62 +260,79 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
                     var coords = filterCoords(data.active_geoloc_users || []);
                     updateMarkers(coords, data.ma_position || null);
                     updateMarqueursFixes();
+                    updateMaPositionFromStorage();
                     setLastUpdate();
                 })
                 .catch(function() {});
         }
 
-        function initMap() {
-            var elMap = document.getElementById('map_ecran2');
-            if (!elMap) return;
-            var center = (initialCoords && initialCoords.length) ? { lat: initialCoords[0].latitude, lng: initialCoords[0].longitude } : defaultCenter;
-            if (initialMaPosition && initialMaPosition.latitude != null && initialMaPosition.longitude != null) {
-                center = { lat: parseFloat(initialMaPosition.latitude), lng: parseFloat(initialMaPosition.longitude) };
-            }
-            map = new google.maps.Map(elMap, {
-                zoom: (initialCoords && initialCoords.length) || initialMaPosition ? 10 : 5,
-                center: center,
-                mapTypeId: 'roadmap',
-                fullscreenControl: true
-            });
-            infowindow = new google.maps.InfoWindow();
-            updateMarkers(initialCoords || [], initialMaPosition || null);
-            updateMarqueursFixes();
-            setLastUpdate();
+        function applyMapTypeFromStorage() {
+            if (!map || !map.setMapTypeId) return;
+            try {
+                var id = localStorage.getItem(STORAGE_KEY_MAP_TYPE);
+                if (id && map.getMapTypeId) {
+                    var current = map.getMapTypeId();
+                    if (current !== id) map.setMapTypeId(id);
+                }
+            } catch (e) {}
         }
 
         function onStorageUpdate(e) {
             if (e && e.key === STORAGE_KEY_FIXES) updateMarqueursFixes();
+            if (e && e.key === STORAGE_KEY_MA_POSITION) updateMaPositionFromStorage();
+            if (e && e.key === STORAGE_KEY_MAP_TYPE) applyMapTypeFromStorage();
         }
 
-        function loadGoogleMaps(cb) {
-            if (window.google && window.google.maps) { cb(); return; }
-            if (!googleMapsApiKey) return;
-            var existing = document.querySelector('script[src*="maps.googleapis.com"]');
-            if (existing) {
-                var wait = setInterval(function() {
-                    if (window.google && window.google.maps) {
-                        clearInterval(wait);
-                        cb();
+        window.ecran2PostInit = function() {
+            if (typeof window.map_ecran2 === 'undefined' || !window.map_ecran2) return;
+            map = window.map_ecran2;
+            infowindow = typeof window.iw_map_ecran2 !== 'undefined' ? window.iw_map_ecran2 : new (window.google && google.maps && google.maps.InfoWindow ? google.maps.InfoWindow : function(){})();
+
+            if (window.google && google.maps && google.maps.OverlayView) {
+                function LabelOverlayCtor(position, text, backColor) {
+                    this.position = position;
+                    this.text = text;
+                    this.backColor = backColor || '';
+                    this.div_ = null;
+                }
+                LabelOverlayCtor.prototype = new google.maps.OverlayView();
+                LabelOverlayCtor.prototype.onAdd = function() {
+                    this.div_ = document.createElement('div');
+                    this.div_.className = 'ecran2-marker-label';
+                    this.div_.textContent = this.text;
+                    if (this.backColor) {
+                        this.div_.style.backgroundColor = this.backColor;
                     }
-                }, 100);
-                setTimeout(function() { clearInterval(wait); }, 15000);
-                return;
+                    var panes = this.getPanes();
+                    if (panes && panes.overlayLayer) panes.overlayLayer.appendChild(this.div_);
+                };
+                LabelOverlayCtor.prototype.draw = function() {
+                    var projection = this.getProjection();
+                    if (!projection || !this.div_) return;
+                    var pos = projection.fromLatLngToDivPixel(this.position);
+                    if (!pos) return;
+                    this.div_.style.left = pos.x + 'px';
+                    this.div_.style.top = pos.y + 'px';
+                    var w = this.div_.offsetWidth || 80, h = this.div_.offsetHeight || 22;
+                    this.div_.style.marginLeft = (-(w / 2)) + 'px';
+                    this.div_.style.marginTop = (-62 - h) + 'px';
+                };
+                LabelOverlayCtor.prototype.onRemove = function() {
+                    if (this.div_ && this.div_.parentNode) this.div_.parentNode.removeChild(this.div_);
+                    this.div_ = null;
+                };
+                LabelOverlay = LabelOverlayCtor;
             }
-            var script = document.createElement('script');
-            script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(googleMapsApiKey) + '&callback=__initMapEcran2';
-            script.async = true;
-            script.defer = true;
-            window.__initMapEcran2 = function() { cb(); };
-            document.head.appendChild(script);
-        }
 
-        loadGoogleMaps(function() {
-            initMap();
+            applyMapTypeFromStorage();
+            updateMarkers(initialCoords || [], initialMaPosition || null);
+            updateMarqueursFixes();
+            updateMaPositionFromStorage();
+            setLastUpdate();
             fetchAndUpdate();
             setInterval(fetchAndUpdate, REFRESH_MS);
             try { window.addEventListener('storage', onStorageUpdate); } catch (e) {}
-        });
+        };
     })();
     </script>
 </body>

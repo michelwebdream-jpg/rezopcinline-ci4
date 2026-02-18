@@ -70,7 +70,7 @@ class Membres extends BaseController
         $activeGeolocMinutes = 30;
         $rezoCodeColumn = 'moncode';
         $googleMapsApiKey = env('GOOGLE_MAPS_API_KEY', 'AIzaSyBfDAk5Xb1ZDwMDNj5qBitkVRSec3YlXic');
-        $refreshIntervalSeconds = 10;
+        $refreshIntervalSeconds = 5;
 
         $activeUsers = $this->fetchPositionsRezo($activeGeolocMinutes, $rezoCodeColumn);
 
@@ -97,11 +97,34 @@ class Membres extends BaseController
             return isset($u['latitude'], $u['longitude']) && ($u['latitude'] != 0 || $u['longitude'] != 0);
         }));
 
+        // Carte écran 2 via la librairie PHP (mêmes types de carte que la carte principale, sans directions/places/drawing)
+        $configEcran2 = [
+            'center'           => '46, 2.5',
+            'zoom'             => 5,
+            'map_div_id'       => 'map_ecran2',
+            'map_name'         => 'map_ecran2',
+            'map_width'        => '100%',
+            'map_height'       => '100%',
+            'center_controls'  => false,  // pas de CenterControl / CenterControl2 ni initAutocomplete (évite trace.png et dépendances rezopcinline)
+            'directions'        => false,
+            'drawing'          => false,
+            'places'           => '',     // vide = pas de chargement de la lib "places" ni de code associé
+            'onmousemove'      => '',
+            'onmouseout'       => '',
+            'onmouseover'      => '',
+            'onrightclick'     => '',
+            'onload'           => 'if (typeof window.ecran2PostInit === "function") window.ecran2PostInit();',
+        ];
+        $this->googlemaps->initialize($configEcran2);
+        $mapEcran2 = $this->googlemaps->create_map();
+
         $data = [
             'activeUsersWithCoords' => $activeUsersWithCoords,
             'maPosition' => $maPosition,
+            'maPositionIconUrl' => base_url('images/marker_administrateur.png'),
             'googleMapsApiKey' => $googleMapsApiKey,
             'refreshIntervalSeconds' => $refreshIntervalSeconds,
+            'map' => $mapEcran2,
         ];
 
         return view('membres/carte_ecran2', $data);

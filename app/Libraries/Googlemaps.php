@@ -55,6 +55,7 @@ class Googlemaps {
 	var $map_div_id					= "map_canvas";				// The ID of the <div></div> that is output which contains the map
 	var $map_height					= "450px";					// The height of the map container. Any units (ie 'px') can be used. If no units are provided 'px' will be presumed
 	var $map_name					= "map";					// The JS reference to the map. Currently not used but to be used in the future when multiple maps are supported
+	var $center_controls				= true;					// If FALSE, do not output CenterControl, CenterControl2, or initAutocomplete() (e.g. for écran 2)
 	var $map_type					= "ROADMAP";				// The default MapType. Values accepted are 'HYBRID', 'ROADMAP', 'SATELLITE' or 'TERRAIN'
 	var $map_types_available		= array("ROADMAP","SATELLITE","HYBRID","TERRAIN");					// The other MapTypes available for selection on the map
 	var $map_width					= "100%";					// The width of the map container. Any units (ie 'px') can be used. If no units are provided 'px' will be presumed
@@ -1647,28 +1648,34 @@ class Googlemaps {
 		$this->output_js_contents .= '}
 				'.$this->map_name.' = new google.maps.Map(document.getElementById("'.$this->map_div_id.'"), myOptions);
                 
-                map.mapTypes.set("IGNLayer_photos",tiledLayer_photos);
-                map.mapTypes.set("IGNLayer_cartes",tiledLayer_cartes);
-                map.mapTypes.set("IGNLayer_plan",tiledLayer_plan);
-                map.mapTypes.set("IGNLayer_altitude",tiledLayer_altitude);
-                map.mapTypes.set("IGNLayer_scan25tour",tiledLayer_scan25tour);
-                map.mapTypes.set("OSMLayer",tiledLayer_openstreetmap);
+                '.$this->map_name.'.mapTypes.set("IGNLayer_photos",tiledLayer_photos);
+                '.$this->map_name.'.mapTypes.set("IGNLayer_cartes",tiledLayer_cartes);
+                '.$this->map_name.'.mapTypes.set("IGNLayer_plan",tiledLayer_plan);
+                '.$this->map_name.'.mapTypes.set("IGNLayer_altitude",tiledLayer_altitude);
+                '.$this->map_name.'.mapTypes.set("IGNLayer_scan25tour",tiledLayer_scan25tour);
+                '.$this->map_name.'.mapTypes.set("OSMLayer",tiledLayer_openstreetmap);
                 			     
                 
         
+			    ';
+		if ($this->center_controls) {
+			$this->output_js_contents .= '
 			    var centerControlDiv2 = document.createElement("div");
-                var centerControl2 = new CenterControl2(centerControlDiv2, map);
+                var centerControl2 = new CenterControl2(centerControlDiv2, '.$this->map_name.');
 
                 centerControlDiv2.index = 1;
-                map.controls[google.maps.ControlPosition.TOP_LEFT].push(centerControlDiv2);
+                '.$this->map_name.'.controls[google.maps.ControlPosition.TOP_LEFT].push(centerControlDiv2);
                 
                 var centerControlDiv = document.createElement("div");
-                var centerControl = new CenterControl(centerControlDiv, map);
+                var centerControl = new CenterControl(centerControlDiv, '.$this->map_name.');
 
                 centerControlDiv.index = 1;
-                map.controls[google.maps.ControlPosition.TOP_LEFT].push(centerControlDiv);
+                '.$this->map_name.'.controls[google.maps.ControlPosition.TOP_LEFT].push(centerControlDiv);
                 
-                initAutocomplete();
+                if (typeof initAutocomplete === "function") initAutocomplete();
+				';
+		}
+		$this->output_js_contents .= '
 				
                 ';
 		
@@ -2038,7 +2045,7 @@ class Googlemaps {
 				
 				if ($this->placesAutocompleteBoundsMap)
 				{
-					$this->output_js_contents .= 'placesAutocomplete.bindTo(\'bounds\', map);
+					$this->output_js_contents .= 'placesAutocomplete.bindTo(\'bounds\', '.$this->map_name.');
 					';
 				}
 				
@@ -2404,11 +2411,11 @@ class Googlemaps {
             if (dfci_on) {
                 dfci_on=false;
                 controlUI.style.border = "2px solid #fff";
-                map.overlayMapTypes.removeAt(0);
+                '.$this->map_name.'.overlayMapTypes.removeAt(0);
             }else{
                 dfci_on=true;
                 controlUI.style.border = "4px solid rgb(9, 190, 24)";
-                map.overlayMapTypes.insertAt(0, tiledLayer_carroyages_dfci);
+                '.$this->map_name.'.overlayMapTypes.insertAt(0, tiledLayer_carroyages_dfci);
             }
           
         });
