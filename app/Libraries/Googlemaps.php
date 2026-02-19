@@ -1421,6 +1421,7 @@ class Googlemaps {
 					name: "IGN - Carroyages DFCI",
 					maxZoom: 19
 			});
+			if (typeof window !== "undefined") window.tiledLayer_carroyages_dfci = tiledLayer_carroyages_dfci;
 			
 			';
 		/*	$this->output_js_contents .= 'tiledLayer_carroyages_dfci=new google.maps.ImageMapType({
@@ -2412,10 +2413,12 @@ class Googlemaps {
                 dfci_on=false;
                 controlUI.style.border = "2px solid #fff";
                 '.$this->map_name.'.overlayMapTypes.removeAt(0);
+                try { localStorage.setItem("rezo_dfci_on", "0"); } catch (e) {}
             }else{
                 dfci_on=true;
                 controlUI.style.border = "4px solid rgb(9, 190, 24)";
                 '.$this->map_name.'.overlayMapTypes.insertAt(0, tiledLayer_carroyages_dfci);
+                try { localStorage.setItem("rezo_dfci_on", "1"); } catch (e) {}
             }
           
         });

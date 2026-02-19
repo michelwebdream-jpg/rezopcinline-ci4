@@ -62,8 +62,10 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
         var STORAGE_KEY_CENTRAGE_AUTO = 'rezo_centrage_auto';
         var STORAGE_KEY_GEOLOC_ACTIF = 'rezo_geoloc_actif';
         var STORAGE_KEY_ECRAN2_LOGOUT = 'rezo_ecran2_logout';
+        var STORAGE_KEY_DFCI = 'rezo_dfci_on';
         var LOGIN_URL = <?= json_encode($loginUrl ?? '') ?>;
         var defaultCenter = { lat: 46.6, lng: 2.4 };
+        var dfciOverlayOn = false;
 
         function isGeolocActif() {
             try { return localStorage.getItem(STORAGE_KEY_GEOLOC_ACTIF) === '1'; } catch (e) { return false; }
@@ -324,11 +326,26 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             } catch (e) {}
         }
 
+        function applyDfciFromStorage() {
+            if (!map || !map.overlayMapTypes) return;
+            try {
+                var on = localStorage.getItem(STORAGE_KEY_DFCI) === '1';
+                if (on && !dfciOverlayOn && window.tiledLayer_carroyages_dfci) {
+                    map.overlayMapTypes.insertAt(0, window.tiledLayer_carroyages_dfci);
+                    dfciOverlayOn = true;
+                } else if (!on && dfciOverlayOn) {
+                    map.overlayMapTypes.removeAt(0);
+                    dfciOverlayOn = false;
+                }
+            } catch (e) {}
+        }
+
         function onStorageUpdate(e) {
             if (e && e.key === STORAGE_KEY_FIXES) updateMarqueursFixes();
             if (e && e.key === STORAGE_KEY_MA_POSITION) updateMaPositionFromStorage();
             if (e && e.key === STORAGE_KEY_MAP_TYPE) applyMapTypeFromStorage();
             if (e && e.key === STORAGE_KEY_GEOLOC_ACTIF && e.newValue !== '1') updateMarkers([], null);
+            if (e && e.key === STORAGE_KEY_DFCI) applyDfciFromStorage();
             if (e && e.key === STORAGE_KEY_ECRAN2_LOGOUT) {
                 try { window.close(); } catch (e2) {}
                 if (!window.closed) window.location.href = (LOGIN_URL || (location.origin + '/signup/login'));
@@ -377,6 +394,7 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             }
 
             applyMapTypeFromStorage();
+            applyDfciFromStorage();
             updateMarqueursFixes();
             updateMaPositionFromStorage();
             setLastUpdate();
