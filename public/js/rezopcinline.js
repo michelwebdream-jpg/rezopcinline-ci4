@@ -425,6 +425,31 @@ $(document).ready( function() {
         return false;
     });
 
+    function saveMapViewToStorage() {
+        try {
+            if (typeof map === 'undefined' || !map || typeof map.getCenter !== 'function') return;
+            var c = map.getCenter();
+            if (!c) return;
+            localStorage.setItem('rezo_map_view', JSON.stringify({ lat: c.lat(), lng: c.lng(), zoom: map.getZoom() }));
+        } catch (e) {}
+    }
+    function attachMapViewSyncToCarte1() {
+        if (typeof map === 'undefined' || !map || typeof map.getCenter !== 'function' || map._rezoMapViewSyncAttached) return;
+        if (typeof google === 'undefined' || !google.maps || !google.maps.event) return;
+        map._rezoMapViewSyncAttached = true;
+        saveMapViewToStorage();
+        var viewSyncTimeout;
+        google.maps.event.addListener(map, 'bounds_changed', function() {
+            clearTimeout(viewSyncTimeout);
+            viewSyncTimeout = setTimeout(saveMapViewToStorage, 120);
+        });
+    }
+    var _rezoMapViewSyncCheck = setInterval(function() {
+        attachMapViewSyncToCarte1();
+        if (map && map._rezoMapViewSyncAttached) clearInterval(_rezoMapViewSyncCheck);
+    }, 400);
+    setTimeout(function() { clearInterval(_rezoMapViewSyncCheck); }, 15000);
+
     $('#logout_link').on("click", function(e) {
         e.preventDefault();
         try { localStorage.setItem('rezo_ecran2_logout', String(Date.now())); } catch (err) {}

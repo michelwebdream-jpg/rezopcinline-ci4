@@ -22,6 +22,14 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             padding: 6px 10px; font-size: 12px; border-radius: 4px;
             z-index: 999; font-family: sans-serif;
         }
+        #ecran2_sync_unlock {
+            position: fixed; top: 10px; left: 10px;
+            background: rgba(255,255,255,0.95);
+            padding: 8px 12px; font-size: 13px; border-radius: 4px;
+            z-index: 999; font-family: sans-serif;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+        #ecran2_sync_unlock label { cursor: pointer; user-select: none; }
         .ecran2-marker-label {
             position: absolute;
             padding: 4px 8px;
@@ -47,6 +55,7 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
     <?php else: ?>
     <div id="map_ecran2"></div>
     <?php endif; ?>
+    <div id="ecran2_sync_unlock"><label><input type="checkbox" id="ecran2_cb_unlock" /> Déverrouiller la carte (manipulation indépendante)</label></div>
     <div id="last_update"></div>
     <script>
     (function() {
@@ -65,11 +74,13 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
         var STORAGE_KEY_DFCI = 'rezo_dfci_on';
         var STORAGE_KEY_KML = 'rezo_kml_layers';
         var STORAGE_KEY_LIGNE_FEUX = 'rezo_ligne_feux';
+        var STORAGE_KEY_MAP_VIEW = 'rezo_map_view';
         var LOGIN_URL = <?= json_encode($loginUrl ?? '') ?>;
         var defaultCenter = { lat: 46.6, lng: 2.4 };
         var dfciOverlayOn = false;
         var kmlLayersEcran2 = [];
         var ligneFeuxEcran2 = [];
+        var syncMapViewUnlocked = false;
 
         function isGeolocActif() {
             try { return localStorage.getItem(STORAGE_KEY_GEOLOC_ACTIF) === '1'; } catch (e) { return false; }
@@ -255,9 +266,8 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             if (maPos && maPos.latitude != null && maPos.longitude != null) {
                 bounds.extend({ lat: parseFloat(maPos.latitude), lng: parseFloat(maPos.longitude) });
             }
-            if (!isCentrageAutoEnabled()) {
-                return;
-            }
+            if (!isCentrageAutoEnabled()) return;
+            if (!syncMapViewUnlocked) return;
             try {
                 var rawMa = localStorage.getItem(STORAGE_KEY_MA_POSITION);
                 if (rawMa) {
@@ -327,6 +337,20 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
                     var current = map.getMapTypeId();
                     if (current !== id) map.setMapTypeId(id);
                 }
+            } catch (e) {}
+        }
+
+        function applyMapViewFromStorage() {
+            if (!map || syncMapViewUnlocked) return;
+            try {
+                var raw = localStorage.getItem(STORAGE_KEY_MAP_VIEW);
+                if (!raw) return;
+                var data = JSON.parse(raw);
+                if (!data || data.lat == null || data.lng == null) return;
+                var lat = parseFloat(data.lat), lng = parseFloat(data.lng), zoom = parseInt(data.zoom, 10);
+                if (isNaN(lat) || isNaN(lng)) return;
+                map.setCenter(new google.maps.LatLng(lat, lng));
+                if (!isNaN(zoom) && zoom >= 0 && zoom <= 22) map.setZoom(zoom);
             } catch (e) {}
         }
 
@@ -409,6 +433,7 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             if (e && e.key === STORAGE_KEY_DFCI) applyDfciFromStorage();
             if (e && e.key === STORAGE_KEY_KML) updateKmlFromStorage();
             if (e && e.key === STORAGE_KEY_LIGNE_FEUX) updateLigneFeuxFromStorage();
+            if (e && e.key === STORAGE_KEY_MAP_VIEW) applyMapViewFromStorage();
             if (e && e.key === STORAGE_KEY_ECRAN2_LOGOUT) {
                 try { window.close(); } catch (e2) {}
                 if (!window.closed) window.location.href = (LOGIN_URL || (location.origin + '/signup/login'));
@@ -456,6 +481,7 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
                 LabelOverlay = LabelOverlayCtor;
             }
 
+            applyMapViewFromStorage();
             applyMapTypeFromStorage();
             applyDfciFromStorage();
             updateKmlFromStorage();
@@ -470,6 +496,13 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             }, 0);
             setInterval(fetchAndUpdate, REFRESH_MS);
             try { window.addEventListener('storage', onStorageUpdate); } catch (e) {}
+            var cbUnlock = document.getElementById('ecran2_cb_unlock');
+            if (cbUnlock) {
+                cbUnlock.addEventListener('change', function() {
+                    syncMapViewUnlocked = !!cbUnlock.checked;
+                    if (!syncMapViewUnlocked) applyMapViewFromStorage();
+                });
+            }
             var hadOpener = !!window.opener;
             if (hadOpener) {
                 setInterval(function() {
