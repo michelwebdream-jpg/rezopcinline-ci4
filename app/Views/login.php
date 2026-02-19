@@ -38,13 +38,30 @@
             <hr class="login-separator"></hr>
             <p class="login-hero-tagline">Coordination et information en temps réel</p>
             <p class="login-hero-version"><?= getenv('VERSION_DU_SOFT') ?? 'Version 5.1' ?></p>
-            <div class="login-hero-notice">
-                <span class="login-hero-notice-title">Votre plateforme évolue !</span>
-                <p>Nous avons repensé le design de votre espace pour vous offrir une expérience plus moderne, plus fluide et plus confortable.</p>
-                <p>Découvrez également une nouvelle fonctionnalité :<br /><br />
-                🌗 le mode clair / sombre, désormais accessible depuis le menu principal, pour adapter l’affichage à vos préférences.</p>
-                <p><i><br />Bonne découverte !</i></p>
+            <?php
+            $login_notices = $login_notices ?? [];
+            $login_notice_duration = (int) ($login_notice_duration ?? 8);
+            if (!empty($login_notices)):
+                $duration_ms = $login_notice_duration * 1000;
+            ?>
+            <div class="login-hero-notice-block">
+                <div class="login-hero-notice-wrap" id="login-hero-notice-wrap" data-duration="<?= (int) $duration_ms ?>">
+                    <?php foreach ($login_notices as $i => $notice): ?>
+                    <div class="login-hero-notice login-hero-notice-slide<?= $i === 0 ? ' login-hero-notice-active' : '' ?>" data-index="<?= (int) $i ?>">
+                        <span class="login-hero-notice-title"><?= esc($notice['title'] ?? '') ?></span>
+                        <div class="login-hero-notice-body"><?= $notice['content'] ?? '' ?></div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php if (count($login_notices) > 1): ?>
+                <div class="login-hero-notice-bullets" id="login-hero-notice-bullets" aria-hidden="true">
+                    <?php foreach ($login_notices as $i => $notice): ?>
+                    <span class="login-hero-notice-bullet<?= $i === 0 ? ' login-hero-notice-bullet-active' : '' ?>" data-index="<?= (int) $i ?>"></span>
+                    <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
             </div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -110,5 +127,33 @@
 <footer>
     <p class="footer"><?php if(isset($footing)) echo $footing;?></p>
 </footer>
+<script>
+(function() {
+    var wrap = document.getElementById('login-hero-notice-wrap');
+    if (!wrap) return;
+    var slides = wrap.querySelectorAll('.login-hero-notice-slide');
+    if (slides.length <= 1) return;
+    var bullets = document.getElementById('login-hero-notice-bullets');
+    var bulletEls = bullets ? bullets.querySelectorAll('.login-hero-notice-bullet') : [];
+    var duration = parseInt(wrap.getAttribute('data-duration') || '8000', 10);
+    var current = 0;
+    function goTo(index) {
+        slides[current].classList.remove('login-hero-notice-active');
+        if (bulletEls[current]) bulletEls[current].classList.remove('login-hero-notice-bullet-active');
+        current = index % slides.length;
+        slides[current].classList.add('login-hero-notice-active');
+        if (bulletEls[current]) bulletEls[current].classList.add('login-hero-notice-bullet-active');
+    }
+    function next() {
+        goTo(current + 1);
+    }
+    setInterval(next, duration);
+    if (bullets && bulletEls.length) {
+        [].forEach.call(bulletEls, function(el, i) {
+            el.addEventListener('click', function() { goTo(i); });
+        });
+    }
+})();
+</script>
 </body>
 </html>

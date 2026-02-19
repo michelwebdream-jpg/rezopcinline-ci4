@@ -51,6 +51,7 @@ $content = $content ?? 'admin/dashboard';
             <a href="<?= base_url('admin') ?>" class="<?= ($content === 'admin/dashboard') ? 'active' : '' ?>">Dashboard</a>
             <a href="<?= base_url('signup/membres') ?>">← Retour à l'app</a>
             <a href="<?= base_url('admin/connected') ?>" class="<?= ($content === 'admin/connected') ? 'active' : '' ?>">Utilisateurs connectés</a>
+            <a href="<?= base_url('admin/login-notices') ?>" class="<?= (strpos($content ?? '', 'admin/login_notices') === 0) ? 'active' : '' ?>">Annonces page de connexion</a>
             <a href="<?= base_url('signup/logout') ?>">Déconnexion</a>
         </aside>
         <main class="admin-main">

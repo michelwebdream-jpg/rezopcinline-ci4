@@ -255,6 +255,73 @@ body.page-login .login-hero-notice {
     background: rgba(29, 35, 60, 0.83);
 }
 
+/* Conteneur des annonces rotatives : hauteur et position fixes, tous les slides au même endroit */
+body.page-login .login-hero-notice-wrap {
+    position: relative;
+    height: 240px;
+    margin-top: 82px;
+}
+body.page-login .login-hero-notice-wrap .login-hero-notice-slide,
+body.page-login .login-hero-notice-wrap .login-hero-notice-slide.login-hero-notice-active {
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    box-sizing: border-box;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+    pointer-events: none;
+}
+body.page-login .login-hero-notice-wrap .login-hero-notice-slide.login-hero-notice-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+body.page-login .login-hero-notice-wrap .login-hero-notice-body {
+    margin-top: 0.5rem;
+    max-height: 160px;
+    overflow-y: auto;
+}
+body.page-login .login-hero-notice-wrap .login-hero-notice-body p {
+    margin: 0.4em 0;
+}
+
+/* Bullets sous le bloc d'information */
+body.page-login .login-hero-notice-block {
+    margin-top: 82px;
+}
+body.page-login .login-hero-notice-block .login-hero-notice-wrap {
+    margin-top: 0;
+}
+body.page-login .login-hero-notice-bullets {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+}
+body.page-login .login-hero-notice-bullet {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    transition: background 0.25s ease;
+}
+body.page-login .login-hero-notice-bullet:hover {
+    border-color: rgba(255, 255, 255, 1);
+}
+body.page-login .login-hero-notice-bullet.login-hero-notice-bullet-active {
+    background: rgb(245, 107, 21);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+}
+
 body.page-login .login-hero-notice-title {
     position: absolute;
     top: -19px;

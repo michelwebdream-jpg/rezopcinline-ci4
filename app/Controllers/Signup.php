@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\SignupModel;
+use App\Models\LoginNoticeModel;
 use CodeIgniter\Controller;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\Session\Session;
@@ -294,7 +295,7 @@ class Signup extends BaseController
                     'validation' => $this->validator,
                     'success' => $this->session->getFlashdata('success'),
                 ];
-                return view('login', $data);
+                return view('login', array_merge($data, $this->getLoginNoticeData()));
             }
         } else {
             // Affichage initial du formulaire (GET)
@@ -305,7 +306,7 @@ class Signup extends BaseController
                 'validation' => $this->validator,
                 'success' => $this->session->getFlashdata('success'),
             ];
-            return view('login', $data);
+            return view('login', array_merge($data, $this->getLoginNoticeData()));
         }
     }
     
@@ -416,7 +417,27 @@ class Signup extends BaseController
             'footing' => footer_html(),
             'validation' => $this->validator
         ];
-        return view('login', $data);
+        return view('login', array_merge($data, $this->getLoginNoticeData()));
+    }
+
+    /**
+     * Données des annonces pour la page login (bloc d'info). Vide si table absente ou aucune annonce.
+     */
+    private function getLoginNoticeData(): array
+    {
+        try {
+            $model = model(LoginNoticeModel::class);
+            $notices = $model->getNoticesForLogin();
+            if (empty($notices)) {
+                return ['login_notices' => [], 'login_notice_duration' => 8];
+            }
+            return [
+                'login_notices'         => $notices,
+                'login_notice_duration' => $model->getDisplayDurationSeconds(),
+            ];
+        } catch (\Throwable $e) {
+            return ['login_notices' => [], 'login_notice_duration' => 8];
+        }
     }
     
     private function getErrorMessage($code)

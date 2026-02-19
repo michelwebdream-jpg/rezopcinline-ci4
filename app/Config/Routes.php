@@ -24,6 +24,12 @@ $routes->group('signup', function($routes) {
 $routes->get('admin', 'Admin\Dashboard::index');
 $routes->get('admin/dashboard', 'Admin\Dashboard::index');
 $routes->get('admin/connected', 'Admin\Connected::index');
+$routes->get('admin/login-notices', 'Admin\LoginNotices::index');
+$routes->get('admin/login-notices/add', 'Admin\LoginNotices::add');
+$routes->get('admin/login-notices/edit/(:num)', 'Admin\LoginNotices::edit/$1');
+$routes->post('admin/login-notices/save', 'Admin\LoginNotices::save');
+$routes->post('admin/login-notices/save-config', 'Admin\LoginNotices::saveConfig');
+$routes->get('admin/login-notices/delete/(:num)', 'Admin\LoginNotices::delete/$1');
 
 // Routes Membres
 $routes->get('membres', 'Membres::index');
