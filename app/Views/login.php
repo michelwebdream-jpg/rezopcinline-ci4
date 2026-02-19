@@ -43,15 +43,17 @@
             $login_notice_duration = (int) ($login_notice_duration ?? 8);
             if (!empty($login_notices)):
                 $duration_ms = $login_notice_duration * 1000;
+                $first = $login_notices[0];
+                $notices_json = htmlspecialchars(json_encode(array_map(function ($n) {
+                    return ['title' => $n['title'] ?? '', 'content' => $n['content'] ?? ''];
+                }, $login_notices), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP), ENT_QUOTES, 'UTF-8');
             ?>
-            <div class="login-hero-notice-block">
-                <div class="login-hero-notice-wrap" id="login-hero-notice-wrap" data-duration="<?= (int) $duration_ms ?>">
-                    <?php foreach ($login_notices as $i => $notice): ?>
-                    <div class="login-hero-notice login-hero-notice-slide<?= $i === 0 ? ' login-hero-notice-active' : '' ?>" data-index="<?= (int) $i ?>">
-                        <span class="login-hero-notice-title"><?= esc($notice['title'] ?? '') ?></span>
-                        <div class="login-hero-notice-body"><?= $notice['content'] ?? '' ?></div>
+            <div class="login-hero-notice-block" id="login-hero-notice-block" data-notices="<?= $notices_json ?>" data-duration="<?= (int) $duration_ms ?>">
+                <div class="login-hero-notice-wrap">
+                    <div class="login-hero-notice">
+                        <span class="login-hero-notice-title" id="login-hero-notice-title"><?= esc($first['title'] ?? '') ?></span>
+                        <div class="login-hero-notice-body" id="login-hero-notice-body"><?= $first['content'] ?? '' ?></div>
                     </div>
-                    <?php endforeach; ?>
                 </div>
                 <?php if (count($login_notices) > 1): ?>
                 <div class="login-hero-notice-bullets" id="login-hero-notice-bullets" aria-hidden="true">
@@ -129,28 +131,77 @@
 </footer>
 <script>
 (function() {
-    var wrap = document.getElementById('login-hero-notice-wrap');
-    if (!wrap) return;
-    var slides = wrap.querySelectorAll('.login-hero-notice-slide');
-    if (slides.length <= 1) return;
+    var block = document.getElementById('login-hero-notice-block');
+    if (!block) return;
+    var dataNotices = block.getAttribute('data-notices');
+    if (!dataNotices) return;
+    var notices;
+    try { notices = JSON.parse(dataNotices); } catch (e) { return; }
+    if (!notices.length) return;
+    var wrap = block.querySelector('.login-hero-notice-wrap');
+    var noticeEl = block.querySelector('.login-hero-notice');
+    var titleEl = document.getElementById('login-hero-notice-title');
+    var bodyEl = document.getElementById('login-hero-notice-body');
+    if (!titleEl || !bodyEl || !wrap || !noticeEl) return;
     var bullets = document.getElementById('login-hero-notice-bullets');
     var bulletEls = bullets ? bullets.querySelectorAll('.login-hero-notice-bullet') : [];
-    var duration = parseInt(wrap.getAttribute('data-duration') || '8000', 10);
+    var duration = parseInt(block.getAttribute('data-duration') || '8000', 10);
     var current = 0;
-    function goTo(index) {
-        slides[current].classList.remove('login-hero-notice-active');
-        if (bulletEls[current]) bulletEls[current].classList.remove('login-hero-notice-bullet-active');
-        current = index % slides.length;
-        slides[current].classList.add('login-hero-notice-active');
-        if (bulletEls[current]) bulletEls[current].classList.add('login-hero-notice-bullet-active');
+    var isTransitioning = false;
+
+    function applyContent(index) {
+        var n = notices[index];
+        titleEl.textContent = n.title || '';
+        bodyEl.innerHTML = n.content || '';
+        bulletEls.forEach(function(el, i) { el.classList.toggle('login-hero-notice-bullet-active', i === index); });
     }
-    function next() {
-        goTo(current + 1);
+
+    function setNotice(index) {
+        index = index % notices.length;
+        if (index === current && notices.length === 1) return;
+        if (notices.length === 1) {
+            current = index;
+            applyContent(current);
+            return;
+        }
+        if (isTransitioning) return;
+        isTransitioning = true;
+        var nextIndex = index;
+
+        wrap.style.height = wrap.offsetHeight + 'px';
+        noticeEl.classList.add('login-hero-notice-fade-out');
+
+        function onFadeEnd() {
+            noticeEl.removeEventListener('transitionend', onFadeEnd);
+            current = nextIndex;
+            applyContent(current);
+            var newHeight = wrap.scrollHeight;
+            wrap.style.height = newHeight + 'px';
+            noticeEl.classList.remove('login-hero-notice-fade-out');
+
+            function finishHeight() {
+                wrap.style.height = '';
+                isTransitioning = false;
+            }
+            var heightTimeout = setTimeout(finishHeight, 400);
+            wrap.addEventListener('transitionend', function te(e) {
+                if (e.propertyName !== 'height') return;
+                wrap.removeEventListener('transitionend', te);
+                clearTimeout(heightTimeout);
+                finishHeight();
+            });
+        }
+        noticeEl.addEventListener('transitionend', function te(e) {
+            if (e.propertyName !== 'opacity') return;
+            noticeEl.removeEventListener('transitionend', te);
+            onFadeEnd();
+        });
     }
-    setInterval(next, duration);
-    if (bullets && bulletEls.length) {
-        [].forEach.call(bulletEls, function(el, i) {
-            el.addEventListener('click', function() { goTo(i); });
+
+    if (notices.length > 1) {
+        setInterval(function() { setNotice(current + 1); }, duration);
+        bulletEls.forEach(function(el, i) {
+            el.addEventListener('click', function() { setNotice(i); });
         });
     }
 })();
