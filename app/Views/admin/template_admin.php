@@ -9,7 +9,7 @@ $content = $content ?? 'admin/dashboard';
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="<?= base_url('images/icone_final_rezo_plus_PC_inline128.png') ?>">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
-    <?php $assetVersion = '2026.02.11-1'; ?>
+    <?php $assetVersion = urlencode(config('App')->appVersion); ?>
     <link rel="stylesheet" href="<?= base_url('css/style.css?v='.$assetVersion) ?>"/>
     <title><?= esc($titre ?? 'Administration') ?></title>
     <style>

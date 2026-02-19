@@ -19,14 +19,25 @@ class App extends BaseConfig
      * Détection automatique de l'URL de base selon l'environnement
      */
     public string $baseURL = '';
-    
+
     /**
-     * Constructeur pour détecter automatiquement l'URL de base
+     * Version de l'application (pour cache-busting des assets CSS/JS).
+     * Lu depuis .env : VERSION_DU_SOFT (ex. "Version 5.2").
+     */
+    public string $appVersion = '1.0.0';
+
+    /**
+     * Constructeur pour détecter automatiquement l'URL de base et la version
      */
     public function __construct()
     {
         parent::__construct();
-        
+
+        $version = env('VERSION_DU_SOFT', '1.0.0');
+        if (is_string($version) && $version !== '') {
+            $this->appVersion = $version;
+        }
+
         // Détecter automatiquement l'URL de base
         if (empty($this->baseURL)) {
             $this->baseURL = $this->detectBaseURL();

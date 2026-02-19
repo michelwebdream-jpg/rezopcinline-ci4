@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" href="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.png">
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
 
-    <?php $assetVersion = '2026.02.11-1'; // version manuelle des assets CSS/JS ?>
+    <?php $assetVersion = urlencode(config('App')->appVersion); ?>
     <link rel="stylesheet" href="<?= base_url('css/style.css?v='.$assetVersion) ?>"/>
    
 	<title><?php echo $titre;?></title>

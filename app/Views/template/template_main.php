@@ -12,7 +12,7 @@
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     
-    <?php $assetVersion = '2026.02.11-1'; // version manuelle des assets CSS/JS ?>
+    <?php $assetVersion = urlencode(config('App')->appVersion); ?>
     <link rel="stylesheet" href="<?= base_url('css/style_main.css?v='.$assetVersion) ?>"/>
     <link rel="stylesheet" href="<?= base_url('css/style.css?v='.$assetVersion) ?>"/>
     <title><?php if(isset($titre)) echo $titre;?></title>

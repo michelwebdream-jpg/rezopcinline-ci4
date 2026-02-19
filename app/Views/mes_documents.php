@@ -6,9 +6,10 @@
 	<meta charset="utf-8">
     <link rel="icon" type="image/png" href="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.png">
     <link rel="apple-touch-icon" href="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.png">
+    <?php $assetVersion = urlencode(config('App')->appVersion); ?>
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="<?php echo base_url();?>css/style_main.css"/>
-    <link rel="stylesheet" href="<?php echo base_url();?>css/style.css"/>
+    <link rel="stylesheet" href="<?= base_url('css/style_main.css?v='.$assetVersion) ?>"/>
+    <link rel="stylesheet" href="<?= base_url('css/style.css?v='.$assetVersion) ?>"/>
     <link rel="stylesheet" href="<?php echo base_url();?>css/blueimp-gallery.min.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.13/css/jquery.dataTables.css">

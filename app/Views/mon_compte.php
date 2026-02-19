@@ -7,8 +7,9 @@ $icon = (int) ($utilisateur['icone_administrateur'] ?? 1);
 	<meta charset="utf-8">
     <link rel="icon" type="image/png" href="<?= base_url(); ?>images/icone_final_rezo_plus_PC_inline128.png">
     <link rel="apple-touch-icon" href="<?= base_url(); ?>images/icone_final_rezo_plus_PC_inline128.png">
+    <?php $assetVersion = urlencode(config('App')->appVersion); ?>
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="<?= base_url(); ?>css/style.css"/>
+    <link rel="stylesheet" href="<?= base_url('css/style.css?v='.$assetVersion) ?>"/>
 	<title><?= esc($titre ?? 'REZO+ PC INLINE | Mon compte') ?></title>
     <script type="text/javascript">
         var _gaq = _gaq || [];

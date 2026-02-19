@@ -4,8 +4,9 @@
 <html lang="fr">
 <head>
 	<meta charset="utf-8">
+    <?php $assetVersion = urlencode(config('App')->appVersion); ?>
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="<?php echo base_url();?>css/style.css"/>
+    <link rel="stylesheet" href="<?= base_url('css/style.css?v='.$assetVersion) ?>"/>
     
     <script src="<?php echo base_url();?>js/sweetalert.min.js"></script> 
     <link rel="stylesheet" type="text/css" href="<?php echo base_url();?>js/sweetalert.css">
