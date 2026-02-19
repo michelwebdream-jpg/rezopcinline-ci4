@@ -288,7 +288,7 @@ body.page-login .login-hero-notice-wrap .login-hero-notice-body p {
 
 /* Bullets sous le bloc d'information */
 body.page-login .login-hero-notice-block {
-    margin-top: 82px;
+    margin-top: 50px;
 }
 body.page-login .login-hero-notice-block .login-hero-notice-wrap {
     margin-top: 0;
