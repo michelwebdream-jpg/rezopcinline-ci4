@@ -58,9 +58,9 @@ fi
 
 # Si la variable d'environnement FILES est définie, on l'utilise telle quelle
 # (permet de déployer un seul fichier depuis l'admin CI4). Sinon, on calcule
-# la liste des fichiers modifiés depuis BASE_COMMIT.
+# la liste : commits depuis BASE_COMMIT + modifs staged/unstaged + fichiers nouveaux (untracked).
 if [[ -z "$FILES" ]]; then
-  FILES=$(git diff --name-only "$BASE_COMMIT")
+  FILES=$( (git diff --name-only "$BASE_COMMIT"; git diff --name-only; git diff --name-only --cached; git ls-files --others --exclude-standard) | sort -u )
 fi
 
 FILE_COUNT=$(echo "$FILES" | grep -c . 2>/dev/null || echo 0)

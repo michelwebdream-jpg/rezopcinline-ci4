@@ -67,9 +67,22 @@ class Deploy extends BaseAdmin
             return $result;
         }
 
-        $cmdFiles = 'cd ' . escapeshellarg($root) . ' && git diff --name-only ' . escapeshellarg($result['base_commit']) . ' 2>/dev/null';
-        $files = @shell_exec($cmdFiles);
-        $result['files'] = $files ? array_values(array_filter(array_map('trim', explode("\n", $files)))) : [];
+        // Fichiers modifiés (commits depuis la branche) + modifs non commitées (staged + unstaged) + nouveaux (untracked)
+        $cmdCommitted = 'cd ' . escapeshellarg($root) . ' && git diff --name-only ' . escapeshellarg($result['base_commit']) . ' 2>/dev/null';
+        $cmdUnstaged  = 'cd ' . escapeshellarg($root) . ' && git diff --name-only 2>/dev/null';
+        $cmdStaged    = 'cd ' . escapeshellarg($root) . ' && git diff --name-only --cached 2>/dev/null';
+        $cmdUntracked = 'cd ' . escapeshellarg($root) . ' && git ls-files --others --exclude-standard 2>/dev/null';
+        $out1 = @shell_exec($cmdCommitted);
+        $out2 = @shell_exec($cmdUnstaged);
+        $out3 = @shell_exec($cmdStaged);
+        $out4 = @shell_exec($cmdUntracked);
+        $all = array_merge(
+            $out1 ? array_filter(array_map('trim', explode("\n", $out1))) : [],
+            $out2 ? array_filter(array_map('trim', explode("\n", $out2))) : [],
+            $out3 ? array_filter(array_map('trim', explode("\n", $out3))) : [],
+            $out4 ? array_filter(array_map('trim', explode("\n", $out4))) : []
+        );
+        $result['files'] = array_values(array_unique($all));
 
         return $result;
     }
