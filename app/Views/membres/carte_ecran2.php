@@ -16,17 +16,18 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; overflow: hidden; }
         #map_ecran2 { width: 100%; height: 100%; }
-        #last_update {
-            position: fixed; bottom: 10px; right: 10px;
-            background: rgba(0,0,0,0.65); color: #fff;
-            padding: 6px 10px; font-size: 12px; border-radius: 4px;
+        #ecran2_top_left {
+            position: fixed; top: 10px; left: 10px;
+            display: flex; flex-direction: row; align-items: center; gap: 10px;
             z-index: 999; font-family: sans-serif;
         }
+        #last_update {
+            background: rgba(0,0,0,0.65); color: #fff;
+            padding: 6px 10px; font-size: 12px; border-radius: 4px;
+        }
         #ecran2_sync_unlock {
-            position: fixed; top: 10px; left: 10px;
             background: rgba(255,255,255,0.95);
             padding: 8px 12px; font-size: 13px; border-radius: 4px;
-            z-index: 999; font-family: sans-serif;
             box-shadow: 0 1px 4px rgba(0,0,0,0.2);
         }
         #ecran2_sync_unlock label { cursor: pointer; user-select: none; }
@@ -55,8 +56,10 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
     <?php else: ?>
     <div id="map_ecran2"></div>
     <?php endif; ?>
-    <div id="ecran2_sync_unlock"><label><input type="checkbox" id="ecran2_cb_unlock" /> Déverrouiller la carte (manipulation indépendante)</label></div>
-    <div id="last_update"></div>
+    <div id="ecran2_top_left">
+        <div id="last_update"></div>
+        <div id="ecran2_sync_unlock"><label><input type="checkbox" id="ecran2_cb_unlock" /> Déverrouiller la carte de l'écran 1</label></div>
+    </div>
     <script>
     (function() {
         var REFRESH_MS = <?= (int) $refreshIntervalSeconds * 1000 ?>;
