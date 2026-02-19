@@ -191,10 +191,44 @@ var trace_polyline_user=false;
 
 var kml_array = new Array();
 
+function saveKmlToStorage() {
+    try {
+        var list = [];
+        for (var i = 0; i < kml_array.length; i++) {
+            if (kml_array[i]) {
+                var url = (typeof kml_array[i].getUrl === 'function') ? kml_array[i].getUrl() : (kml_array[i].url || (kml_array[i].url_origine || ''));
+                if (url) list.push({ url: url, visible: kml_array[i].getMap() != null });
+            }
+        }
+        localStorage.setItem('rezo_kml_layers', JSON.stringify(list));
+    } catch (e) {}
+}
+
 var varblink;
 
 var ligne_feux_user_array=new Array();
 
+function saveLigneFeuxToStorage() {
+    try {
+        var list = [];
+        for (var i = 0; i < ligne_feux_user_array.length; i++) {
+            var poly = ligne_feux_user_array[i];
+            if (!poly || !poly.getPath) continue;
+            var path = poly.getPath();
+            if (path.getLength() < 2) continue;
+            var p0 = path.getAt(0), p1 = path.getAt(1);
+            var angle = (typeof google !== 'undefined' && google.maps && google.maps.geometry && google.maps.geometry.spherical)
+                ? google.maps.geometry.spherical.computeHeading(p0, p1) : 0;
+            list.push({
+                code: poly.poly_id || '',
+                lat: p0.lat(),
+                lng: p0.lng(),
+                angle: angle
+            });
+        }
+        localStorage.setItem('rezo_ligne_feux', JSON.stringify(list));
+    } catch (e) {}
+}
 
 $(window).load(function() {
     
@@ -1509,7 +1543,7 @@ function create_ligne_feux_user(code,latlng,angle){
 
     path.push(latlng_final);
     ligne_feux_user_array.push(ligne_feux);
-    //console.log(ligne_feux_user_array)
+    saveLigneFeuxToStorage();
 }
 function update_ligne_feux_user(ligne_feux,latlng){
     //alert (poly);
@@ -1523,7 +1557,7 @@ function update_ligne_feux_user(ligne_feux,latlng){
         }
         
         ligne_feux.setMap(map);
-        
+        saveLigneFeuxToStorage();
     }
 }
 function efface_ligne_feux_un_user(poly){
@@ -1531,7 +1565,7 @@ function efface_ligne_feux_un_user(poly){
         poly.setMap(null);
         const index = ligne_feux_user_array.indexOf(poly);
         const x = ligne_feux_user_array.splice(index, 1);
-        //console.log(ligne_feux_user_array)
+        saveLigneFeuxToStorage();
     }
 }
 /******************* fin ligne feux */
@@ -2451,6 +2485,7 @@ function remove_user_marker(){
 	markerArray=new Array();
     polyline_user_array=new Array();
     ligne_feux_user_array=new Array();
+    saveLigneFeuxToStorage();
 }
 function stop_activite(){
 	if (activite_is_running){
@@ -3749,7 +3784,7 @@ function ajout_kml(array_kml,index){
                     } else {
                         //swal('Succès','Importation du fichier KML / KMZ réussie !','success');
                         kml_array.push(kmlLayer);
-                        
+                        saveKmlToStorage();
                         index=index+1;
                         if (index<array_kml.length){
                             ajout_kml(array_kml,index);
@@ -3765,4 +3800,5 @@ function remove_trace_kml(){
                     kml_array[i]=null;
                 }
                 kml_array=new Array();
+                saveKmlToStorage();
 }

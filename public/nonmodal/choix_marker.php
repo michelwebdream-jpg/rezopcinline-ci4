@@ -107,6 +107,7 @@ $(document).ready( function () {
                     kml_array[i]=null;
                 }
                 kml_array=new Array();
+                if (typeof saveKmlToStorage === 'function') saveKmlToStorage();
                 affiche_bouton_couche_kml();
         });       
     });
@@ -142,6 +143,7 @@ $(document).ready( function () {
                     } else {
                         swal('Succès','Importation du fichier KML / KMZ réussie !','success');
                         kml_array.push(kmlLayer);
+                        if (typeof saveKmlToStorage === 'function') saveKmlToStorage();
                         affiche_bouton_couche_kml();
 
                     }
@@ -178,16 +180,15 @@ $(document).ready( function () {
                 
                 
                 if (kml_array[my_id].getMap() == null) {
-                    //alert('0');
                     kml_array[my_id].setMap(map);
                     $(this).removeClass('b_inactive').addClass('b_active');
                     $(this).html('Couche KML ' + (my_id+1) + ' active<br/><span style="font-size:10px">' + kml_array[my_id].url_origine + '</span>');
                   } else {
-                      //alert('1');
                     kml_array[my_id].setMap(null);
                     $(this).removeClass('b_active').addClass('b_inactive');
-                      $(this).html('Couche KML ' + (my_id+1) + ' inactive<br/><span style="font-size:10px">' + kml_array[my_id].url_origine + '</span>');
+                    $(this).html('Couche KML ' + (my_id+1) + ' inactive<br/><span style="font-size:10px">' + kml_array[my_id].url_origine + '</span>');
                   }
+                if (typeof saveKmlToStorage === 'function') saveKmlToStorage();
             });
             
             

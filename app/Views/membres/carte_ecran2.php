@@ -63,9 +63,13 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
         var STORAGE_KEY_GEOLOC_ACTIF = 'rezo_geoloc_actif';
         var STORAGE_KEY_ECRAN2_LOGOUT = 'rezo_ecran2_logout';
         var STORAGE_KEY_DFCI = 'rezo_dfci_on';
+        var STORAGE_KEY_KML = 'rezo_kml_layers';
+        var STORAGE_KEY_LIGNE_FEUX = 'rezo_ligne_feux';
         var LOGIN_URL = <?= json_encode($loginUrl ?? '') ?>;
         var defaultCenter = { lat: 46.6, lng: 2.4 };
         var dfciOverlayOn = false;
+        var kmlLayersEcran2 = [];
+        var ligneFeuxEcran2 = [];
 
         function isGeolocActif() {
             try { return localStorage.getItem(STORAGE_KEY_GEOLOC_ACTIF) === '1'; } catch (e) { return false; }
@@ -340,12 +344,71 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             } catch (e) {}
         }
 
+        function updateKmlFromStorage() {
+            if (!map || !window.google || !google.maps || !google.maps.KmlLayer) return;
+            var targetMap = window.map_ecran2 || map;
+            var i;
+            for (i = 0; i < kmlLayersEcran2.length; i++) {
+                try {
+                    if (kmlLayersEcran2[i] && kmlLayersEcran2[i].setMap) kmlLayersEcran2[i].setMap(null);
+                } catch (e) {}
+            }
+            kmlLayersEcran2 = [];
+            try {
+                var raw = localStorage.getItem(STORAGE_KEY_KML);
+                if (!raw) return;
+                var list = JSON.parse(raw);
+                if (!Array.isArray(list)) return;
+                list.forEach(function (item) {
+                    if (!item || !item.url || !item.visible) return;
+                    try {
+                        var layer = new google.maps.KmlLayer({ url: item.url, map: targetMap });
+                        kmlLayersEcran2.push(layer);
+                    } catch (e) {}
+                });
+            } catch (e) {}
+        }
+
+        function updateLigneFeuxFromStorage() {
+            if (!map || !window.google || !google.maps || !google.maps.geometry || !google.maps.geometry.spherical) return;
+            var targetMap = window.map_ecran2 || map;
+            var i;
+            for (i = 0; i < ligneFeuxEcran2.length; i++) {
+                try {
+                    if (ligneFeuxEcran2[i] && ligneFeuxEcran2[i].setMap) ligneFeuxEcran2[i].setMap(null);
+                } catch (e) {}
+            }
+            ligneFeuxEcran2 = [];
+            try {
+                var raw = localStorage.getItem(STORAGE_KEY_LIGNE_FEUX);
+                if (!raw) return;
+                var list = JSON.parse(raw);
+                if (!Array.isArray(list)) return;
+                list.forEach(function (item) {
+                    if (!item || item.lat == null || item.lng == null) return;
+                    var latlng = new google.maps.LatLng(parseFloat(item.lat), parseFloat(item.lng));
+                    var angle = typeof item.angle === 'number' ? item.angle : parseFloat(item.angle) || 0;
+                    var latlng_final = google.maps.geometry.spherical.computeOffset(latlng, 1000 * 1000, angle);
+                    var line = new google.maps.Polyline({
+                        strokeColor: '#000',
+                        strokeOpacity: 0.8,
+                        strokeWeight: 4,
+                        path: [latlng, latlng_final],
+                        map: targetMap
+                    });
+                    ligneFeuxEcran2.push(line);
+                });
+            } catch (e) {}
+        }
+
         function onStorageUpdate(e) {
             if (e && e.key === STORAGE_KEY_FIXES) updateMarqueursFixes();
             if (e && e.key === STORAGE_KEY_MA_POSITION) updateMaPositionFromStorage();
             if (e && e.key === STORAGE_KEY_MAP_TYPE) applyMapTypeFromStorage();
             if (e && e.key === STORAGE_KEY_GEOLOC_ACTIF && e.newValue !== '1') updateMarkers([], null);
             if (e && e.key === STORAGE_KEY_DFCI) applyDfciFromStorage();
+            if (e && e.key === STORAGE_KEY_KML) updateKmlFromStorage();
+            if (e && e.key === STORAGE_KEY_LIGNE_FEUX) updateLigneFeuxFromStorage();
             if (e && e.key === STORAGE_KEY_ECRAN2_LOGOUT) {
                 try { window.close(); } catch (e2) {}
                 if (!window.closed) window.location.href = (LOGIN_URL || (location.origin + '/signup/login'));
@@ -395,6 +458,8 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
 
             applyMapTypeFromStorage();
             applyDfciFromStorage();
+            updateKmlFromStorage();
+            updateLigneFeuxFromStorage();
             updateMarqueursFixes();
             updateMaPositionFromStorage();
             setLastUpdate();
