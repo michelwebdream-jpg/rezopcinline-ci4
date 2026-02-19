@@ -39,7 +39,7 @@ class LoginNotices extends Migration
         ]);
         $this->forge->addKey('id', true);
         $this->forge->addKey('sort_order');
-        $this->forge->createTable('login_notices');
+        $this->forge->createTable('REZO_login_notices');
 
         $this->forge->addField([
             'id' => [
@@ -55,14 +55,14 @@ class LoginNotices extends Migration
             ],
         ]);
         $this->forge->addKey('id', true);
-        $this->forge->createTable('login_notice_config');
+        $this->forge->createTable('REZO_login_notice_config');
 
-        $this->db->table('login_notice_config')->insert(['id' => 1, 'display_duration_seconds' => 8]);
+        $this->db->table('REZO_login_notice_config')->insert(['id' => 1, 'display_duration_seconds' => 8]);
     }
 
     public function down(): void
     {
-        $this->forge->dropTable('login_notices', true);
-        $this->forge->dropTable('login_notice_config', true);
+        $this->forge->dropTable('REZO_login_notices', true);
+        $this->forge->dropTable('REZO_login_notice_config', true);
     }
 }

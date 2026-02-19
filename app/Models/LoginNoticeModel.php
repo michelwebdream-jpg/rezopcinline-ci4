@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class LoginNoticeModel extends Model
 {
-    protected $table            = 'login_notices';
+    protected $table            = 'REZO_login_notices';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement  = true;
     protected $returnType       = 'array';
@@ -34,7 +34,7 @@ class LoginNoticeModel extends Model
      */
     public function getDisplayDurationSeconds(): int
     {
-        $row = $this->db->table('login_notice_config')->getWhere(['id' => 1])->getRowArray();
+        $row = $this->db->table('REZO_login_notice_config')->getWhere(['id' => 1])->getRowArray();
         if (!$row || !isset($row['display_duration_seconds'])) {
             return 8;
         }
@@ -48,6 +48,6 @@ class LoginNoticeModel extends Model
     public function setDisplayDurationSeconds(int $seconds): bool
     {
         $seconds = max(1, min(300, $seconds));
-        return $this->db->table('login_notice_config')->where('id', 1)->update(['display_duration_seconds' => $seconds]);
+        return $this->db->table('REZO_login_notice_config')->where('id', 1)->update(['display_duration_seconds' => $seconds]);
     }
 }

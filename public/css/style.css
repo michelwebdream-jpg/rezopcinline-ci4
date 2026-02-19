@@ -181,6 +181,7 @@ body.page-modification-password .login-hero-content,
 body.page-signup .login-hero-content,
 body.page-mon-compte .login-hero-content {
     max-width: 430px;
+    width: 430px;
 }
 
 body.page-login .login-hero-title,
@@ -258,24 +259,12 @@ body.page-login .login-hero-notice {
 /* Conteneur des annonces rotatives : hauteur et position fixes, tous les slides au même endroit */
 body.page-login .login-hero-notice-wrap {
     position: relative;
-    height: 240px;
+    /*height: 240px;*/
     margin-top: 82px;
 }
 body.page-login .login-hero-notice-wrap .login-hero-notice-slide,
 body.page-login .login-hero-notice-wrap .login-hero-notice-slide.login-hero-notice-active {
-    position: absolute !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: 0 !important;
-    bottom: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    margin: 0 !important;
-    box-sizing: border-box;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
-    pointer-events: none;
+    position: relative;
 }
 body.page-login .login-hero-notice-wrap .login-hero-notice-slide.login-hero-notice-active {
     opacity: 1;
@@ -283,9 +272,9 @@ body.page-login .login-hero-notice-wrap .login-hero-notice-slide.login-hero-noti
     pointer-events: auto;
 }
 body.page-login .login-hero-notice-wrap .login-hero-notice-body {
-    margin-top: 0.5rem;
-    max-height: 160px;
-    overflow-y: auto;
+    /*margin-top: 0.5rem;*/
+    /*max-height: 175px;*/
+    /*overflow-y: auto;*/
 }
 body.page-login .login-hero-notice-wrap .login-hero-notice-body p {
     margin: 0.4em 0;
