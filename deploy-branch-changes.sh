@@ -56,7 +56,13 @@ if [[ -z "$BASE_COMMIT" ]]; then
   exit 1
 fi
 
-FILES=$(git diff --name-only "$BASE_COMMIT")
+# Si la variable d'environnement FILES est définie, on l'utilise telle quelle
+# (permet de déployer un seul fichier depuis l'admin CI4). Sinon, on calcule
+# la liste des fichiers modifiés depuis BASE_COMMIT.
+if [[ -z "$FILES" ]]; then
+  FILES=$(git diff --name-only "$BASE_COMMIT")
+fi
+
 FILE_COUNT=$(echo "$FILES" | grep -c . 2>/dev/null || echo 0)
 
 echo "Branche      : $BRANCH"

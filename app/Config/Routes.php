@@ -30,6 +30,9 @@ $routes->get('admin/login-notices/edit/(:num)', 'Admin\LoginNotices::edit/$1');
 $routes->post('admin/login-notices/save', 'Admin\LoginNotices::save');
 $routes->post('admin/login-notices/save-config', 'Admin\LoginNotices::saveConfig');
 $routes->get('admin/login-notices/delete/(:num)', 'Admin\LoginNotices::delete/$1');
+$routes->get('admin/deploy', 'Admin\Deploy::index');
+$routes->post('admin/deploy/run', 'Admin\Deploy::run');
+$routes->post('admin/deploy/file', 'Admin\Deploy::runFile');
 
 // Routes Membres
 $routes->get('membres', 'Membres::index');
