@@ -266,8 +266,15 @@ window.onbeforeunload = function (e) {
 };
 
 $(document).ready( function() {
-    try { localStorage.setItem('rezo_ma_position', JSON.stringify({ visible: false })); } catch (e) {}
-    
+    // Réinitialiser la synchro écran 2 à chaque chargement de la page (évite marqueurs fantômes, marqueurs fixes, « ma position » et tracés KML d'une ancienne session)
+    try {
+        localStorage.setItem('rezo_ma_position', JSON.stringify({ visible: false }));
+        localStorage.setItem('rezo_geoloc_positions', '[]');
+        localStorage.setItem('rezo_geoloc_actif', '0');
+        localStorage.setItem('rezo_marqueurs_fixes', '[]');
+        localStorage.setItem('rezo_kml_layers', '[]');
+    } catch (e) {}
+
     $.ajaxSetup ({
     // Disable caching of AJAX responses
     cache: false
