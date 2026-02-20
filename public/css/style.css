@@ -1588,6 +1588,10 @@ body.page-membre #div_pour_page_historique div#table_historique_wrapper.dataTabl
     background-color: transparent !important;
     color: #e5e7eb;
 }
+body.page-membre .dataTables_wrapper .dataTables_filter,
+body.page-membre .dataTables_wrapper .dataTables_length {
+    color: #ffffff;
+}
 body.page-membre #div_pour_page_historique div#table_historique_wrapper .dataTables_length label,
 body.page-membre #div_pour_page_historique div#table_historique_wrapper .dataTables_filter label {
     color: #ffffff !important;
@@ -2111,9 +2115,13 @@ body.page-membre.mode-clair #div_pour_page_historique table#table_historique tbo
 body.page-membre.mode-clair #div_pour_page_historique table#table_historique tbody tr:hover td {
     background-color: #e8e8e8 !important;
 }
+body.page-membre.mode-clair .dataTables_wrapper .dataTables_filter,
+body.page-membre.mode-clair .dataTables_wrapper .dataTables_length {
+    color: #3c3c3c;
+}
 body.page-membre.mode-clair #div_pour_page_historique div#table_historique_wrapper .dataTables_length label,
 body.page-membre.mode-clair #div_pour_page_historique div#table_historique_wrapper .dataTables_filter label {
-    color: #374151 !important;
+    color: #3c3c3c !important;
 }
 body.page-membre.mode-clair #div_pour_page_historique div#table_historique_wrapper .dataTables_filter input,
 body.page-membre.mode-clair #div_pour_page_historique div#table_historique_wrapper .dataTables_length select {
