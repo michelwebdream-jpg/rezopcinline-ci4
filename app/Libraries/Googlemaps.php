@@ -1648,6 +1648,7 @@ class Googlemaps {
 		}
 		$this->output_js_contents .= '}
 				'.$this->map_name.' = new google.maps.Map(document.getElementById("'.$this->map_div_id.'"), myOptions);
+				'.($this->map_name === 'map' ? 'if (typeof window !== "undefined") window.map_carte_principale = '.$this->map_name.';' : '').'
                 
                 '.$this->map_name.'.mapTypes.set("IGNLayer_photos",tiledLayer_photos);
                 '.$this->map_name.'.mapTypes.set("IGNLayer_cartes",tiledLayer_cartes);

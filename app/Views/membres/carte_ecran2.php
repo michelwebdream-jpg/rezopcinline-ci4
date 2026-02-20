@@ -78,6 +78,7 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
         var STORAGE_KEY_KML = 'rezo_kml_layers';
         var STORAGE_KEY_LIGNE_FEUX = 'rezo_ligne_feux';
         var STORAGE_KEY_MAP_VIEW = 'rezo_map_view';
+        var STORAGE_KEY_GEOLOC_POSITIONS = 'rezo_geoloc_positions';
         var LOGIN_URL = <?= json_encode($loginUrl ?? '') ?>;
         var defaultCenter = { lat: 46.6, lng: 2.4 };
         var dfciOverlayOn = false;
@@ -127,6 +128,15 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
                 var obj = JSON.parse(raw);
                 return (obj && typeof obj === 'object') ? obj : {};
             } catch (e) { return {}; }
+        }
+
+        function getGeolocPositionsFromStorage() {
+            try {
+                var raw = localStorage.getItem(STORAGE_KEY_GEOLOC_POSITIONS);
+                if (!raw) return [];
+                var arr = JSON.parse(raw);
+                return Array.isArray(arr) ? arr : [];
+            } catch (e) { return []; }
         }
 
         function updateMaPositionFromStorage() {
@@ -323,7 +333,12 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
                     var coords = filterCoords(data.active_geoloc_users || []);
                     var maPos = data.ma_position || null;
                     // Ne pas effacer les marqueurs géoloc si le fetch renvoie vide (garder l’état précédent)
-                    if (!isGeolocActif()) coords = [];
+                    if (!isGeolocActif()) {
+                        coords = [];
+                    } else {
+                        var fromStorage = getGeolocPositionsFromStorage();
+                        if (fromStorage && fromStorage.length > 0) coords = fromStorage;
+                    }
                     updateMarkers(coords, maPos);
                     updateMarqueursFixes();
                     updateMaPositionFromStorage();
@@ -433,6 +448,7 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             if (e && e.key === STORAGE_KEY_MA_POSITION) updateMaPositionFromStorage();
             if (e && e.key === STORAGE_KEY_MAP_TYPE) applyMapTypeFromStorage();
             if (e && e.key === STORAGE_KEY_GEOLOC_ACTIF && e.newValue !== '1') updateMarkers([], null);
+            if (e && e.key === STORAGE_KEY_GEOLOC_POSITIONS && isGeolocActif()) updateMarkers(getGeolocPositionsFromStorage(), null);
             if (e && e.key === STORAGE_KEY_DFCI) applyDfciFromStorage();
             if (e && e.key === STORAGE_KEY_KML) updateKmlFromStorage();
             if (e && e.key === STORAGE_KEY_LIGNE_FEUX) updateLigneFeuxFromStorage();
@@ -493,7 +509,11 @@ $refreshIntervalSeconds = (int) ($refreshIntervalSeconds ?? 10);
             updateMaPositionFromStorage();
             setLastUpdate();
             setTimeout(function() {
-                var coordsInit = isGeolocActif() ? (initialCoords || []) : [];
+                var coordsInit = [];
+                if (isGeolocActif()) {
+                    var fromStorage = getGeolocPositionsFromStorage();
+                    coordsInit = (fromStorage && fromStorage.length > 0) ? fromStorage : (initialCoords || []);
+                }
                 updateMarkers(coordsInit, initialMaPosition || null);
                 fetchAndUpdate();
             }, 0);

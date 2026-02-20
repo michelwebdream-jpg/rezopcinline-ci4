@@ -178,6 +178,7 @@ var user_pastille_a_afficher=new Array();
 var memo_poi_opener_infowindows=null;
 var timer_refresh_utilisateur_activite= null;
 var recherche_membre_activite_en_cours = false; // Protection contre les appels multiples
+window.REZO_DEBUG_MARKER = false; // Mettre à true en console pour tracer pourquoi le marqueur ne bouge pas
 var page_historique_type_encours="";
 
 var timer_fermer_page_erreur_reseau;
@@ -1489,7 +1490,8 @@ function create_contenu_infowindow(code,indicatif,latlng,etat,iconId,nom,prenom,
 }
 
 function create_marker(code,indicatif,latlng,etat,iconId,nom,prenom,tel,precision) {
-    
+    // Toujours utiliser la carte principale (écran 1) pour les marqueurs d'activité, pas la variable globale map qui peut être écrasée par l'écran 2
+    var targetMap = (typeof window.map_carte_principale !== 'undefined' && window.map_carte_principale) ? window.map_carte_principale : map;
     var couleur_fond_label=gere_couleur_etat(etat);
     
     var mapLabel = new MapLabel({
@@ -1498,7 +1500,7 @@ function create_marker(code,indicatif,latlng,etat,iconId,nom,prenom,tel,precisio
             back_color:couleur_fond_label,
             text: indicatif,
             position: latlng,
-            map: map,
+            map: targetMap,
             fontSize: 12,
             align: 'center'
             });
@@ -1506,7 +1508,7 @@ function create_marker(code,indicatif,latlng,etat,iconId,nom,prenom,tel,precisio
     var marker = new google.maps.Marker({
             position: latlng,
             icon: base_url+"images/marker_user_"+iconId+".png",
-            map: map,
+            map: targetMap,
             marker_id: code,
             mapLabel:mapLabel,
             info_w:null
@@ -1707,14 +1709,15 @@ function efface_polyline_un_user(poly){
 }
 
 function update_marker(marker_pass,code,indicatif,latlng,etat,iconId,nom,prenom,tel,precision) {
- 
+    // Aligné sur l'ancienne app CI3 qui fonctionnait : uniquement setPosition + setIcon + infowindow (pas d'unbind/bindTo, pas de mapLabel.set position, pas de setMap)
     var couleur_fond_label=gere_couleur_etat(etat);
     marker_pass.mapLabel.set('pastille_array',user_pastille_a_afficher);
     marker_pass.mapLabel.set('back_color',couleur_fond_label);
     marker_pass.mapLabel.set('text',indicatif);
     marker_pass.mapLabel.set('pastille_array',user_pastille_a_afficher);
-    //marker_pass.mapLabel.set('position',latlng);
-    
+    marker_pass.mapLabel.set('position', latlng);  // nécessaire pour que l'étiquette bouge (CI3 l'avait commenté mais alors le label restait fixe)
+    if (typeof marker_pass.mapLabel.draw === 'function') marker_pass.mapLabel.draw();  // au cas où set() ne déclenche pas changed()
+
     marker_pass.setPosition(latlng);
     marker_pass.setIcon(base_url+"images/marker_user_"+iconId+".png");
     
@@ -1730,7 +1733,10 @@ function update_marker(marker_pass,code,indicatif,latlng,etat,iconId,nom,prenom,
     
     marker_pass.info_w.setContent(Contenu_info);
     
-    
+    if (window.REZO_DEBUG_MARKER) {
+        var pos_after = (marker_pass && typeof marker_pass.getPosition === 'function') ? marker_pass.getPosition() : null;
+        console.log('[REZO_DEBUG_MARKER] update_marker', { indicatif: indicatif, latlng_in: latlng ? { lat: latlng.lat && latlng.lat(), lng: latlng.lng && latlng.lng() } : latlng, pos_after: pos_after ? (pos_after.lat && pos_after.lat() ? { lat: pos_after.lat(), lng: pos_after.lng() } : pos_after) : null });
+    }
 }
 function ouvre_loader_general(texte){
     $('#text_div_pour_loader').html('<p>'+texte+'</p>');
@@ -2372,7 +2378,6 @@ function efface_historique_mission(Id_pass){
 
 }
 function lance_activite(data_pass){
-	console.log('lance_activite appelée avec:', data_pass);
 	
 	if (!data_pass) {
 		console.error('Erreur: data_pass est null ou undefined');
@@ -2387,11 +2392,9 @@ function lance_activite(data_pass){
 	$('#bouton_fermer_page_historique').click();
 	page_historique_type_encours="";
 	//Global.first_stage.carte.menu_marker.visible=false;
-	console.log('Appel de start_activite avec:', data_pass.c6, data_pass.activite, temp_liste_code, data_pass.liens_kml, data_pass.marqueurs_fixes);
 	start_activite(data_pass.c6,data_pass.activite,temp_liste_code,data_pass.liens_kml,data_pass.marqueurs_fixes);
 }
 function lance_mission(data_pass){
-	console.log('lance_mission appelée avec:', data_pass);
 	
 	if (!data_pass) {
 		console.error('Erreur: data_pass est null ou undefined');
@@ -2403,7 +2406,6 @@ function lance_mission(data_pass){
 	//var info_cache=membres[i]+"<-+->"+titre[i]+"<-+->"+adresse_mission[i]+"<-+->"+lien_googlemap_mission[i]+"<-+->"+message_mission[i]+"<-+->"+etat_mission[i]+"<-+->"+date_lancement[i]+"<-+->"+date_cloture[i]+"<-+->"+membres_lu_mission;
 				
 	var temp0=data_pass.c7;
-	console.log('lance_mission - temp0 (c7):', temp0);
 	
 	if (!temp0) {
 		console.error('Erreur: data_pass.c7 est null ou undefined');
@@ -2411,7 +2413,6 @@ function lance_mission(data_pass){
 	}
 	
 	var temp1=temp0.split("<-+->");
-	console.log('lance_mission - temp1 après split(<-+->):', temp1);
 	
 	if (!temp1 || temp1.length === 0 || !temp1[0]) {
 		console.error('Erreur: temp1[0] est null ou undefined');
@@ -2419,39 +2420,32 @@ function lance_mission(data_pass){
 	}
 	
 	var temp2=temp1[0].split(",");
-	console.log('lance_mission - temp2 après split(,):', temp2);
 	
 	//var temp1:String=data_table_list_des_missions.getItemAt(Index).c7;
 	//var temp2:Array=temp1.split(",");
 	var temp_liste_code=temp2.join("{}");
-	console.log('lance_mission - temp_liste_code final:', temp_liste_code);
 	
 	//this.out(); //modif v1.2
 	//this.visible=false; //modif v1.2
 	$('#bouton_fermer_page_historique').click();
 	page_historique_type_encours="";
 	
-	console.log('Appel de start_mission avec:', data_pass.c6, data_pass.mission, temp_liste_code);
 	start_mission(data_pass.c6,data_pass.mission,temp_liste_code);
 }    
 function start_activite(Id_activite,nom_de_activite,code_a_traiter,liens_kml,marqueurs_fixes){
-	console.log('start_activite appelée avec:', Id_activite, nom_de_activite, code_a_traiter, liens_kml, marqueurs_fixes);
 	
 		stop_activite();
 		stop_mission();
 		Id_activite_en_cours=Id_activite;
-		console.log('Appel de test_licence_administrateur pour activite');
 		test_licence_administrateur("activite",nom_de_activite,code_a_traiter,liens_kml,marqueurs_fixes);
 	
 }
 function start_mission(Id_mission,nom_de_mission,code_a_traiter){
-	console.log('start_mission appelée avec:', Id_mission, nom_de_mission, code_a_traiter);
 	//if (!activite_is_running && !mission_is_running){
 		stop_activite();
 		stop_mission();
 		
 		Id_mission_en_cours=Id_mission;
-		console.log('Appel de test_licence_administrateur pour mission');
 		test_licence_administrateur("mission",nom_de_mission,code_a_traiter,'','');
 	//}
 }
@@ -2511,6 +2505,7 @@ function remove_user_marker(){
     polyline_user_array=new Array();
     ligne_feux_user_array=new Array();
     saveLigneFeuxToStorage();
+    try { localStorage.setItem('rezo_geoloc_positions', '[]'); } catch (e) {}
 }
 function stop_activite(){
 	if (activite_is_running){
@@ -2563,9 +2558,6 @@ function start_mission2(nom_de_mission,code_a_traiter){
 		memo_statut=new Array();
         polyline_user_array=new Array();
     
-		console.log('start_mission2 - Appel de recherche_membre_activite avec code_a_traiter:', code_a_traiter);
-		console.log('start_mission2 - Type de code_a_traiter:', typeof code_a_traiter);
-		console.log('start_mission2 - Longueur de code_a_traiter:', code_a_traiter ? code_a_traiter.length : 'null/undefined');
 		recherche_membre_activite(code_a_traiter);
 }
 function stop_mission(){
@@ -2687,22 +2679,16 @@ function ajoute_dans_historique_mission(Id_mission,texte_a_ajouter){
           ;
 }
 function test_licence_administrateur(activite_mission,nom_de_activite_mission,code_a_traiter,liens_kml,marqueurs_fixes){
-    console.log('test_licence_administrateur appelée avec:', activite_mission, nom_de_activite_mission, code_a_traiter);
-    console.log('Global.code_administrateur:', Global.code_administrateur);
-    console.log('URL:', Global.APP_SERVER_URL+Global.TEST_LICENCE_ADMINISTRATEUR_URI);
     
     var $data={
             mon_code:Global.code_administrateur
         }
     
-    console.log('Données envoyées:', $data);
     var jqxhr = $.post(Global.APP_SERVER_URL+Global.TEST_LICENCE_ADMINISTRATEUR_URI,$data)
 
     .done(function(data, textStatus, jqXHR ) {
-        console.log('Réponse de test_licence_administrateur:', data);
 
         var buf=data.replace('return_txt=','');
-        console.log('buf après nettoyage:', buf);
 
         if (buf.indexOf("ok")==0)
 			{
@@ -2711,15 +2697,12 @@ function test_licence_administrateur(activite_mission,nom_de_activite_mission,co
 			
 				Global.code_administrateur=buf.slice(0,8);
 				Global.date_fin_validite_licence=buf.slice(8,buf.length);
-				console.log('Licence OK, lancement de', activite_mission);
 
 				
 				
 				if (activite_mission==="activite"){
-					console.log('Appel de start_activite2');
 					start_activite2(nom_de_activite_mission,code_a_traiter,liens_kml,marqueurs_fixes);
 				}else if (activite_mission==="mission"){
-					console.log('Appel de start_mission2');
 					start_mission2(nom_de_activite_mission,code_a_traiter);
 				}
 				
@@ -2757,13 +2740,11 @@ function Newusergroup(Title_pass , subtitle_pass , badgebitmap_pass){
 function recherche_membre_activite(liste_des_codes){
     // PROTECTION: Vérifier si une requête est déjà en cours
     if (recherche_membre_activite_en_cours) {
-        console.warn('recherche_membre_activite: Une requête est déjà en cours, appel ignoré');
         return;
     }
     
     // PROTECTION: Vérifier que l'activité ou la mission est toujours en cours
     if (!activite_is_running && !mission_is_running) {
-        console.warn('recherche_membre_activite: Aucune activité ou mission en cours, arrêt du rafraîchissement');
         if (timer_refresh_utilisateur_activite != null) {
             clearTimeout(timer_refresh_utilisateur_activite);
             timer_refresh_utilisateur_activite = null;
@@ -2777,10 +2758,6 @@ function recherche_membre_activite(liste_des_codes){
         timer_refresh_utilisateur_activite = null;
     }
     
-    console.log('recherche_membre_activite appelée avec liste_des_codes:', liste_des_codes);
-    console.log('Global.code_administrateur:', Global.code_administrateur);
-    console.log('Global.indicatif_administrateur:', Global.indicatif_administrateur);
-
     // Marquer qu'une requête est en cours
     recherche_membre_activite_en_cours = true;
 
@@ -2815,15 +2792,9 @@ function recherche_membre_activite(liste_des_codes){
     }
     
     // Le fichier info_activite.php local fait automatiquement un proxy vers la production
-    // donc on utilise toujours l'URL locale
-    console.log('Données envoyées à info_activite.php:', $data);
-    console.log('URL complète:', Global.APP_SERVER_URL+Global.INFO_ACTIVITE_URI);
     var jqxhr = $.post(Global.APP_SERVER_URL+Global.INFO_ACTIVITE_URI, $data)
 
     .done(function(data, textStatus, jqXHR ) {
-            console.log('Réponse de info_activite.php:', data);
-            console.log('Status:', textStatus);
-            console.log('HTTP Status:', jqXHR.status);
             
             // Ajouter à la fenêtre de debug (uniquement si le code correspond)
             if (Global.is_admin && $('#div_debug_geolocalisation').is(':visible')) {
@@ -2852,8 +2823,6 @@ function recherche_membre_activite(liste_des_codes){
             }
 
             var buf=data.replace('return_txt=','');
-            console.log('buf après nettoyage:', buf);
-            console.log('Longueur de buf:', buf.length);
 
             if (buf==="-1")
 			{
@@ -2869,8 +2838,6 @@ function recherche_membre_activite(liste_des_codes){
 			{
 					
 				var trame2=buf.split("\n");
-				console.log('Nombre de lignes reçues:', trame2.length);
-				console.log('Première ligne:', trame2[0]);
 				var code2= new Array(trame2.length);
 				var statut2 = new Array(trame2.length);
 				var nom2= new Array(trame2.length);
@@ -2889,12 +2856,10 @@ function recherche_membre_activite(liste_des_codes){
 				for (i=0; i<trame2.length;i++)
 				{
 					if (!trame2[i] || trame2[i].trim() === '') {
-						console.log('Ligne vide ignorée à l\'index', i);
 						continue; // Ignorer les lignes vides
 					}
 					
 					var temp2=trame2[i].split("><");
-					console.log('Ligne', i, 'split en', temp2.length, 'éléments:', temp2);
 					
 					if (temp2.length < 12) {
 						console.error('Erreur: Ligne', i, 'n\'a pas assez d\'éléments (attendu: 12, reçu:', temp2.length, ')');
@@ -2934,15 +2899,12 @@ function recherche_membre_activite(liste_des_codes){
 					
 				}
 				
-				console.log('Nombre de membres trouvés:', usergroupList.length);
 				if (usergroupList.length>0){
-					console.log('Appel de refresh_position_user avec', code2.length, 'membres');
 					refresh_position_user(code2,statut2,indicatif2,latitude,longitude,etat,iconId,tel,nom2,prenom2,precision,rapport);
 					zoomtofit(false);
     			}else{
-					console.warn('Aucun membre trouvé dans usergroupList');
-                    
-					markerArray=new Array();
+                    markerArray=new Array();
+					try { localStorage.setItem('rezo_geoloc_positions', '[]'); } catch (e) {}
 				}
 				
 				for (var k in documents_recus) {
@@ -3011,7 +2973,6 @@ function recherche_membre_activite(liste_des_codes){
               recherche_membre_activite(liste_des_codes);
           }, 2000);
       } else {
-          console.log('recherche_membre_activite: Activité/Mission arrêtée, pas de nouveau rafraîchissement');
           timer_refresh_utilisateur_activite = null;
       }
   })
@@ -3163,7 +3124,7 @@ function refresh_position_user(code, statut,indicatif,latitude,longitude,etat,ic
             var trouver=false;
              
             for (j=0;j<markerArray.length;j++){
-                 if (markerArray[j].marker_id===code[i]){
+                 if (String(markerArray[j].marker_id)===String(code[i])){
                     trouver=true;
                     marker_temp_trouver=markerArray[j];
                     break;
@@ -3173,7 +3134,9 @@ function refresh_position_user(code, statut,indicatif,latitude,longitude,etat,ic
             
 			var latlng = new google.maps.LatLng(parseFloat(latitude[i]),parseFloat(longitude[i]));
 			
-            
+            if (window.REZO_DEBUG_MARKER) {
+                console.log('[REZO_DEBUG_MARKER] refresh_position_user', { code: code[i], indicatif: indicatif[i], lat: latitude[i], lng: longitude[i], trouver: trouver, action: trouver ? 'update' : 'create' });
+            }
             
             if (!trouver)
             {
@@ -3181,7 +3144,8 @@ function refresh_position_user(code, statut,indicatif,latitude,longitude,etat,ic
             
                 markerArray.push(temp_poi );
                 
-                temp_poi.setMap(map);
+                var targetMapCreate = (typeof window.map_carte_principale !== 'undefined' && window.map_carte_principale) ? window.map_carte_principale : map;
+                temp_poi.setMap(targetMapCreate);
                 
                 
                 create_polyline_user(code[i],latlng);
@@ -3197,6 +3161,7 @@ function refresh_position_user(code, statut,indicatif,latitude,longitude,etat,ic
                     }
                 }
             }else{
+                // Comme en CI3 : simple appel update_marker (sans recréer le marqueur)
                 update_marker(marker_temp_trouver,code[i],indicatif[i],latlng,parseInt(etat[i]),parseInt(iconId[i]),nom[i],prenom[i],tel[i],precision[i]);
                 
                     var trouver_poly=false;
@@ -3209,12 +3174,9 @@ function refresh_position_user(code, statut,indicatif,latitude,longitude,etat,ic
                         }
                     }
                     if (trouver_poly){
-                        //alert('1');
                         update_polyline_user(poly_temp_trouver,latlng);
                     }else{
-                         //alert('2');
                         create_polyline_user(code[i],latlng);
-
                     }
                     
                     var trouver_poly_ligne_feux=false;
@@ -3227,7 +3189,6 @@ function refresh_position_user(code, statut,indicatif,latitude,longitude,etat,ic
                         }
                     }
                     if (trouver_poly_ligne_feux){
-                        //alert('1');
                         update_ligne_feux_user(poly_ligne_feux_temp_trouver,latlng);
                     }
                 
@@ -3242,11 +3203,9 @@ function refresh_position_user(code, statut,indicatif,latitude,longitude,etat,ic
             }
 			
             for (j=0;j<markerArray.length;j++){
-                 if (markerArray[j].marker_id===code[i]){
-                    
+                 if (String(markerArray[j].marker_id)===String(code[i])){
                     markerArray[j].setMap(null);
                     markerArray.splice(j, 1);
-                     
                     break;
                 }
             }
@@ -3304,6 +3263,22 @@ function refresh_position_user(code, statut,indicatif,latitude,longitude,etat,ic
             };
         }
         localStorage.setItem('rezo_geoloc_styles', JSON.stringify(stylesGeoloc));
+    } catch (e) {}
+
+    // Export des positions en direct pour l'écran 2 (synchro temps réel)
+    try {
+        var geolocPositions = [];
+        for (i = 0; i < indicatif.length; i++) {
+            if (statut[i] === 'actif' && parseFloat(latitude[i]) != 0 && parseFloat(longitude[i]) != 0) {
+                geolocPositions.push({
+                    code: code[i],
+                    indicatif: indicatif[i],
+                    latitude: parseFloat(latitude[i]),
+                    longitude: parseFloat(longitude[i])
+                });
+            }
+        }
+        localStorage.setItem('rezo_geoloc_positions', JSON.stringify(geolocPositions));
     } catch (e) {}
 
 	zoomtofit(false);
