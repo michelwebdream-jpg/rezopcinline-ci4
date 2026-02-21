@@ -1303,19 +1303,38 @@ body.page-membre #zone_affichage_coordonnees {
     color: #9ca3af;
     font-size: 10px;
 }
+/* Scintillement : légère variation d'intensité du fond uniquement au survol */
+@keyframes menu-scintillement {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.75; }
+}
 /* Boutons du menu latéral */
 body.page-membre #menu a {
+    position: relative;
     background-color: #111827;
     border-top: 1px solid #374151;
     border-bottom: 1px solid #374151;
     color: #e5e7eb;
     border-radius: 0px;
-    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+    transition: border-color 0.2s, color 0.2s;
 }
 body.page-membre #menu a:hover {
-    background-color: rgba(249, 115, 22, 0.2);
+    background-color: transparent;
     border-color: #f97316;
     color: #f97316;
+}
+body.page-membre #menu a:hover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-color: rgba(249, 115, 22, 0.2);
+    animation: menu-scintillement 1.5s ease-in-out infinite;
+}
+body.page-membre #menu a i,
+body.page-membre #menu a .menu-badge-new {
+    position: relative;
+    z-index: 1;
 }
 body.page-membre #menu a .menu-badge-new {
     display: inline-block;
@@ -1953,14 +1972,28 @@ body.page-membre.mode-clair #zone_affichage_coordonnees {
     color: #6b7280;
 }
 body.page-membre.mode-clair #menu a {
+    position: relative;
     background-color: #e8e8e8;
     border-color: #d0d0d0;
     color: #1f2937;
 }
 body.page-membre.mode-clair #menu a:hover {
-    background-color: rgba(249, 115, 22, 0.15);
+    background-color: transparent;
     border-color: #f97316;
     color: #ea580c;
+}
+body.page-membre.mode-clair #menu a:hover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-color: rgba(249, 115, 22, 0.15);
+    animation: menu-scintillement 1.5s ease-in-out infinite;
+}
+body.page-membre.mode-clair #menu a i,
+body.page-membre.mode-clair #menu a .menu-badge-new {
+    position: relative;
+    z-index: 1;
 }
 body.page-membre.mode-clair #menu a .menu-badge-new {
     background-color: #ea580c;
