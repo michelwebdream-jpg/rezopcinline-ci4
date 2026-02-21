@@ -1317,6 +1317,20 @@ body.page-membre #menu a:hover {
     border-color: #f97316;
     color: #f97316;
 }
+body.page-membre #menu a .menu-badge-new {
+    display: inline-block;
+    margin-left: 18px;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    background-color: #ea580c;
+    color: #fff;
+    border-radius: 4px;
+    vertical-align: middle;
+}
 /* Barre du haut (div_header) */
 body.page-membre .div_header {
     background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
@@ -1947,6 +1961,10 @@ body.page-membre.mode-clair #menu a:hover {
     background-color: rgba(249, 115, 22, 0.15);
     border-color: #f97316;
     color: #ea580c;
+}
+body.page-membre.mode-clair #menu a .menu-badge-new {
+    background-color: #ea580c;
+    color: #fff;
 }
 body.page-membre.mode-clair .div_header {
     background: linear-gradient(135deg, #ececec 0%, #e5e5e5 100%);

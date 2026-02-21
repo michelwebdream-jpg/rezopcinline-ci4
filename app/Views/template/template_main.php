@@ -106,7 +106,7 @@
                     <a href="#" id="load_non_modal_page_markers"><i class="menu-icon fa-regular fa-location-dot" aria-hidden="true"></i>Ma position<br />Marqueurs fixes<br />Fichier KML/KMZ</a>
                     <a href="#" id="load_non_modal_page_efface_markers_fixe"><i class="menu-icon fa-regular fa-trash-can" aria-hidden="true"></i>Effacer tous les<br />marqueurs fixes</a>
                     <a href="#" id="load_non_modal_page_centrage_carte"><i class="menu-icon fa-regular fa-bullseye" aria-hidden="true"></i>Centrer la carte </a>
-                    <a href="<?= base_url('membres/carte-ecran2') ?>" id="open_ecran2" title="Ouvrir la carte sur un deuxième écran"><i class="menu-icon fa-regular fa-display" aria-hidden="true"></i>Ouvrir la carte<br />sur l'écran 2 </a>
+                    <a href="<?= base_url('membres/carte-ecran2') ?>" id="open_ecran2" title="Ouvrir la carte sur un deuxième écran"><i class="menu-icon fa-regular fa-display" aria-hidden="true"></i>Ouvrir la carte<br />sur l'écran 2 <span class="menu-badge-new">New</span></a>
                     <a href="#" id="load_non_modal_page_recherche_adresse"><i class="menu-icon fa-regular fa-magnifying-glass" aria-hidden="true"></i>Rechercher une adresse </a>
                     <a id="lien_mes_documents" href="<?php echo base_url();?>mes_documents" target="_blank"><i class="menu-icon fa-regular fa-folder" aria-hidden="true"></i>Mes documents </a>
                     <a href="#" id="load_non_modal_page_parametres"><i class="menu-icon fa-regular fa-gear" aria-hidden="true"></i>Réglages</a>
