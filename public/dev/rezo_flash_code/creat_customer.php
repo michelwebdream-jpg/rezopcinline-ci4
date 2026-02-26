@@ -275,13 +275,13 @@ $expiration_license = get_date_licence($ma_licence, $mon_mail);
 
 {
 		// Ordre des colonnes REZO (convention app : colonne "mail" = téléphone, "prenom" = prénom)
-		// Si la table est moncode, nom, mail, prenom,... alors il faut téléphone en 3e, prénom en 4e
+		// Table REZO : moncode, nom, prenom, mail, ... → 3e = prenom, 4e = mail (téléphone)
 		$sql = "INSERT INTO `REZO`
 						VALUES (
 							'$mon_code',
 							'$mon_nom',
-							'$mon_telephone',
 							'$mon_prenom',
+							'$mon_telephone',
 							'0.0',
 							'0.0',
 							'0.0',

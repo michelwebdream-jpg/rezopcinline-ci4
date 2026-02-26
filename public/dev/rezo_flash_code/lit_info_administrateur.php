@@ -82,14 +82,13 @@ function test_licence($licence, $mail)
             continue;
         }
 
-        // invalid ou autre statut pour ce produit
         if ($status === 'invalid') {
             continue;
         }
-        return "0";
+        // Statut inconnu (disabled, revoked, etc.) : essayer le produit suivant au lieu de renvoyer 0 tout de suite
+        continue;
     }
 
-    // Diagnostic : log du dernier statut EDD vu (sans données sensibles)
     error_log('lit_info_administrateur: test_licence aucun produit reconnu. Dernier item=' . $lastItem . ' status=' . $lastStatus);
     return "0";
 }
@@ -148,16 +147,15 @@ $mon_mot_de_passe=$_POST['mon_mot_de_passe'];
 $pass=0;
 
 $license="";
-$date_fin_validite_licence_from_db = '';
 // Recherche des mail actif ou inactif
 $sql = "SELECT * FROM `REZO_FLASH` WHERE moncode='$mon_code' AND motdepasse='$mon_mot_de_passe';"; 
 if($result = $db->query($sql))
 {
 					if($result->num_rows){
 						while($row = $result->fetch_array(MYSQLI_ASSOC)){
-							$license = $db->prepare($row['licence']);
-							$date_fin_validite_licence_from_db = isset($row['date_fin_validite_licence']) ? trim((string) $row['date_fin_validite_licence']) : '';
-							$mail = $db->prepare($row['mail']);
+							// Clé et mail pour l'API EDD : valeur brute en BDD, sans prepare() (qui échappe pour SQL et fausserait l'appel EDD). stripslashes si stockage avec addslashes à l'insertion.
+							$license = trim(stripslashes((string) ($row['licence'] ?? '')));
+							$mail = trim(stripslashes((string) ($row['mail'] ?? '')));
 							$date_creation= $db->prepare($row['date_creation']);
 							$code= $db->prepare($row['moncode']);
 							$pass=$pass+1;
@@ -234,34 +232,7 @@ if ($pass==2){
 	}else if ($resp=="-1"){
 		echo "return_txt=-1";
 	}else{
-		// EDD a renvoyé "0" (inactive/inconnu) mais la BDD peut avoir une date encore valide (ex. licence 6 mois, EDD renvoie un format non reconnu)
-		$accepter_sur_la_bdd = false;
-		if ($date_fin_validite_licence_from_db !== '') {
-			$expires_lower = strtolower(trim($date_fin_validite_licence_from_db));
-			if ($expires_lower === 'lifetime' || strpos($expires_lower, '2099') !== false) {
-				$accepter_sur_la_bdd = true;
-			} else {
-				$ts_expire = strtotime($date_fin_validite_licence_from_db);
-				if ($ts_expire !== false && $ts_expire > time()) {
-					$accepter_sur_la_bdd = true;
-				}
-			}
-		}
-		if ($accepter_sur_la_bdd) {
-			error_log('lit_info_administrateur: EDD a retourne 0 mais BDD date valide -> connexion acceptee (code=' . substr($mon_code, 0, 4) . '...)');
-			$date_creation=date_create($date_creation);
-			$date_creation=date_format($date_creation, 'd/m/Y H:i:s');
-			if (strtolower(trim($date_fin_validite_licence_from_db)) === 'lifetime' || strpos($date_fin_validite_licence_from_db, '2099') !== false) {
-				$date_fin_validite_licence = 'lifetime';
-			} else {
-				$date_obj = date_create($date_fin_validite_licence_from_db);
-				$date_fin_validite_licence = ($date_obj !== false) ? date_format($date_obj, 'd/m/Y H:i:s') : $date_fin_validite_licence_from_db;
-			}
-			$resultat=$code."><".$nom."><".$prenom."><".$telephone."><".$mail."><".$indicatif."><".$iconid."><".$etat."><".$date_fin_validite_licence."><".$date_creation;
-			echo "return_txt=$resultat";
-		} else {
-			echo "return_txt=-3";
-		}
+		echo "return_txt=-3";
 	}
 
 }else{
