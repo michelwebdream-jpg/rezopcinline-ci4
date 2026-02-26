@@ -13,62 +13,118 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 
 /**************************************************************************/
-function test_licence($licence,$mail){
-$curl = curl_init();
-curl_setopt_array($curl, array(
-    CURLOPT_RETURNTRANSFER => 1,
-    CURLOPT_URL => 'http://www.web-dream.fr/?edd_action=check_license&item_name=cle-de-licence-rezo-pc-inline-1-an&license='.$licence.'&url=http://www.web-dream.fr'//,
-));
-$resp = curl_exec($curl);
-curl_close($curl);
+/**
+ * Charge la liste des item_name EDD autorisés.
+ */
+function get_edd_item_names()
+{
+    static $items = null;
 
-$myArrayReponse = json_decode($resp, true);
+    if ($items !== null) {
+        return $items;
+    }
 
-$resp="0";
-if ($myArrayReponse['license']=="invalid"){
-		$resp="0";		
-}
-if ($myArrayReponse['license']=="valid"){
-	if ($myArrayReponse['customer_email']==$mail){
-		$resp="1";		
-	}else{
-		$resp="0";		
-	}
+    $configFile = __DIR__ . '/config_licences_edd.php';
+    if (is_file($configFile)) {
+        $loaded = require $configFile;
+        if (is_array($loaded) && !empty($loaded)) {
+            $items = $loaded;
+            return $items;
+        }
+    }
 
+    // Fallback si config absente : les 2 produits connus
+    $items = ['cle-de-licence-rezo-pc-inline-1-an', 'cle-de-licence-rezo-pc-inline-6-mois'];
+    return $items;
 }
-if ($myArrayReponse['license']=="inactive"){
-	if ($myArrayReponse['customer_email']==$mail){
-		$resp="0";		
-	}else{
-		$resp="0";		
-	}					
-}
-if ($myArrayReponse['license']=="expired"){
-	if ($myArrayReponse['customer_email']==$mail){
-		$resp="-1";		
-	}else{
-		$resp="0";		
-	}					
-}
-return $resp;	
+
+/**
+ * Teste la licence sur tous les produits EDD connus.
+ * Retourne :
+ * - "1" : licence valide pour ce mail
+ * - "0" : licence invalide / inactive / appartient à un autre compte
+ * - "-1" : licence expirée pour ce mail
+ */
+function test_licence($licence, $mail)
+{
+    $items = get_edd_item_names();
+    $licenceEncoded = urlencode((string) $licence);
+    $email = (string) $mail;
+
+    foreach ($items as $itemName) {
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => 'http://www.web-dream.fr/?edd_action=check_license&item_name=' . $itemName . '&license=' . $licenceEncoded . '&url=http://www.web-dream.fr',
+        ));
+        $resp = curl_exec($curl);
+        curl_close($curl);
+
+        $myArrayReponse = json_decode($resp, true);
+
+        if (!is_array($myArrayReponse) || !isset($myArrayReponse['license'])) {
+            continue;
+        }
+
+        $status        = strtolower(trim((string) ($myArrayReponse['license'] ?? '')));
+        $customerEmail = isset($myArrayReponse['customer_email']) ? (string) $myArrayReponse['customer_email'] : '';
+
+        // Valid ou active (certaines versions EDD renvoient "active")
+        if ($status === 'valid' || $status === 'active') {
+            return "1";
+        }
+        if ($status === 'expired') {
+            return "-1";
+        }
+
+        // Inactive : on exige la correspondance email pour ce statut
+        if ($status === 'inactive' && $customerEmail === $email) {
+            return "0";
+        }
+        if ($status === 'inactive') {
+            continue;
+        }
+        if ($status === 'invalid') {
+            continue;
+        }
+        return "0";
+    }
+
+    return "0";
 }
 /**************************************************************************/
-function get_date_licence($licence,$mail){
-// Get cURL resource
-$curl = curl_init();
-// Set some options - we are passing in a useragent too here
-curl_setopt_array($curl, array(
-    CURLOPT_RETURNTRANSFER => 1,
-    CURLOPT_URL => 'http://www.web-dream.fr/?edd_action=check_license&item_name=cle-de-licence-rezo-pc-inline-1-an&license='.$licence.'&url=http://www.web-dream.fr'//,
-    //CURLOPT_USERAGENT => 'Codular Sample cURL Request'
-));
-// Send the request & save response to $resp
-$resp = curl_exec($curl);
-// Close request to clear up some resources
-curl_close($curl);
+function get_date_licence($licence, $mail)
+{
+    $items = get_edd_item_names();
+    $licenceEncoded = urlencode((string) $licence);
+    $email = (string) $mail;
 
-$myArrayReponse = json_decode($resp, true);
-return $myArrayReponse['expires'];
+    foreach ($items as $itemName) {
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => 'http://www.web-dream.fr/?edd_action=check_license&item_name=' . $itemName . '&license=' . $licenceEncoded . '&url=http://www.web-dream.fr',
+        ));
+        $resp = curl_exec($curl);
+        curl_close($curl);
+
+        $myArrayReponse = json_decode($resp, true);
+
+        if (!is_array($myArrayReponse) || !isset($myArrayReponse['license'])) {
+            continue;
+        }
+
+        $status        = $myArrayReponse['license'];
+        $customerEmail = isset($myArrayReponse['customer_email']) ? (string) $myArrayReponse['customer_email'] : '';
+        $status        = strtolower(trim((string) ($myArrayReponse['license'] ?? '')));
+
+        $emailOk = ($customerEmail === $email) || ($customerEmail === '');
+        if (($status === 'valid' || $status === 'active' || $status === 'expired' || $status === 'inactive') && $emailOk && isset($myArrayReponse['expires'])) {
+            return $myArrayReponse['expires'];
+        }
+    }
+
+    return '';
 }
 // AUTOLOAD CLASS OBJECTS... YOU CAN USE INCLUDES IF YOU PREFER
 // Corrigé pour PHP 7.2+ : __autoload() est déprécié, utiliser spl_autoload_register()

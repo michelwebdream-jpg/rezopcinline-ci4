@@ -19,6 +19,31 @@ function unique_id($l = 8) {
     return substr(md5(uniqid((string) mt_rand(), true)), 0, $l);
 }
 
+/**
+ * Charge la liste des item_name EDD autorisés.
+ */
+function get_edd_item_names()
+{
+    static $items = null;
+
+    if ($items !== null) {
+        return $items;
+    }
+
+    $configFile = __DIR__ . '/config_licences_edd.php';
+    if (is_file($configFile)) {
+        $loaded = require $configFile;
+        if (is_array($loaded) && !empty($loaded)) {
+            $items = $loaded;
+            return $items;
+        }
+    }
+
+    // Fallback si config absente : les 2 produits connus
+    $items = ['cle-de-licence-rezo-pc-inline-1-an', 'cle-de-licence-rezo-pc-inline-6-mois'];
+    return $items;
+}
+
 // Autoload DOIT être défini avant spl_autoload_register (sinon fatal en PHP 8)
 if (!function_exists('autoload_classes')) {
     function autoload_classes($class_name) {
@@ -30,66 +55,159 @@ if (!function_exists('autoload_classes')) {
 }
 spl_autoload_register('autoload_classes');
 /**************************************************************************/
-function test_licence($licence, $mail) {
-    $curl = curl_init();
-    curl_setopt_array($curl, array(
-        CURLOPT_RETURNTRANSFER => 1,
-        CURLOPT_URL => 'http://www.web-dream.fr/?edd_action=check_license&item_name=cle-de-licence-rezo-pc-inline-1-an&license=' . urlencode($licence) . '&url=http://www.web-dream.fr'
-    ));
-    $resp = curl_exec($curl);
-    curl_close($curl);
+/**
+ * Teste la licence sur tous les produits EDD connus.
+ * Retourne les mêmes codes métier qu'avant :
+ * - "0" : licence inactive pour ce mail
+ * - "2" : licence associée à un autre compte / erreur générique
+ * - "3" : licence inexistante
+ * - "4" : licence déjà active pour ce mail
+ * - "5" : licence expirée pour ce mail
+ */
+function test_licence($licence, $mail)
+{
+    $items = get_edd_item_names();
+    $licenceEncoded = urlencode((string) $licence);
+    $email = (string) $mail;
 
-    $myArrayReponse = json_decode($resp, true);
-    $resp = "2";
+    $sawExistingLicenseOtherEmail = false;
+    $sawInvalid = false;
 
-    if (!is_array($myArrayReponse) || !isset($myArrayReponse['license'])) {
-        return $resp;
+    foreach ($items as $itemName) {
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => 'http://www.web-dream.fr/?edd_action=check_license&item_name=' . $itemName . '&license=' . $licenceEncoded . '&url=http://www.web-dream.fr'
+        ));
+        $resp = curl_exec($curl);
+        curl_close($curl);
+
+        $myArrayReponse = json_decode($resp, true);
+
+        if (!is_array($myArrayReponse) || !isset($myArrayReponse['license'])) {
+            continue;
+        }
+
+        $status        = strtolower(trim((string) ($myArrayReponse['license'] ?? '')));
+        $customerEmail = isset($myArrayReponse['customer_email']) ? (string) $myArrayReponse['customer_email'] : '';
+
+        if ($status === 'invalid') {
+            $sawInvalid = true;
+            continue;
+        }
+
+        // Licence trouvée pour un autre mail
+        if ($customerEmail !== $email && $customerEmail !== '') {
+            $sawExistingLicenseOtherEmail = true;
+            continue;
+        }
+
+        // Licence associée à ce mail (ou EDD n'a pas renvoyé l'email) : on renvoie le code adapté
+        if ($status === 'valid' || $status === 'active') {
+            return "4";
+        }
+        if ($status === 'inactive') {
+            return "0";
+        }
+        if ($status === 'expired') {
+            return "5";
+        }
     }
 
-    if ($myArrayReponse['license'] === "invalid") {
+    if ($sawExistingLicenseOtherEmail) {
+        // Licence existante mais associée à un autre compte
+        return "2";
+    }
+
+    if ($sawInvalid) {
+        // Licence inexistante sur tous les produits testés
         return "3";
     }
-    if ($myArrayReponse['license'] === "valid") {
-        return (isset($myArrayReponse['customer_email']) && $myArrayReponse['customer_email'] === $mail) ? "4" : "2";
-    }
-    if ($myArrayReponse['license'] === "inactive") {
-        return (isset($myArrayReponse['customer_email']) && $myArrayReponse['customer_email'] === $mail) ? "0" : "2";
-    }
-    if ($myArrayReponse['license'] === "expired") {
-        return (isset($myArrayReponse['customer_email']) && $myArrayReponse['customer_email'] === $mail) ? "5" : "2";
-    }
-    return $resp;
+
+    // Cas générique (pas de réponse exploitable)
+    return "2";
 }
 /**************************************************************************/
-function get_date_licence($licence, $mail) {
-    $curl = curl_init();
-    curl_setopt_array($curl, array(
-        CURLOPT_RETURNTRANSFER => 1,
-        CURLOPT_URL => 'http://www.web-dream.fr/?edd_action=check_license&item_name=cle-de-licence-rezo-pc-inline-1-an&license=' . urlencode($licence) . '&url=http://www.web-dream.fr'
-    ));
-    $resp = curl_exec($curl);
-    curl_close($curl);
+function get_date_licence($licence, $mail)
+{
+    $items = get_edd_item_names();
+    $licenceEncoded = urlencode((string) $licence);
+    $email = (string) $mail;
 
-    $myArrayReponse = json_decode($resp, true);
-    return (is_array($myArrayReponse) && isset($myArrayReponse['expires'])) ? $myArrayReponse['expires'] : '';
+    foreach ($items as $itemName) {
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => 'http://www.web-dream.fr/?edd_action=check_license&item_name=' . $itemName . '&license=' . $licenceEncoded . '&url=http://www.web-dream.fr'
+        ));
+        $resp = curl_exec($curl);
+        curl_close($curl);
+
+        $myArrayReponse = json_decode($resp, true);
+
+        if (!is_array($myArrayReponse) || !isset($myArrayReponse['license'])) {
+            continue;
+        }
+
+        $customerEmail = isset($myArrayReponse['customer_email']) ? (string) $myArrayReponse['customer_email'] : '';
+        $status        = strtolower(trim((string) ($myArrayReponse['license'] ?? '')));
+
+        $emailOk = ($customerEmail === $email) || ($customerEmail === '');
+        if (($status === 'valid' || $status === 'active' || $status === 'expired' || $status === 'inactive') && $emailOk && isset($myArrayReponse['expires'])) {
+            return $myArrayReponse['expires'];
+        }
+    }
+
+    return '';
 }
 /**************************************************************************/
-function activate_licence($licence) {
-    $curl = curl_init();
-    curl_setopt_array($curl, array(
-        CURLOPT_RETURNTRANSFER => 1,
-        CURLOPT_URL => 'http://www.web-dream.fr/?edd_action=activate_license&item_name=cle-de-licence-rezo-pc-inline-1-an&license=' . urlencode($licence) . '&url=http://www.web-dream.fr'
-    ));
-    $resp = curl_exec($curl);
-    curl_close($curl);
+function activate_licence($licence, $mail)
+{
+    $items = get_edd_item_names();
+    $licenceEncoded = urlencode((string) $licence);
+    $email = (string) $mail;
 
-    $myArrayReponse = json_decode($resp, true);
-    // EDD renvoie "success": true (booléen) ou "success": "true" (chaîne)
-    if (!is_array($myArrayReponse) || !isset($myArrayReponse['success'])) {
-        return false;
+    foreach ($items as $itemName) {
+        // Vérifier d'abord que cette licence correspond bien à ce produit et à ce mail
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => 'http://www.web-dream.fr/?edd_action=check_license&item_name=' . $itemName . '&license=' . $licenceEncoded . '&url=http://www.web-dream.fr'
+        ));
+        $resp = curl_exec($curl);
+        curl_close($curl);
+
+        $myArrayReponse = json_decode($resp, true);
+
+        if (!is_array($myArrayReponse) || !isset($myArrayReponse['license'])) {
+            continue;
+        }
+
+        $status        = strtolower(trim((string) ($myArrayReponse['license'] ?? '')));
+        $customerEmail = isset($myArrayReponse['customer_email']) ? (string) $myArrayReponse['customer_email'] : '';
+
+        if ($status !== 'inactive' || ($customerEmail !== $email && $customerEmail !== '')) {
+            continue;
+        }
+
+        // On a trouvé le bon produit, on l'active
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => 'http://www.web-dream.fr/?edd_action=activate_license&item_name=' . $itemName . '&license=' . $licenceEncoded . '&url=http://www.web-dream.fr'
+        ));
+        $resp = curl_exec($curl);
+        curl_close($curl);
+
+        $activationResponse = json_decode($resp, true);
+        if (!is_array($activationResponse) || !isset($activationResponse['success'])) {
+            return false;
+        }
+        $s = $activationResponse['success'];
+        return ($s === true || $s === 'true');
     }
-    $s = $myArrayReponse['success'];
-    return ($s === true || $s === 'true');
+
+    return false;
 }
 /**************************************************************************/
 
@@ -148,7 +266,7 @@ if ($resultat_du_test !== "0" && $resultat_du_test !== "4") {
 }
 
 $do_activate = ($resultat_du_test === "0");
-if ($do_activate && !activate_licence($ma_licence)) {
+if ($do_activate && !activate_licence($ma_licence, $mon_mail)) {
 	echo "return_txt=-1";
 	return;
 }
