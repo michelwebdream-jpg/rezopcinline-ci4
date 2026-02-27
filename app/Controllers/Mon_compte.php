@@ -26,6 +26,61 @@ class Mon_compte extends BaseController
         
         // Ne valider que si c'est une requête POST
         if ($this->request->getMethod() === 'POST') {
+            // Formulaire « Mettre à jour ma licence » (nouvelle clé)
+            if ($this->request->getPost('update_licence_submit') !== null) {
+                $rulesLicence = [
+                    'update_licence_mot_de_passe' => ['label' => 'Mot de passe', 'rules' => 'trim|required'],
+                    'update_licence_nouvelle_cle' => ['label' => 'Nouvelle clé', 'rules' => 'trim|required'],
+                ];
+                if ($this->validate($rulesLicence)) {
+                    $utilisateur = $this->session->get('deliverdata');
+                    $mon_code = $utilisateur['code_administrateur'] ?? '';
+                    $reponse = $this->signupModel->update_licence_compte(
+                        $mon_code,
+                        $this->request->getPost('update_licence_mot_de_passe'),
+                        $this->request->getPost('update_licence_nouvelle_cle')
+                    );
+                    if ($reponse !== false) {
+                        $reponse = trim(str_replace('return_txt=', '', $reponse));
+                        if (strpos($reponse, 'ok') === 0) {
+                            $date = (strpos($reponse, '|') !== false) ? trim(substr($reponse, strpos($reponse, '|') + 1)) : '';
+                            $deliverdata = $this->session->get('deliverdata');
+                            $deliverdata['date_fin_validite_licence'] = $date !== '' ? $date : ($deliverdata['date_fin_validite_licence'] ?? '');
+                            $this->session->set('deliverdata', $deliverdata);
+                            $data = [
+                                'succes_licence' => 'Votre licence a été mise à jour avec succès.' . ($date !== '' ? ' Nouvelle date de validité : ' . $date . '.' : ''),
+                                'titre' => 'REZO+ PC INLINE | Mon compte',
+                                'heading' => 'Bienvenue dans REZO+ PC InLine',
+                                'footing' => footer_html(),
+                                'utilisateur' => $this->session->get('deliverdata'),
+                            ];
+                            return view('mon_compte', $data);
+                        }
+                        $messages = [
+                            'ERR_AUTH' => 'Le mot de passe est incorrect.',
+                            'ERR_KEY_INVALID' => 'Cette clé de licence n\'existe pas ou n\'est pas valide.',
+                            'ERR_KEY_OTHER_ACCOUNT' => 'Cette clé est associée à un autre compte (email d\'achat différent).',
+                            'ERR_KEY_EXPIRED' => 'Cette clé de licence a expiré.',
+                            'ERR_ACTIVATE' => 'Impossible d\'activer cette clé. Veuillez réessayer ou contacter le support.',
+                        ];
+                        $errorLicence = $messages[$reponse] ?? 'Une erreur est survenue. Veuillez réessayer.';
+                    } else {
+                        $errorLicence = 'Erreur réseau.<br />Veuillez recommencer ultérieurement.';
+                    }
+                } else {
+                    $errorLicence = implode('<br />', $this->validator->getErrors());
+                }
+                $data = [
+                    'titre' => 'REZO+ PC INLINE | Mon compte',
+                    'heading' => 'Bienvenue dans REZO+ PC InLine',
+                    'footing' => footer_html(),
+                    'utilisateur' => $this->session->get('deliverdata'),
+                    'error_licence' => $errorLicence ?? null,
+                    'validation' => $this->validator,
+                ];
+                return view('mon_compte', $data);
+            }
+
             $rules = [
                 'text_input_mon_nom' => [
                     'label' => 'Mon nom',

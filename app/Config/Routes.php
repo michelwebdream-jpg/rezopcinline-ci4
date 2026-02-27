@@ -14,6 +14,8 @@ $routes->group('signup', function($routes) {
     $routes->post('/', 'Signup::index');
     $routes->get('login', 'Signup::login');
     $routes->post('login', 'Signup::login');
+    $routes->get('associer_cle', 'Signup::associer_cle');
+    $routes->post('associer_cle', 'Signup::associer_cle');
     $routes->get('logout', 'Signup::logout');
     $routes->get('membres', 'Signup::membres');
     $routes->get('reset_password', 'Signup::reset_password');

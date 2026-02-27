@@ -85,6 +85,17 @@
             <div class="error"><?php echo $error;?></div>
             <?php endif;?>
 
+            <?php if (!empty($show_associer_cle_link)): ?>
+            <div class="login-associer-cle-block">
+                <p class="login-helper-text">
+                    <a href="<?php echo base_url(); ?>signup/associer_cle" class="login-associer-cle-link">Votre licence a expiré ? Associez votre nouvelle clé ici</a>
+                </p>
+                <p class="login-helper-text login-helper-text--muted">
+                    Vous pouvez associer ici une nouvelle clé si vous avez acheté une licence avec une clé <strong>différente</strong>. Si vous avez simplement renouvelé votre licence existante en saisissant votre clé actuelle lors du paiement sur la boutique, une connexion normale suffira : la nouvelle date de validité sera automatiquement prise en compte.
+                </p>
+            </div>
+            <?php endif; ?>
+
             <?php echo form_open('signup/login');?>
 
             <div class="login-form-box">

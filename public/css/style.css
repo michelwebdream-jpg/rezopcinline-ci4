@@ -762,7 +762,8 @@ body.page-login #button_submit,
 body.page-forgot #button_submit,
 body.page-modification-password #button_submit,
 body.page-signup #button_submit,
-body.page-mon-compte #button_submit {
+body.page-mon-compte #button_submit,
+body.page-mon-compte .login-submit input[type="submit"] {
     display: block;
     width: 100%;
     margin: 0;
@@ -781,7 +782,8 @@ body.page-login #button_submit:hover,
 body.page-forgot #button_submit:hover,
 body.page-modification-password #button_submit:hover,
 body.page-signup #button_submit:hover,
-body.page-mon-compte #button_submit:hover {
+body.page-mon-compte #button_submit:hover,
+body.page-mon-compte .login-submit input[type="submit"]:hover {
     background: linear-gradient(90deg, #fb923c, #f97316);
 }
 

@@ -52,6 +52,12 @@ $icon = (int) ($utilisateur['icone_administrateur'] ?? 1);
             <?php if (isset($succes)): ?>
             <div class="succes"><?= $succes ?></div>
             <?php endif; ?>
+            <?php if (isset($succes_licence)): ?>
+            <div class="succes"><?= $succes_licence ?></div>
+            <?php endif; ?>
+            <?php if (isset($error_licence)): ?>
+            <div class="error"><?= $error_licence ?></div>
+            <?php endif; ?>
 
             <div class="login-form-box signup-form-box">
                 <p class="login-helper-text">Vous pouvez modifier certaines informations de votre compte.</p>
@@ -104,6 +110,26 @@ $icon = (int) ($utilisateur['icone_administrateur'] ?? 1);
                 </p>
                 <?= form_close() ?>
             </div>
+
+            <hr class="login-separator">
+            <h3 class="login-panel-subtitle">Mettre à jour ma licence</h3>
+            <p class="login-helper-text">Si vous avez une nouvelle clé de licence (ex. après un achat 1 an ou 6 mois), vous pouvez l’associer à ce compte.</p>
+            <?= form_open('mon_compte') ?>
+            <input type="hidden" name="update_licence_submit" value="1" />
+            <div class="signup-fields-grid" style="max-width: 100%;">
+                <div class="signup-field signup-field--key">
+                    <input type="password" name="update_licence_mot_de_passe" id="update_licence_mot_de_passe" placeholder="Votre mot de passe" value=""/>
+                </div>
+                <div class="signup-field signup-field--key">
+                    <input type="text" name="update_licence_nouvelle_cle" id="update_licence_nouvelle_cle" placeholder="Nouvelle clé de licence" value="<?= esc(set_value('update_licence_nouvelle_cle')) ?>"/>
+                </div>
+            </div>
+            <?= form_error('update_licence_mot_de_passe', '<div class="error">', '</div>') ?>
+            <?= form_error('update_licence_nouvelle_cle', '<div class="error">', '</div>') ?>
+            <p class="login-submit">
+                <input type="submit" value="Associer cette clé" />
+            </p>
+            <?= form_close() ?>
 
             <p class="login-back-link signup-back-link">
                 <?= anchor('modification_password', 'Modifier mon mot de passe', 'target="_blank"') ?>

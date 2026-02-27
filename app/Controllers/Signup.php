@@ -206,7 +206,7 @@ class Signup extends BaseController
                 if ($resultat_verif_code_et_licence == "") {
                     return $this->retourne_une_erreur_au_formulaire('Erreur réseau !<br />Lecture des informations impossible...');
                 } else if ($resultat_verif_code_et_licence == "-1") {
-                    return $this->retourne_une_erreur_au_formulaire('Erreur de licence !<br />Clé de licence expirée! <br />Veuillez renouveller votre clé de licence sur le site www.web-dream.fr"');
+                    return $this->retourne_une_erreur_au_formulaire('Erreur de licence !<br />Clé de licence expirée! <br />Veuillez renouveller votre clé de licence sur le site www.web-dream.fr.', true);
                 } else if ($resultat_verif_code_et_licence == "-2") {
                     return $this->retourne_une_erreur_au_formulaire('Erreur !<br />Le code et/ou le mot de passe sont incorrects');
                 } else if ($resultat_verif_code_et_licence == "-3") {
@@ -309,6 +309,78 @@ class Signup extends BaseController
             return view('login', array_merge($data, $this->getLoginNoticeData()));
         }
     }
+
+    /**
+     * Associer une nouvelle clé de licence (page publique, sans session).
+     * GET : formulaire code + mot de passe + nouvelle clé.
+     * POST : appel API puis redirection login avec succès ou réaffichage formulaire avec erreur.
+     */
+    public function associer_cle()
+    {
+        if ($this->request->getMethod() === 'post') {
+            $rules = [
+                'code' => ['label' => 'Code REZO+', 'rules' => 'trim|required'],
+                'pass' => ['label' => 'Mot de passe', 'rules' => 'trim|required'],
+                'nouvelle_cle' => ['label' => 'Nouvelle clé', 'rules' => 'trim|required'],
+            ];
+            if (!$this->validate($rules)) {
+                $data = [
+                    'titre' => 'REZO+ PC INLINE | Associer une nouvelle clé',
+                    'heading' => 'Bienvenue dans REZO+ PC InLine',
+                    'footing' => footer_html(),
+                    'validation' => $this->validator,
+                ];
+                return view('associer_cle', $data);
+            }
+            $reponse = $this->signupModel->update_licence_compte(
+                $this->request->getPost('code'),
+                $this->request->getPost('pass'),
+                $this->request->getPost('nouvelle_cle')
+            );
+            if ($reponse === false) {
+                $data = [
+                    'error' => 'Erreur réseau.<br />Veuillez recommencer ultérieurement.',
+                    'titre' => 'REZO+ PC INLINE | Associer une nouvelle clé',
+                    'heading' => 'Bienvenue dans REZO+ PC InLine',
+                    'footing' => footer_html(),
+                    'validation' => $this->validator,
+                ];
+                return view('associer_cle', $data);
+            }
+            $reponse = trim(str_replace('return_txt=', '', $reponse));
+            if (strpos($reponse, 'ok') === 0) {
+                $date = (strpos($reponse, '|') !== false) ? trim(substr($reponse, strpos($reponse, '|') + 1)) : '';
+                $msg = 'Votre licence a été mise à jour avec succès.';
+                if ($date !== '') {
+                    $msg .= ' Nouvelle date de validité : ' . esc($date) . '.';
+                }
+                $this->session->setFlashdata('success', $msg);
+                return redirect()->to('/signup/login');
+            }
+            $messages = [
+                'ERR_AUTH' => 'Le code et/ou le mot de passe sont incorrects.',
+                'ERR_KEY_INVALID' => 'Cette clé de licence n\'existe pas ou n\'est pas valide.',
+                'ERR_KEY_OTHER_ACCOUNT' => 'Cette clé est associée à un autre compte (email d\'achat différent).',
+                'ERR_KEY_EXPIRED' => 'Cette clé de licence a expiré.',
+                'ERR_ACTIVATE' => 'Impossible d\'activer cette clé. Veuillez réessayer ou contacter le support.',
+            ];
+            $error = $messages[$reponse] ?? 'Une erreur est survenue. Veuillez réessayer.';
+            $data = [
+                'error' => $error,
+                'titre' => 'REZO+ PC INLINE | Associer une nouvelle clé',
+                'heading' => 'Bienvenue dans REZO+ PC InLine',
+                'footing' => footer_html(),
+                'validation' => $this->validator,
+            ];
+            return view('associer_cle', $data);
+        }
+        $data = [
+            'titre' => 'REZO+ PC INLINE | Associer une nouvelle clé',
+            'heading' => 'Bienvenue dans REZO+ PC InLine',
+            'footing' => footer_html(),
+        ];
+        return view('associer_cle', $data);
+    }
     
     public function logout()
     {
@@ -408,7 +480,7 @@ class Signup extends BaseController
         return view('signup', $data);
     }
     
-    private function retourne_une_erreur_au_formulaire($message)
+    private function retourne_une_erreur_au_formulaire($message, $showAssocierCleLink = false)
     {
         $data = [
             'error' => $message,
@@ -417,6 +489,9 @@ class Signup extends BaseController
             'footing' => footer_html(),
             'validation' => $this->validator
         ];
+        if ($showAssocierCleLink) {
+            $data['show_associer_cle_link'] = true;
+        }
         return view('login', array_merge($data, $this->getLoginNoticeData()));
     }
 

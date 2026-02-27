@@ -164,6 +164,24 @@ class SignupModel extends Model
         $url = $this->getAppServerURL() . $this->envUri('REGISTER_URI', '/dev/rezo_flash_code/creat_customer.php');
         return $this->postCURL($url, $passData);
     }
+
+    /**
+     * Associer une nouvelle clé de licence à un compte existant (code + mot de passe).
+     * @param string $mon_code Code REZO+
+     * @param string $mon_mot_de_passe Mot de passe
+     * @param string $nouvelle_cle Nouvelle clé de licence
+     * @return string|false Réponse brute (return_txt=ok|date ou return_txt=ERR_xxx), false si erreur réseau
+     */
+    public function update_licence_compte(string $mon_code, string $mon_mot_de_passe, string $nouvelle_cle)
+    {
+        $url = $this->getAppServerURL() . $this->envUri('UPDATE_LICENCE_URI', '/dev/rezo_flash_code/update_licence_customer.php');
+        $data = [
+            'mon_code' => $mon_code,
+            'mon_mot_de_passe' => $mon_mot_de_passe,
+            'nouvelle_cle' => $nouvelle_cle,
+        ];
+        return $this->postCURL($url, $data);
+    }
     
     private function postCURL($url, $param)
     {
