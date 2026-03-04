@@ -787,6 +787,45 @@ body.page-mon-compte .login-submit input[type="submit"]:hover {
     background: linear-gradient(90deg, #fb923c, #f97316);
 }
 
+body.page-signup .login-submit-link {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(90deg, #f97316, #ea580c);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: none;
+    text-align: center;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+body.page-signup .login-submit-link:hover {
+    background: linear-gradient(90deg, #fb923c, #f97316);
+    color: #fff;
+}
+
+body.page-signup .succes-creation-code {
+    margin: 14px 0;
+    padding: 12px 16px;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.08em;
+    color: #f97316;
+    background: rgba(249, 115, 22, 0.12);
+    border: 1px solid rgba(249, 115, 22, 0.4);
+    border-radius: 8px;
+}
+body.page-signup .succes-creation-box .login-helper-text:first-of-type,
+body.page-signup .succes-creation-intro {
+    margin-top: 0;
+}
+
 body.page-login .login-panel-actions,
 body.page-forgot .login-panel-actions {
     display: flex;
