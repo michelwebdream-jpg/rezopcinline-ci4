@@ -97,7 +97,7 @@
             <div id="my_menu">
 
                 <div id="header_logo">
-                        <a href="<?php echo base_url();?>"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.jpg" width="100" height="100"></a>
+                        <a href="<?php echo base_url();?>"><img border="0" alt="Rezo+ pc inline" src="<?php echo base_url();?>images/icone_final_rezo_plus_PC_inline128.jpg" height="100"></a>
                     <p style="text-align:center;margin-top:5px;margin-bottom:5px;"><?= getenv('VERSION_DU_SOFT') ?? 'Version 5.1' ?></p>
                 </div>
                 <div id="menu">
