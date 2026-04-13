@@ -81,7 +81,8 @@ class SignupModel extends Model
     public function envoi_mot_de_passe($data)
     {
         $url = $this->getAppServerURL() . $this->envUri('SENDPASSWORD_URI', '/dev/rezo_flash_code/send_password.php');
-        return $this->postCURL($url, $data);
+        $payload = array_merge($data, ['send_email' => 0]);
+        return $this->postCURL($url, $payload);
     }
     
     public function modifier_mot_de_passe($data)

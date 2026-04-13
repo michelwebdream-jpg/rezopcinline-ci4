@@ -44,6 +44,7 @@ $routes->get('membres/carte-ecran2', 'Membres::carteEcran2');
 // Routes autres
 $routes->get('envoi_password', 'Envoi_password::index');
 $routes->post('envoi_password', 'Envoi_password::index');
+$routes->post('mail/legacy-send', 'MailRelay::sendLegacy');
 $routes->get('modification_password', 'Modification_password::index');
 $routes->post('modification_password', 'Modification_password::index');
 $routes->get('mon_compte', 'Mon_compte::index');

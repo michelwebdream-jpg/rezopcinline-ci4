@@ -101,18 +101,18 @@
                     <p style="text-align:center;margin-top:5px;margin-bottom:5px;"><?= getenv('VERSION_DU_SOFT') ?? 'Version 5.1' ?></p>
                 </div>
                 <div id="menu">
-                    <a href="#" id="load_non_modal_page_activite"><i class="menu-icon fa-regular fa-calendar-days" aria-hidden="true"></i>Activités / DPS</a>
-                    <a href="#" id="load_non_modal_page_mission"><i class="menu-icon fa-regular fa-flag" aria-hidden="true"></i>Missions </a>
-                    <a href="#" id="load_non_modal_page_markers"><i class="menu-icon fa-regular fa-location-dot" aria-hidden="true"></i>Ma position<br />Marqueurs fixes<br />Fichier KML/KMZ</a>
-                    <a href="#" id="load_non_modal_page_efface_markers_fixe"><i class="menu-icon fa-regular fa-trash-can" aria-hidden="true"></i>Effacer tous les<br />marqueurs fixes</a>
-                    <a href="#" id="load_non_modal_page_centrage_carte"><i class="menu-icon fa-regular fa-bullseye" aria-hidden="true"></i>Centrer la carte </a>
-                    <a href="<?= base_url('membres/carte-ecran2') ?>" id="open_ecran2" title="Ouvrir la carte sur un deuxième écran"><i class="menu-icon fa-regular fa-display" aria-hidden="true"></i>Ouvrir la carte<br />sur l'écran 2 <span class="menu-badge-new">New</span></a>
-                    <a href="#" id="load_non_modal_page_recherche_adresse"><i class="menu-icon fa-regular fa-magnifying-glass" aria-hidden="true"></i>Rechercher une adresse </a>
-                    <a id="lien_mes_documents" href="<?php echo base_url();?>mes_documents" target="_blank"><i class="menu-icon fa-regular fa-folder" aria-hidden="true"></i>Mes documents </a>
-                    <a href="#" id="load_non_modal_page_parametres"><i class="menu-icon fa-regular fa-gear" aria-hidden="true"></i>Réglages</a>
+                    <a href="#" id="load_non_modal_page_activite"><i class="menu-icon fa-solid fa-calendar-days" aria-hidden="true"></i>Activités / DPS</a>
+                    <a href="#" id="load_non_modal_page_mission"><i class="menu-icon fa-solid fa-flag" aria-hidden="true"></i>Missions </a>
+                    <a href="#" id="load_non_modal_page_markers"><i class="menu-icon fa-solid fa-location-dot" aria-hidden="true"></i>Ma position<br />Marqueurs fixes<br />Fichier KML/KMZ</a>
+                    <a href="#" id="load_non_modal_page_efface_markers_fixe"><i class="menu-icon fa-solid fa-trash-can" aria-hidden="true"></i>Effacer tous les<br />marqueurs fixes</a>
+                    <a href="#" id="load_non_modal_page_centrage_carte"><i class="menu-icon fa-solid fa-bullseye" aria-hidden="true"></i>Centrer la carte </a>
+                    <a href="<?= base_url('membres/carte-ecran2') ?>" id="open_ecran2" title="Ouvrir la carte sur un deuxième écran"><i class="menu-icon fa-solid fa-display" aria-hidden="true"></i>Ouvrir la carte<br />sur l'écran 2 <span class="menu-badge-new">New</span></a>
+                    <a href="#" id="load_non_modal_page_recherche_adresse"><i class="menu-icon fa-solid fa-magnifying-glass" aria-hidden="true"></i>Rechercher une adresse </a>
+                    <a id="lien_mes_documents" href="<?php echo base_url();?>mes_documents" target="_blank"><i class="menu-icon fa-solid fa-folder" aria-hidden="true"></i>Mes documents </a>
+                    <a href="#" id="load_non_modal_page_parametres"><i class="menu-icon fa-solid fa-gear" aria-hidden="true"></i>Réglages</a>
                     <?php if (is_admin($utilisateur ?? [])): ?>
-                    <a href="<?= base_url('admin') ?>" target="_blank"><i class="menu-icon fa-regular fa-shield-halved" aria-hidden="true"></i>Administration</a>
-                    <a href="#" id="toggle_debug_window"><i class="menu-icon fa-regular fa-bug" aria-hidden="true"></i>Debug Géolocalisation </a>
+                    <a href="<?= base_url('admin') ?>" target="_blank"><i class="menu-icon fa-solid fa-shield-halved" aria-hidden="true"></i>Administration</a>
+                    <a href="#" id="toggle_debug_window"><i class="menu-icon fa-solid fa-bug" aria-hidden="true"></i>Debug Géolocalisation </a>
                     <?php endif; ?>
                 </div>
                 <div id="theme_switch_membre" class="theme_switch_membre" role="group" aria-label="Choisir le thème">
