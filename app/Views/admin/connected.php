@@ -9,6 +9,8 @@ $mapRefreshIntervalSeconds = (int) ($mapRefreshIntervalSeconds ?? 5);
 $mapAutoRecenteringDefault = $mapAutoRecenteringDefault ?? true;
 $googleMapsApiKey = $googleMapsApiKey ?? '';
 $jsonUrl = $jsonUrl ?? '';
+$loginStats = is_array($loginStats ?? null) ? $loginStats : ['total' => 0, 'last_24h' => 0, 'last_7d' => 0];
+$recentLoginConnections = $recentLoginConnections ?? [];
 $windowLabel = $activeMinutes;
 ?>
 <div class="admin-card" style="max-width: 100%;">
@@ -35,6 +37,41 @@ $windowLabel = $activeMinutes;
 </style>
 <div class="connected-two-cols">
 <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+<div class="admin-card" style="max-width: 100%;">
+    <h2 style="margin: 0 0 1rem 0; color: #334155;">Historique des connexions</h2>
+    <p style="margin: 0 0 0.5rem 0;">
+        Total : <strong><?= (int) ($loginStats['total'] ?? 0) ?></strong>
+        | 24h : <strong><?= (int) ($loginStats['last_24h'] ?? 0) ?></strong>
+        | 7 jours : <strong><?= (int) ($loginStats['last_7d'] ?? 0) ?></strong>
+    </p>
+    <?php if (empty($recentLoginConnections)): ?>
+        <p style="color:#64748b; margin: 0;">Aucune connexion historisée pour le moment.</p>
+    <?php else: ?>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; background: #fff;">
+                <thead>
+                    <tr>
+                        <th style="padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">Date</th>
+                        <th style="padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">Code</th>
+                        <th style="padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">Nom</th>
+                        <th style="padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">Mail</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($recentLoginConnections as $lc): ?>
+                        <tr>
+                            <td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #e2e8f0;"><?= !empty($lc['connected_at']) ? date('d/m/Y H:i:s', strtotime((string) $lc['connected_at'])) : '—' ?></td>
+                            <td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #e2e8f0;"><?= esc($lc['user_code'] ?? '') ?></td>
+                            <td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #e2e8f0;"><?= esc($lc['user_name'] ?? '') ?></td>
+                            <td style="padding: 0.5rem 0.75rem; border-bottom: 1px solid #e2e8f0;"><?= esc($lc['user_email'] ?? '') ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+</div>
+
 <div class="admin-card" style="max-width: 100%;">
     <h2 style="margin: 0 0 1rem 0; color: #334155;">Utilisateurs connectés (sessions)</h2>
     <p class="count" style="margin-bottom: 1rem;">

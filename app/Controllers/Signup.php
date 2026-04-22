@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\SignupModel;
 use App\Models\LoginNoticeModel;
+use App\Models\LoginConnectionModel;
 use CodeIgniter\Controller;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\Session\Session;
@@ -15,6 +16,7 @@ class Signup extends BaseController
     protected $validation;
     protected $email;
     protected $signupModel;
+    protected $loginConnectionModel;
     
     public function __construct()
     {
@@ -22,6 +24,7 @@ class Signup extends BaseController
         $this->validation = \Config\Services::validation();
         $this->email = \Config\Services::email();
         $this->signupModel = model('SignupModel');
+        $this->loginConnectionModel = model(LoginConnectionModel::class);
     }
     
     public function index()
@@ -265,7 +268,8 @@ class Signup extends BaseController
                                 $this->session->set([
                                     'login' => $this->request->getPost('code'),
                                     'logged' => true,
-                                    'deliverdata' => $deliveryData
+                                    'deliverdata' => $deliveryData,
+                                    'login_connection_recorded' => false,
                                 ]);
                                 
                                 error_log('=== REDIRECTION VERS /signup/membres ===');
@@ -450,19 +454,14 @@ class Signup extends BaseController
         if (!$this->session->get('login') || !$this->session->get('logged')) {
             return redirect()->to('/');
         } else {
-            $this->email->setFrom('info@web-dream.fr', 'REZO+ PC Inline - Web-Dream');
-            $this->email->setTo('info@web-dream.fr');
-            $this->email->setSubject('Connexion à REZO+ PC Inline');
-            $this->email->setMailType('html');
-
-            $user_logged = $this->session->get('deliverdata');
-            $user_nom = $user_logged['nom_administrateur'] ?? '';
-            $user_prenom = $user_logged['prenom_administrateur'] ?? '';
-            date_default_timezone_set('Europe/Paris');
-            $date_connexion = date('d-m-Y H:i:s');
-            $message_connexion = 'Nom : ' . $user_nom . '<br />Prénom : ' . $user_prenom . '<br />Date : ' . $date_connexion;
-            $this->email->setMessage("Bonjour,<br />une connexion à REZO+ PC Inline vient d'être effectuée.<br />Voici les détails :<br />" . $message_connexion);
-            $this->email->send();
+            if ($this->session->get('login_connection_recorded') !== true) {
+                $userLogged = $this->session->get('deliverdata');
+                $saved = $this->loginConnectionModel->recordConnection(is_array($userLogged) ? $userLogged : []);
+                if (!$saved) {
+                    log_message('warning', 'Signup::membres failed to record login connection.');
+                }
+                $this->session->set('login_connection_recorded', true);
+            }
             
             return redirect()->to('/membres');
         }

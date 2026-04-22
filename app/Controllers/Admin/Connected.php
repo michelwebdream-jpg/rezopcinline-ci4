@@ -2,7 +2,9 @@
 
 namespace App\Controllers\Admin;
 
+use App\Models\LoginConnectionModel;
 use CodeIgniter\HTTP\ResponseInterface;
+use CodeIgniter\I18n\Time;
 
 /**
  * Intégration "Utilisateurs connectés" dans le back-office admin.
@@ -16,6 +18,13 @@ class Connected extends BaseAdmin
     protected string $rezoCodeColumn = 'moncode';
     protected int $mapRefreshIntervalSeconds = 5;
     protected bool $mapAutoRecenteringDefault = true;
+    protected LoginConnectionModel $loginConnectionModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->loginConnectionModel = model(LoginConnectionModel::class);
+    }
 
     /**
      * Page principale : liste des connectés, actifs géoloc, charge BDD, carte.
@@ -37,11 +46,35 @@ class Connected extends BaseAdmin
         $users = $this->readSessionsFromPath($sessionPath, $cutoff);
         $activeUsers = [];
         $dbLoad = null;
+        $loginStats = ['total' => 0, 'last_24h' => 0, 'last_7d' => 0];
+        $recentLoginConnections = [];
 
         $db = \Config\Database::connect();
         if ($db->connect()) {
             $activeUsers = $this->fetchActiveGeolocUsers($db);
             $dbLoad = $this->fetchDbLoad($db);
+        }
+
+        try {
+            $nowParis = Time::now('Europe/Paris');
+            $since24h = $nowParis->subHours(24)->toDateTimeString();
+            $since7d = $nowParis->subDays(7)->toDateTimeString();
+
+            $loginStats = [
+                'total' => (int) $this->loginConnectionModel->builder()->countAllResults(),
+                'last_24h' => (int) $this->loginConnectionModel->builder()
+                    ->where('connected_at >=', $since24h)
+                    ->countAllResults(),
+                'last_7d' => (int) $this->loginConnectionModel->builder()
+                    ->where('connected_at >=', $since7d)
+                    ->countAllResults(),
+            ];
+
+            $recentLoginConnections = $this->loginConnectionModel
+                ->orderBy('connected_at', 'DESC')
+                ->findAll(20);
+        } catch (\Throwable $e) {
+            log_message('warning', 'Admin Connected: login connections table unavailable.');
         }
 
         $googleMapsApiKey = env('GOOGLE_MAPS_API_KEY', 'AIzaSyBfDAk5Xb1ZDwMDNj5qBitkVRSec3YlXic');
@@ -58,6 +91,7 @@ class Connected extends BaseAdmin
                     'window_seconds'         => $windowSeconds,
                     'active_minutes'         => $this->activeMinutes,
                     'db_load'                => $dbLoad,
+                    'login_stats'            => $loginStats,
                 ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
         }
 
@@ -79,6 +113,8 @@ class Connected extends BaseAdmin
             'mapAutoRecenteringDefault' => $this->mapAutoRecenteringDefault,
             'googleMapsApiKey' => $googleMapsApiKey,
             'jsonUrl'         => base_url('admin/connected') . '?format=json',
+            'loginStats'      => $loginStats,
+            'recentLoginConnections' => $recentLoginConnections,
         ];
 
         return $this->response->setBody(view('admin/template_admin', $data));
