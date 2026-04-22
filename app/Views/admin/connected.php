@@ -11,6 +11,7 @@ $googleMapsApiKey = $googleMapsApiKey ?? '';
 $jsonUrl = $jsonUrl ?? '';
 $loginStats = is_array($loginStats ?? null) ? $loginStats : ['total' => 0, 'last_24h' => 0, 'last_7d' => 0];
 $recentLoginConnections = $recentLoginConnections ?? [];
+$loginConnectionsPager = $loginConnectionsPager ?? null;
 $windowLabel = $activeMinutes;
 ?>
 <div class="admin-card" style="max-width: 100%;">
@@ -69,6 +70,11 @@ $windowLabel = $activeMinutes;
                 </tbody>
             </table>
         </div>
+        <?php if ($loginConnectionsPager): ?>
+            <div style="margin-top: 0.75rem;">
+                <?= $loginConnectionsPager->links('login_connections', 'default_full') ?>
+            </div>
+        <?php endif; ?>
     <?php endif; ?>
 </div>
 

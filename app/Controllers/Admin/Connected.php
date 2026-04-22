@@ -19,6 +19,7 @@ class Connected extends BaseAdmin
     protected int $mapRefreshIntervalSeconds = 5;
     protected bool $mapAutoRecenteringDefault = true;
     protected LoginConnectionModel $loginConnectionModel;
+    protected int $loginConnectionsPerPage = 10;
 
     public function __construct()
     {
@@ -48,6 +49,7 @@ class Connected extends BaseAdmin
         $dbLoad = null;
         $loginStats = ['total' => 0, 'last_24h' => 0, 'last_7d' => 0];
         $recentLoginConnections = [];
+        $loginConnectionsPager = null;
 
         $db = \Config\Database::connect();
         if ($db->connect()) {
@@ -72,7 +74,8 @@ class Connected extends BaseAdmin
 
             $recentLoginConnections = $this->loginConnectionModel
                 ->orderBy('connected_at', 'DESC')
-                ->findAll(20);
+                ->paginate($this->loginConnectionsPerPage, 'login_connections');
+            $loginConnectionsPager = $this->loginConnectionModel->pager;
         } catch (\Throwable $e) {
             log_message('warning', 'Admin Connected: login connections table unavailable.');
         }
@@ -115,6 +118,7 @@ class Connected extends BaseAdmin
             'jsonUrl'         => base_url('admin/connected') . '?format=json',
             'loginStats'      => $loginStats,
             'recentLoginConnections' => $recentLoginConnections,
+            'loginConnectionsPager' => $loginConnectionsPager,
         ];
 
         return $this->response->setBody(view('admin/template_admin', $data));
